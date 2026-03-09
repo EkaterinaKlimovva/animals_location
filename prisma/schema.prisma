@@ -1,0 +1,99 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["animals_location"]
+}
+
+model Account {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  firstName String   @map("first_name")
+  lastName  String   @map("last_name")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  chippedAnimals Animal[] @relation("Chipper")
+
+  @@map("account")
+  @@schema("animals_location")
+}
+
+model AnimalType {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  animals AnimalOnType[]
+
+  @@map("animal_type")
+  @@schema("animals_location")
+}
+
+model LocationPoint {
+  id        Int   @id @default(autoincrement())
+  latitude  Float
+  longitude Float
+
+  visitedLocations AnimalVisitedLocation[]
+  chippedAnimals   Animal[]                @relation("ChippingLocation")
+
+  @@map("location_point")
+  @@schema("animals_location")
+}
+
+model Animal {
+  id                 Int       @id @default(autoincrement())
+  weight             Float? // Масса животного, кг
+  length             Float? // Длина животного, м
+  height             Float? // Высота животного, м
+  gender             String // Гендерный признак животного, доступные значения "MALE", "FEMALE", "OTHER"
+  lifeStatus         String    @default("ALIVE") // Жизненный статус животного, доступные значения "ALIVE", "DEAD"
+  chippingDateTime   DateTime  @default(now()) @map("chipping_date_time") // Дата и время чипирования в формате ISO-8601
+  chipperId          Int?      @map("chipper_id") // Идентификатор аккаунта пользователя, чипировавшего животное
+  chippingLocationId Int       @map("chipping_location_id") // Идентификатор точки локации животных
+  deathDateTime      DateTime? @map("death_date_time") // Дата и время смерти животного в формате ISO-8601
+
+  chipper          Account?                @relation("Chipper", fields: [chipperId], references: [id])
+  chippingLocation LocationPoint           @relation("ChippingLocation", fields: [chippingLocationId], references: [id])
+  types            AnimalOnType[]
+  visitedLocations AnimalVisitedLocation[]
+
+  @@map("animal")
+  @@schema("animals_location")
+}
+
+/// Связующая таблица для Animal - AnimalType (many-to-many)
+model AnimalOnType {
+  animalId Int @map("animal_id")
+  typeId   Int @map("type_id")
+
+  animal Animal     @relation(fields: [animalId], references: [id])
+  type   AnimalType @relation(fields: [typeId], references: [id])
+
+  @@id([animalId, typeId])
+  @@map("animal_on_type")
+  @@schema("animals_location")
+}
+
+model AnimalVisitedLocation {
+  id              Int      @id @default(autoincrement())
+  animalId        Int      @map("animal_id")
+  locationPointId Int      @map("location_point_id")
+  visitedAt       DateTime @default(now()) @map("visited_at")
+
+  animal        Animal        @relation(fields: [animalId], references: [id])
+  locationPoint LocationPoint @relation(fields: [locationPointId], references: [id])
+
+  @@map("animal_visited_location")
+  @@schema("animals_location")
+}
