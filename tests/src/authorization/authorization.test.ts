@@ -32,7 +32,7 @@ class AuthorizationTestSuite {
 
       // Animal Type endpoints
       { method: 'POST', endpoint: '/animals/types', clientMethod: 'createAnimalType', data: { type: 'UnauthorizedType' }, description: 'POST Animal Type No Auth' },
-      { method: 'GET', endpoint: '/animals/types/1', clientMethod: 'getAnimalType', expectedStatus: 404, description: 'GET Animal Type No Auth' },
+      { method: 'GET', endpoint: '/animals/types/1', clientMethod: 'getAnimalType', expectedStatus: 200, description: 'GET Animal Type No Auth' },
       { method: 'PUT', endpoint: '/animals/types/1', clientMethod: 'updateAnimalType', data: { type: 'HackedType' }, description: 'PUT Animal Type No Auth' },
       { method: 'DELETE', endpoint: '/animals/types/1', clientMethod: 'deleteAnimalType', description: 'DELETE Animal Type No Auth' },
 

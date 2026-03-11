@@ -4,15 +4,66 @@ import type { TestUpdateAccountRequest, TestAccountSearchParams } from '../types
 
 describe('Accounts API Tests', () => {
   let apiClient: ApiClient;
+  let testAccountId: number;
+  let accountWithAnimalId: number;
+  let testAnimalId: number;
+  let testAnimalTypeId: number;
+  let testLocationId: number;
 
-
-  beforeAll(() => {
+  beforeAll(async () => {
     apiClient = new ApiClient((global as any).TEST_BASE_URL);
+    
+    // Create a test account for GET/PUT tests
+    const testData = TestHelpers.generateTestData();
+    const createResponse = await apiClient.register(testData.user);
+    testAccountId = createResponse.data.id;
+    
+    // Create an account with an animal for delete with dependencies test
+    const testData2 = TestHelpers.generateTestData();
+    const createResponse2 = await apiClient.register({
+      ...testData2.user,
+      email: `test_${Date.now()}@mail.com`
+    });
+    accountWithAnimalId = createResponse2.data.id;
+    
+    // Create animal type and location for the animal
+    const testData3 = TestHelpers.generateTestData();
+    const typeResponse = await apiClient.createAnimalType(testData3.animalType);
+    testAnimalTypeId = typeResponse.data.id;
+    
+    const locationResponse = await apiClient.createLocation(testData3.location);
+    testLocationId = locationResponse.data.id;
+    
+    // Create an animal with this account as chipper
+    const animalData = TestHelpers.generateTestData();
+    const animalResponse = await apiClient.createAnimal({
+      animalTypes: [testAnimalTypeId],
+      weight: animalData.animal.weight,
+      length: animalData.animal.length,
+      height: animalData.animal.height,
+      gender: animalData.animal.gender,
+      chipperId: accountWithAnimalId,
+      chippingLocationId: testLocationId
+    });
+    testAnimalId = animalResponse.data.id;
+  });
+
+  afterAll(async () => {
+    // Clean up test data
+    try {
+      if (testAnimalId) await apiClient.deleteAnimal(testAnimalId);
+      if (testAnimalTypeId) await apiClient.deleteAnimalType(testAnimalTypeId);
+      if (testLocationId) await apiClient.deleteLocation(testLocationId);
+      if (accountWithAnimalId) await apiClient.deleteAccount(accountWithAnimalId);
+      if (testAccountId) await apiClient.deleteAccount(testAccountId);
+    } catch {
+      // Ignore cleanup errors
+    }
   });
 
   describe('GET /accounts/:id', () => {
     it('should return existing account', async () => {
-      const response = await apiClient.getAccount(5);
+      const response = await apiClient.getAccount(testAccountId);
 
       TestHelpers.expectOk(response, 'Get Account Success');
       TestHelpers.expectHasProperty(response.data, 'id', 'Get Account Success');
@@ -33,7 +84,7 @@ describe('Accounts API Tests', () => {
       (global as any).TEST_BASE64_AUTH = Buffer.from('invalid:credentials').toString('base64');
 
       const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL);
-      const response = await unauthorizedClient.getAccount(5);
+      const response = await unauthorizedClient.getAccount(testAccountId);
 
       // Restore original auth
       (global as any).TEST_BASE64_AUTH = originalAuth;
@@ -49,7 +100,7 @@ describe('Accounts API Tests', () => {
         lastName: 'НоваяФамилия',
       };
 
-      const response = await apiClient.updateAccount(5, updateData);
+      const response = await apiClient.updateAccount(testAccountId, updateData);
 
       TestHelpers.expectUpdated(response, 'Update Account Success');
       TestHelpers.expectEqual(response.data.firstName, updateData.firstName, 'Update Account Success', 'firstName');
@@ -61,7 +112,7 @@ describe('Accounts API Tests', () => {
         firstName: 'ТолькоИмя',
       };
 
-      const response = await apiClient.updateAccount(5, updateData);
+      const response = await apiClient.updateAccount(testAccountId, updateData);
 
       TestHelpers.expectUpdated(response, 'Update Account FirstName Only');
       TestHelpers.expectEqual(response.data.firstName, updateData.firstName, 'Update Account FirstName Only', 'firstName');
@@ -72,7 +123,7 @@ describe('Accounts API Tests', () => {
         lastName: 'ТолькоФамилия',
       };
 
-      const response = await apiClient.updateAccount(5, updateData);
+      const response = await apiClient.updateAccount(testAccountId, updateData);
 
       TestHelpers.expectUpdated(response, 'Update Account LastName Only');
       TestHelpers.expectEqual(response.data.lastName, updateData.lastName, 'Update Account LastName Only', 'lastName');
@@ -98,7 +149,7 @@ describe('Accounts API Tests', () => {
         firstName: 'Хакер',
       };
 
-      const response = await unauthorizedClient.updateAccount(5, updateData);
+      const response = await unauthorizedClient.updateAccount(testAccountId, updateData);
 
       // Restore original auth
       (global as any).TEST_BASE64_AUTH = originalAuth;
@@ -112,7 +163,7 @@ describe('Accounts API Tests', () => {
         lastName: 'Петрова-Иванова',
       };
 
-      const response = await apiClient.updateAccount(5, updateData);
+      const response = await apiClient.updateAccount(testAccountId, updateData);
 
       TestHelpers.expectUpdated(response, 'Update Account Cyrillic');
       TestHelpers.expectEqual(response.data.firstName, updateData.firstName, 'Update Account Cyrillic', 'firstName');
@@ -258,7 +309,7 @@ describe('Accounts API Tests', () => {
     });
 
     it('should return 400 when account has dependent animals', async () => {
-      const response = await apiClient.deleteAccount(4);
+      const response = await apiClient.deleteAccount(accountWithAnimalId);
 
       TestHelpers.expectBadRequest(response, 'Delete Account Has Dependencies');
       TestHelpers.expectContains((response.data as any).message, 'Cannot delete', 'Delete Account Has Dependencies', 'message');
@@ -271,7 +322,7 @@ describe('Accounts API Tests', () => {
       (global as any).TEST_BASE64_AUTH = Buffer.from('invalid:credentials').toString('base64');
 
       const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL);
-      const response = await unauthorizedClient.deleteAccount(4);
+      const response = await unauthorizedClient.deleteAccount(accountWithAnimalId);
 
       // Restore original auth
       (global as any).TEST_BASE64_AUTH = originalAuth;
