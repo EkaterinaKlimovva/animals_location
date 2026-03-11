@@ -7,10 +7,11 @@ import {
   updateAnimalType,
   deleteAnimalType,
 } from '../controllers/animalTypeController';
+import { optionalAuthMiddleware } from '../middleware/optionalAuth';
 
 const router = Router();
 
-router.get('/:id', asyncHandler(getAnimalType));
+router.get('/:id', optionalAuthMiddleware, asyncHandler(getAnimalType));
 router.post('/', authMiddleware, asyncHandler(createAnimalType));
 router.put('/:id', authMiddleware, asyncHandler(updateAnimalType));
 router.delete('/:id', authMiddleware, asyncHandler(deleteAnimalType));

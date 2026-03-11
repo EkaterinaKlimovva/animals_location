@@ -10,12 +10,12 @@ export const router = Router();
 
 router.use('/', authRouter);
 
+// NOTE: /animals/types must be registered before /animals to avoid /:id capturing "types"
+router.use('/animals/types', animalTypeRouter);
+
+router.use('/animals/:animalId/locations', visitedLocationRouter);
+
 router.use('/accounts', accountRouter);
 router.use('/animals', animalRouter);
 
-router.use('/animals/types', animalTypeRouter);
-
 router.use('/locations', locationPointRouter);
-
-router.use('/visited-locations', visitedLocationRouter);
-

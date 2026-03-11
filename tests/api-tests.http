@@ -1,0 +1,1226 @@
+### Animals Location API — тестовые запросы (синхронизировано с роутами и api.yaml)
+### Использование: нажмите "Send Request" над нужным запросом (или Cmd+Alt+R)
+
+@baseUrl = http://localhost:3001
+@email = admin@mail.com
+@password = admin
+@base64 = YWRtaW5AbWFpbC5ydTphZG1pbg==
+
+### ========== Auth ==========
+
+### Регистрация (без авторизации) — маршрут: POST /registration (spec: /registration)
+POST {{baseUrl}}/registration
+Content-Type: application/json
+
+{
+  "firstName": "Иван",
+  "lastName": "Петров",
+  "email": "admin@mail.com",
+  "password": "admin"
+}
+
+### Негативный тест: Регистрация с пустым email — ожидается 400
+POST {{baseUrl}}/registration
+Content-Type: application/json
+
+{
+  "firstName": "Lashay",
+  "lastName": "Kemmer",
+  "email": "\n",
+  "password": "7k7hme27k"
+}
+
+### Негативный тест: Регистрация с невалидным email — ожидается 400
+POST {{baseUrl}}/registration
+Content-Type: application/json
+
+{
+  "firstName": "Иван",
+  "lastName": "Петров",
+  "email": "invalid-email",
+  "password": "SecurePass123"
+}
+
+### Негативный тест: Регистрация с пустым lastName — ожидается 400
+POST {{baseUrl}}/registration
+Content-Type: application/json
+
+{
+  "firstName": "Иван",
+  "lastName": " ",
+  "email": "ivan@example.com",
+  "password": "SecurePass123"
+}
+
+### Негативный тест: Регистрация с существующим email — ожидается 409
+POST {{baseUrl}}/registration
+Content-Type: application/json
+
+{
+  "firstName": "Иван",
+  "lastName": "Петров",
+  "email": "admin@mail.com",
+  "password": "admin"
+}
+
+### ========== Accounts (требуют Basic Auth) ==========
+
+### Список аккаунтов (поддерживает фильтр email)
+GET {{baseUrl}}/accounts?email=ivan@example.com
+Authorization: Basic {{base64}}
+
+### Поиск аккаунтов /accounts/search (firstName/lastName/email + pagination from/size)
+GET {{baseUrl}}/accounts/search?firstName=Ив&lastName=Пет&email=example.com&from=0&size=10
+Authorization: Basic {{base64}}
+
+### Получить аккаунт по ID
+GET {{baseUrl}}/accounts/-5
+Authorization: Basic {{base64}}
+
+### Негативный тест: Получить несуществующий аккаунт — ожидается 404
+GET {{baseUrl}}/accounts/999999
+Authorization: Basic {{base64}}
+
+### Обновить аккаунт (поддерживаемые поля: firstName, lastName, role)
+PUT {{baseUrl}}/accounts/1
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "firstName": "Иван",
+  "lastName": "Сидоров",
+  "role": "USER"
+}
+
+### Удалить аккаунт
+DELETE {{baseUrl}}/accounts/1
+Authorization: Basic {{base64}}
+
+### Негативный тест: Удалить несуществующий аккаунт — ожидается 404
+DELETE {{baseUrl}}/accounts/999999
+Authorization: Basic {{base64}}
+
+### ========== Animal Types ==========
+
+### Создать тип животного — маршрут: /animals/types
+POST {{baseUrl}}/animals/types
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "type": "Кот"
+}
+
+### Получить тип по ID
+GET {{baseUrl}}/animals/types/1
+Authorization: Basic {{base64}}
+
+### Негативный тест: Получить несуществующий тип животного — ожидается 404
+GET {{baseUrl}}/animals/types/999999
+Authorization: Basic {{base64}}
+
+### Обновить тип животного
+PUT {{baseUrl}}/animals/types/1
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "type": "Домашний кот"
+}
+
+### Удалить тип животного
+DELETE {{baseUrl}}/animals/types/1
+Authorization: Basic {{base64}}
+
+### Негативный тест: Удалить несуществующий тип животного — ожидается 404
+DELETE {{baseUrl}}/animals/types/999999
+Authorization: Basic {{base64}}
+
+### Негативный тест: Удалить тип с зависимостями — ожидается 400
+DELETE {{baseUrl}}/animals/types/1
+Authorization: Basic {{base64}}
+
+### ========== Locations ==========
+
+### Создать точку локации
+POST {{baseUrl}}/locations
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "latitude": 55.7558,
+  "longitude": 37.6173
+}
+
+### Получить локацию по ID
+GET {{baseUrl}}/locations/1
+Authorization: Basic {{base64}}
+
+### Негативный тест: Получить несуществующую локацию — ожидается 404
+GET {{baseUrl}}/locations/999999
+Authorization: Basic {{base64}}
+
+### Обновить точку локации
+PUT {{baseUrl}}/locations/1
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "latitude": 55.751244,
+  "longitude": 37.618423
+}
+
+### Удалить точку локации
+DELETE {{baseUrl}}/locations/1
+Authorization: Basic {{base64}}
+
+### Негативный тест: Удалить несуществующую локацию — ожидается 404
+DELETE {{baseUrl}}/locations/999999
+Authorization: Basic {{base64}}
+
+### Негативный тест: Удалить локацию с зависимостями — ожидается 400
+DELETE {{baseUrl}}/locations/1
+Authorization: Basic {{base64}}
+
+### ========== Animals ==========
+
+### Поиск животных (поддерживаемые параметры: chipperId, chippingLocationId, lifeStatus, gender, startDateTime, endDateTime, from, size)
+GET {{baseUrl}}/animals/search?chipperId=1&chippingLocationId=1&lifeStatus=ALIVE&gender=MALE&startDateTime=2020-01-01T00:00:00.000Z&endDateTime=2025-12-31T23:59:59.999Z&from=0&size=10
+Authorization: Basic {{base64}}
+
+### Создать животное (weight, length, height, gender, chipperId, chippingLocationId, animalTypes)
+POST {{baseUrl}}/animals
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "animalTypes": [1],
+  "weight": 5.2,
+  "length": 0.5,
+  "height": 0.3,
+  "gender": "MALE",
+  "chipperId": 1,
+  "chippingLocationId": 1
+}
+
+### Получить животное по ID
+GET {{baseUrl}}/animals/1
+Authorization: Basic {{base64}}
+
+### Негативный тест: Получить несуществующее животное — ожидается 404
+GET {{baseUrl}}/animals/999999
+Authorization: Basic {{base64}}
+
+### Обновить животное
+PUT {{baseUrl}}/animals/1
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "weight": 6.0,
+  "length": 0.55,
+  "height": 0.35,
+  "gender": "MALE",
+  "lifeStatus": "DEAD",
+  "chipperId": 1,
+  "chippingLocationId": 1
+}
+
+### Удалить животное
+DELETE {{baseUrl}}/animals/1
+Authorization: Basic {{base64}}
+
+### Негативный тест: Удалить несуществующее животное — ожидается 404
+DELETE {{baseUrl}}/animals/999999
+Authorization: Basic {{base64}}
+
+### Негативный тест: Удалить животное с зависимостями — ожидается 400
+DELETE {{baseUrl}}/animals/1
+Authorization: Basic {{base64}}
+
+### Добавить тип животного к животному — маршрут: POST /animals/{id}/types (body: { typeId })
+POST {{baseUrl}}/animals/1/types
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "typeId": 2
+}
+
+### Удалить тип животного у животного — маршрут: DELETE /animals/{id}/types/{typeId}
+DELETE {{baseUrl}}/animals/1/types/2
+Authorization: Basic {{base64}}
+
+### ========== Visited Locations ==========
+
+### Список посещённых локаций животного
+GET {{baseUrl}}/animals/3/locations
+Authorization: Basic {{base64}}
+
+### Негативный тест: Локации несуществующего животного — ожидается 404
+GET {{baseUrl}}/animals/999999/locations
+Authorization: Basic {{base64}}
+
+### Добавить посещённую локацию животному
+POST {{baseUrl}}/animals/1/locations
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "locationPointId": 1,
+  "visitedAt": "2025-12-01T10:00:00.000Z"
+}
+
+### Обновить запись о посещении локации
+PUT {{baseUrl}}/animals/1/locations/1
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "locationPointId": 2,
+  "visitedAt": "2026-01-01T12:00:00.000Z"
+}
+
+### Удалить запись о посещении локации
+DELETE {{baseUrl}}/animals/1/locations/1
+Authorization: Basic {{base64}}
+
+### Негативный тест: Удалить несуществующую посещенную локацию — ожидается 404
+DELETE {{baseUrl}}/animals/1/locations/999999
+Authorization: Basic {{base64}}
+
+### ========== Дополнительные негативные тесты ==========
+
+### Негативный тест: Создание животного с невалидными данными — ожидается 400
+POST {{baseUrl}}/animals
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "animalTypes": [],
+  "weight": -1,
+  "length": 0,
+  "height": 0,
+  "gender": "INVALID",
+  "chipperId": -1,
+  "chippingLocationId": 0
+}
+
+### Негативный тест: Создание локации с невалидными координатами — ожидается 400
+POST {{baseUrl}}/locations
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "latitude": 91,
+  "longitude": 181
+}
+
+### Негативный тест: Обновление с невалидными данными — ожидается 400
+PUT {{baseUrl}}/accounts/1
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "firstName": "",
+  "lastName": "   ",
+  "role": "INVALID_ROLE"
+}
+
+### ========== Тесты 2 этапа ==========
+
+### ========== Комплексные сценарии работы с животными ==========
+
+### Позитивный тест: Полный жизненный цикл животного
+### Шаг 1: Создание животного с типами и локацией
+POST {{baseUrl}}/animals
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "animalTypes": [1, 2],
+  "weight": 4.5,
+  "length": 0.45,
+  "height": 0.25,
+  "gender": "FEMALE",
+  "chipperId": 1,
+  "chippingLocationId": 1
+}
+
+### Шаг 2: Добавление посещенных локаций
+POST {{baseUrl}}/animals/1/locations
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "locationPointId": 2,
+  "visitedAt": "2025-01-15T10:30:00.000Z"
+}
+
+### Шаг 3: Добавление еще одной локации
+POST {{baseUrl}}/animals/1/locations
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "locationPointId": 3,
+  "visitedAt": "2025-02-20T14:15:00.000Z"
+}
+
+### Шаг 4: Получение истории перемещений с фильтрацией по времени
+GET {{baseUrl}}/animals/1/locations?startDateTime=2025-01-01T00:00:00.000Z&endDateTime=2025-01-31T23:59:59.999Z
+Authorization: Basic {{base64}}
+
+### Шаг 5: Обновление статуса жизни на DEAD
+PUT {{baseUrl}}/animals/1
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "lifeStatus": "DEAD",
+  "deathDateTime": "2025-03-01T12:00:00.000Z"
+}
+
+### ========== Продвинутый поиск и фильтрация ==========
+
+### Поиск животных с множественными фильтрами
+GET {{baseUrl}}/animals/search?chipperId=1&lifeStatus=ALIVE&gender=MALE&startDateTime=2024-01-01T00:00:00.000Z&endDateTime=2025-12-31T23:59:59.999Z&from=0&size=5
+Authorization: Basic {{base64}}
+
+### Поиск с пагинацией - вторая страница
+GET {{baseUrl}}/animals/search?from=5&size=5
+Authorization: Basic {{base64}}
+
+### Поиск аккаунтов с комплексными фильтрами
+GET {{baseUrl}}/accounts/search?firstName=А&lastName=И&email=mail&from=0&size=3
+Authorization: Basic {{base64}}
+
+### ========== Работа со связанными сущностями ==========
+
+### Создание животного с новым типом
+### Сначала создаем новый тип
+POST {{baseUrl}}/animals/types
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "type": "Экзотический"
+}
+
+### Затем создаем животное с новым типом
+POST {{baseUrl}}/animals
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "animalTypes": [3],
+  "weight": 2.1,
+  "length": 0.3,
+  "height": 0.2,
+  "gender": "OTHER",
+  "chipperId": 1,
+  "chippingLocationId": 2
+}
+
+### Добавление дополнительного типа существующему животному
+POST {{baseUrl}}/animals/1/types
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "typeId": 3
+}
+
+### Проверка типов животного после добавления
+GET {{baseUrl}}/animals/1
+Authorization: Basic {{base64}}
+
+### ========== Тесты целостности данных ==========
+
+### Попытка удалить точку локации, используемую для чипирования
+DELETE {{baseUrl}}/locations/1
+Authorization: Basic {{base64}}
+
+### Попытка удалить аккаунт, который является чипером для животных
+DELETE {{baseUrl}}/accounts/1
+Authorization: Basic {{base64}}
+
+### Попытка удалить тип животного, используемый в AnimalOnType
+DELETE {{baseUrl}}/animals/types/1
+Authorization: Basic {{base64}}
+
+### ========== Граничные случаи и edge cases ==========
+
+### Создание животного с максимальными валидными значениями
+POST {{baseUrl}}/animals
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "animalTypes": [1],
+  "weight": 999.99,
+  "length": 99.99,
+  "height": 99.99,
+  "gender": "MALE",
+  "chipperId": 1,
+  "chippingLocationId": 1
+}
+
+### Создание животного с минимальными валидными значениями
+POST {{baseUrl}}/animals
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "animalTypes": [1],
+  "weight": 0.01,
+  "length": 0.01,
+  "height": 0.01,
+  "gender": "FEMALE",
+  "chipperId": 1,
+  "chippingLocationId": 1
+}
+
+### Создание локации на границах координат
+POST {{baseUrl}}/locations
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "latitude": 90,
+  "longitude": 180
+}
+
+### Создание локации на отрицательных границах
+POST {{baseUrl}}/locations
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "latitude": -90,
+  "longitude": -180
+}
+
+### ========== Тесты производительности и нагрузки ==========
+
+### Массовое создание типов животных
+POST {{baseUrl}}/animals/types
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "type": "Тип_1"
+}
+
+POST {{baseUrl}}/animals/types
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "type": "Тип_2"
+}
+
+POST {{baseUrl}}/animals/types
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "type": "Тип_3"
+}
+
+### Поиск с большими параметрами пагинации
+GET {{baseUrl}}/animals/search?from=0&size=100
+Authorization: Basic {{base64}}
+
+### ========== Тесты временных зон и дат ==========
+
+### Создание животного с датой в прошлом
+POST {{baseUrl}}/animals
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "animalTypes": [1],
+  "weight": 3.5,
+  "length": 0.4,
+  "height": 0.3,
+  "gender": "MALE",
+  "chipperId": 1,
+  "chippingLocationId": 1
+}
+
+### Добавление посещенной локации с исторической датой
+POST {{baseUrl}}/animals/1/locations
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "locationPointId": 1,
+  "visitedAt": "2020-01-01T00:00:00.000Z"
+}
+
+### Поиск животных по историческому периоду
+GET {{baseUrl}}/animals/search?startDateTime=2020-01-01T00:00:00.000Z&endDateTime:2020-12-31T23:59:59.999Z
+Authorization: Basic {{base64}}
+
+### ========== Тесты безопасности и авторизации ==========
+
+### Попытка доступа без авторизации
+GET {{baseUrl}}/accounts
+Authorization: Basic invalid
+
+### Попытка доступа с неверными данными авторизации
+GET {{baseUrl}}/accounts
+Authorization: Basic d3JvbmdAdXNlcjpwYXNz
+
+### Попытка создания животного без авторизации
+POST {{baseUrl}}/animals
+Content-Type: application/json
+
+{
+  "animalTypes": [1],
+  "weight": 5.0,
+  "length": 0.5,
+  "height": 0.3,
+  "gender": "MALE",
+  "chipperId": 1,
+  "chippingLocationId": 1
+}
+
+### ========== Тесты локализации и кодировок ==========
+
+### Создание аккаунта с кириллическими данными
+POST {{baseUrl}}/registration
+Content-Type: application/json
+
+{
+  "firstName": "Анна-Мария",
+  "lastName": "О'Коннел-Смирнова",
+  "email": "anna@example.com",
+  "password": "SecurePass123"
+}
+
+### Создание типа животного с кириллицей и специальными символами
+POST {{baseUrl}}/animals/types
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "type": "Домашний кот-скрипун"
+}
+
+### Поиск с кириллическими параметрами
+GET {{baseUrl}}/accounts/search?firstName=Анна&lastName=О'Коннел
+Authorization: Basic {{base64}}
+
+### ========== Тесты консистентности данных ==========
+
+### Обновление животного с частичными данными (только вес)
+PUT {{baseUrl}}/animals/1
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "weight": 5.5
+}
+
+### Обновление животного с conflicting данными
+PUT {{baseUrl}}/animals/1
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "lifeStatus": "DEAD",
+  "deathDateTime": "2025-12-01T12:00:00.000Z"
+}
+
+### Проверка состояния после частичного обновления
+GET {{baseUrl}}/animals/1
+Authorization: Basic {{base64}}
+
+### ========== Тесты порядка операций ==========
+
+### Быстрое последовательное создание и удаление
+POST {{baseUrl}}/animals/types
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "type": "Временный тип"
+}
+
+###
+
+DELETE {{baseUrl}}/animals/types/4
+Authorization: Basic {{base64}}
+
+### Создание, обновление и удаление в одной сессии
+POST {{baseUrl}}/locations
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "latitude": 50.0,
+  "longitude": 30.0
+}
+
+###
+
+PUT {{baseUrl}}/locations/4
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "latitude": 51.0,
+  "longitude": 31.0
+}
+
+###
+
+DELETE {{baseUrl}}/locations/4
+Authorization: Basic {{base64}}
+
+### ========== Недостающие тесты 2 этапа ==========
+
+### ========== Accounts - Extended Tests ==========
+
+### EditAccountTests - Обновление полей аккаунта
+PUT {{baseUrl}}/accounts/1
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "firstName": "НовоеИмя",
+  "lastName": "НоваяФамилия"
+}
+
+### EditAccountTests - Обновление только firstName
+PUT {{baseUrl}}/accounts/1
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "firstName": "ТолькоИмя"
+}
+
+### EditAccountTests - Обновление только lastName  
+PUT {{baseUrl}}/accounts/1
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "lastName": "ТолькоФамилия"
+}
+
+### EditAccountTests - Негативный: обновление чужого аккаунта
+PUT {{baseUrl}}/accounts/2
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "firstName": "Хакер"
+}
+
+### FindAccountTests - Поиск с разными параметрами
+GET {{baseUrl}}/accounts/search?firstName=Иван&from=0&size=5
+Authorization: Basic {{base64}}
+
+### FindAccountTests - Поиск по lastName
+GET {{baseUrl}}/accounts/search?lastName=Петров&from=0&size=10
+Authorization: Basic {{base64}}
+
+### FindAccountTests - Поиск по email
+GET {{baseUrl}}/accounts/search?email=admin&from=0&size=3
+Authorization: Basic {{base64}}
+
+### FindAccountTests - Поиск с пагинацией (page 2)
+GET {{baseUrl}}/accounts/search?from=5&size=5
+Authorization: Basic {{base64}}
+
+### GetAccountTests - Получение своего аккаунта
+GET {{baseUrl}}/accounts/1
+Authorization: Basic {{base64}}
+
+### GetAccountTests - Получение другого аккаунта
+GET {{baseUrl}}/accounts/2
+Authorization: Basic {{base64}}
+
+### ========== Animal Types - Extended Tests ==========
+
+### CreateAnimalTypeTests - Создание типа с кириллицей
+POST {{baseUrl}}/animals/types
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "type": "Собака-компаньон"
+}
+
+### CreateAnimalTypeTests - Создание типа с латиницей
+POST {{baseUrl}}/animals/types
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "type": "Exotic Bird"
+}
+
+### CreateAnimalTypeTests - Негативный: пустой тип
+POST {{baseUrl}}/animals/types
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "type": ""
+}
+
+### CreateAnimalTypeTests - Негативный: существующий тип
+POST {{baseUrl}}/animals/types
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "type": "Кот"
+}
+
+### EditAnimalTypeTests - Обновление типа
+PUT {{baseUrl}}/animals/types/1
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "type": "ОбновленныйКот"
+}
+
+### EditAnimalTypeTests - Негативный: обновление на существующий тип
+PUT {{baseUrl}}/animals/types/2
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "type": "Кот"
+}
+
+### EditAnimalTypeTests - Негативный: обновление несуществующего типа
+PUT {{baseUrl}}/animals/types/999999
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "type": "Несуществующий"
+}
+
+### GetAnimalTypeTests - Получение типа по ID
+GET {{baseUrl}}/animals/types/1
+Authorization: Basic {{base64}}
+
+### ========== Locations - Extended Tests ==========
+
+### CreateLocationTests - Создание на границах (максимум)
+POST {{baseUrl}}/locations
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "latitude": 90,
+  "longitude": 180
+}
+
+### CreateLocationTests - Создание на границах (минимум)
+POST {{baseUrl}}/locations
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "latitude": -90,
+  "longitude": -180
+}
+
+### CreateLocationTests - Создание с дробными координатами
+POST {{baseUrl}}/locations
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "latitude": 55.755831,
+  "longitude": 37.617673
+}
+
+### CreateLocationTests - Негативный: невалидная широта
+POST {{baseUrl}}/locations
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "latitude": 91,
+  "longitude": 0
+}
+
+### CreateLocationTests - Негативный: невалидная долгота
+POST {{baseUrl}}/locations
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "latitude": 0,
+  "longitude": 181
+}
+
+### CreateLocationTests - Негативный: существующие координаты
+POST {{baseUrl}}/locations
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "latitude": 55.7558,
+  "longitude": 37.6173
+}
+
+### EditLocationTests - Обновление координат
+PUT {{baseUrl}}/locations/1
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "latitude": 60.0,
+  "longitude": 30.0
+}
+
+### EditLocationTests - Частичное обновление (только latitude)
+PUT {{baseUrl}}/locations/1
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "latitude": 45.0
+}
+
+### EditLocationTests - Частичное обновление (только longitude)
+PUT {{baseUrl}}/locations/1
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "longitude": 45.0
+}
+
+### GetLocationsTests - Получение всех локаций
+GET {{baseUrl}}/locations
+Authorization: Basic {{base64}}
+
+### ========== Animals - Extended Tests ==========
+
+### CreateAnimalTests - Создание с одним типом
+POST {{baseUrl}}/animals
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "animalTypes": [1],
+  "weight": 10.5,
+  "length": 1.2,
+  "height": 0.8,
+  "gender": "MALE",
+  "chipperId": 1,
+  "chippingLocationId": 1
+}
+
+### CreateAnimalTests - Создание с множественными типами
+POST {{baseUrl}}/animals
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "animalTypes": [1, 2, 3],
+  "weight": 15.0,
+  "length": 1.5,
+  "height": 1.0,
+  "gender": "FEMALE",
+  "chipperId": 1,
+  "chippingLocationId": 2
+}
+
+### CreateAnimalTests - Негативный: пустые animalTypes
+POST {{baseUrl}}/animals
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "animalTypes": [],
+  "weight": 5.0,
+  "length": 0.5,
+  "height": 0.3,
+  "gender": "MALE",
+  "chipperId": 1,
+  "chippingLocationId": 1
+}
+
+### CreateAnimalTests - Негативный: невалидный gender
+POST {{baseUrl}}/animals
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "animalTypes": [1],
+  "weight": 5.0,
+  "length": 0.5,
+  "height": 0.3,
+  "gender": "INVALID",
+  "chipperId": 1,
+  "chippingLocationId": 1
+}
+
+### EditAnimalTests - Полное обновление животного
+PUT {{baseUrl}}/animals/1
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "weight": 20.0,
+  "length": 2.0,
+  "height": 1.5,
+  "gender": "FEMALE",
+  "lifeStatus": "DEAD",
+  "chipperId": 2,
+  "chippingLocationId": 3
+}
+
+### EditAnimalTests - Частичное обновление (только вес)
+PUT {{baseUrl}}/animals/1
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "weight": 25.0
+}
+
+### EditAnimalTests - Обновление статуса жизни
+PUT {{baseUrl}}/animals/1
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "lifeStatus": "DEAD",
+  "deathDateTime": "2025-12-01T12:00:00.000Z"
+}
+
+### EditAnimalTypesTests - Добавление типа животному
+POST {{baseUrl}}/animals/1/types
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "typeId": 2
+}
+
+### EditAnimalTypesTests - Негативный: добавление существующего типа
+POST {{baseUrl}}/animals/1/types
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "typeId": 1
+}
+
+### EditAnimalTypesTests - Негативный: несуществующий тип
+POST {{baseUrl}}/animals/1/types
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "typeId": 999999
+}
+
+### EditAnimalTypesTests - Удаление типа животного
+DELETE {{baseUrl}}/animals/1/types/2
+Authorization: Basic {{base64}}
+
+### EditAnimalLocationsTests - Добавление локации животному
+POST {{baseUrl}}/animals/1/locations
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "locationPointId": 2,
+  "visitedAt": "2025-01-01T12:00:00.000Z"
+}
+
+### EditAnimalLocationsTests - Добавление локации без времени
+POST {{baseUrl}}/animals/1/locations
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "locationPointId": 3
+}
+
+### EditAnimalLocationsTests - Обновление локации животного
+PUT {{baseUrl}}/animals/1/locations/1
+Authorization: Basic {{base64}}
+Content-Type: application/json
+
+{
+  "locationPointId": 4,
+  "visitedAt": "2025-02-01T15:30:00.000Z"
+}
+
+### EditAnimalLocationsTests - Удаление локации животного
+DELETE {{baseUrl}}/animals/1/locations/1
+Authorization: Basic {{base64}}
+
+### FindAnimalTests - Поиск с фильтром по чиперу
+GET {{baseUrl}}/animals/search?chipperId=1&from=0&size=10
+Authorization: Basic {{base64}}
+
+### FindAnimalTests - Поиск с фильтром по локации чипирования
+GET {{baseUrl}}/animals/search?chippingLocationId=1&from=0&size=10
+Authorization: Basic {{base64}}
+
+### FindAnimalTests - Поиск с фильтром по статусу жизни
+GET {{baseUrl}}/animals/search?lifeStatus=ALIVE&from=0&size=10
+Authorization: Basic {{base64}}
+
+### FindAnimalTests - Поиск с фильтром по полу
+GET {{baseUrl}}/animals/search?gender=MALE&from=0&size=10
+Authorization: Basic {{base64}}
+
+### FindAnimalTests - Поиск с временными фильтрами
+GET {{baseUrl}}/animals/search?startDateTime=2024-01-01T00:00:00.000Z&endDateTime=2025-12-31T23:59:59.999Z&from=0&size=10
+Authorization: Basic {{base64}}
+
+### FindAnimalTests - Комплексный поиск
+GET {{baseUrl}}/animals/search?chipperId=1&lifeStatus=ALIVE&gender=MALE&startDateTime=2024-01-01T00:00:00.000Z&from=0&size=5
+Authorization: Basic {{base64}}
+
+### GetAnimalTests - Получение животного с полной информацией
+GET {{baseUrl}}/animals/1
+Authorization: Basic {{base64}}
+
+### DeleteLinkedModelsTests - Попытка удаления связанной модели (location)
+DELETE {{baseUrl}}/locations/1
+Authorization: Basic {{base64}}
+
+### DeleteLinkedModelsTests - Попытка удаления связанной модели (account)
+DELETE {{baseUrl}}/accounts/1
+Authorization: Basic {{base64}}
+
+### DeleteLinkedModelsTests - Попытка удаления связанной модели (animalType)
+DELETE {{baseUrl}}/animals/types/1
+Authorization: Basic {{base64}}
+
+### ========== Authorization Tests ==========
+
+### CreateAccountTests - Попытка создания аккаунта без авторизации
+POST {{baseUrl}}/accounts
+Content-Type: application/json
+
+{
+  "firstName": "Unauthorized",
+  "lastName": "User",
+  "email": "unauthorized@example.com",
+  "password": "password123"
+}
+
+### CreateAnimalTests - Попытка создания животного без авторизации
+POST {{baseUrl}}/animals
+Content-Type: application/json
+
+{
+  "animalTypes": [1],
+  "weight": 5.0,
+  "length": 0.5,
+  "height": 0.3,
+  "gender": "MALE",
+  "chipperId": 1,
+  "chippingLocationId": 1
+}
+
+### CreateAnimalTypeTests - Попытка создания типа без авторизации
+POST {{baseUrl}}/animals/types
+Content-Type: application/json
+
+{
+  "type": "UnauthorizedType"
+}
+
+### CreateLocationTests - Попытка создания локации без авторизации
+POST {{baseUrl}}/locations
+Content-Type: application/json
+
+{
+  "latitude": 50.0,
+  "longitude": 30.0
+}
+
+### DeleteAccountTests - Попытка удаления аккаунта без авторизации
+DELETE {{baseUrl}}/accounts/1
+
+### DeleteAnimalTests - Попытка удаления животного без авторизации
+DELETE {{baseUrl}}/animals/1
+
+### DeleteAnimalTypeTests - Попытка удаления типа без авторизации
+DELETE {{baseUrl}}/animals/types/1
+
+### DeleteLocationTests - Попытка удаления локации без авторизации
+DELETE {{baseUrl}}/locations/1
+
+### EditAccountTests - Попытка редактирования аккаунта без авторизации
+PUT {{baseUrl}}/accounts/1
+Content-Type: application/json
+
+{
+  "firstName": "Hacker"
+}
+
+### EditAnimalTests - Попытка редактирования животного без авторизации
+PUT {{baseUrl}}/animals/1
+Content-Type: application/json
+
+{
+  "weight": 999.0
+}
+
+### EditAnimalTypeTests - Попытка редактирования типа без авторизации
+PUT {{baseUrl}}/animals/types/1
+Content-Type: application/json
+
+{
+  "type": "HackedType"
+}
+
+### EditLocationTests - Попытка редактирования локации без авторизации
+PUT {{baseUrl}}/locations/1
+Content-Type: application/json
+
+{
+  "latitude": 0.0,
+  "longitude": 0.0
+}
+
+### FindAccountTests - Поиск аккаунтов администратором
+GET {{baseUrl}}/accounts/search?firstName=Админ&from=0&size=10
+Authorization: Basic {{base64}}
+
+### FindAnimalTests - Поиск животных администратором
+GET {{baseUrl}}/animals/search?chipperId=1&from=0&size=10
+Authorization: Basic {{base64}}
+
+### FindLocationTests - Поиск локаций администратором
+GET {{baseUrl}}/locations
+Authorization: Basic {{base64}}
+
+### GetAccountTests - Получение аккаунта администратором
+GET {{baseUrl}}/accounts/1
+Authorization: Basic {{base64}}
+
+### GetAnimalTests - Получение животного администратором
+GET {{baseUrl}}/animals/1
+Authorization: Basic {{base64}}
+
+### GetAnimalTypeTests - Получение типа животного администратором
+GET {{baseUrl}}/animals/types/1
+Authorization: Basic {{base64}}
+
+### GetLocationsTests - Получение локаций администратором
+GET {{baseUrl}}/locations
+Authorization: Basic {{base64}}

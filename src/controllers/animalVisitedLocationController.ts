@@ -6,42 +6,34 @@ import type {
   UpdateVisitedLocationRequest,
   DeleteVisitedLocationRequest,
 } from '../types';
+import { animalIdParamSchema, visitedLocationIdParamSchema } from '../routes/visitedLocations';
 
 export async function listVisitedLocations(
   req: ListVisitedLocationsRequest,
   res: Response,
-) {
+): Promise<void> {
   console.log('[VISITED_LOCATION_CONTROLLER] listVisitedLocations called with params:', req.params);
-  const animalId = Number(req.params.animalId);
-
-  if (!Number.isInteger(animalId) || animalId <= 0) {
-    console.log('[VISITED_LOCATION_CONTROLLER] Invalid animal id detected - returning 400');
-    return res.status(400).json({ message: 'Invalid animal id' });
-  }
+  const { animalId } = animalIdParamSchema.parse(req.params);
 
   const locations = await animalVisitedLocationService.listByAnimal(animalId);
   console.log(`[VISITED_LOCATION_CONTROLLER] Found ${locations.length} visited locations for animalId: ${animalId}`);
-  return res.json(locations);
+  res.json(locations);
 }
 
 export async function createVisitedLocation(
   req: CreateVisitedLocationRequest,
   res: Response,
-) {
+): Promise<void> {
   console.log('[VISITED_LOCATION_CONTROLLER] createVisitedLocation called with params:', req.params, 'body:', req.body);
-  const animalId = Number(req.params.animalId);
-  const { locationPointId, visitedAt } = req.body;
-
-  if (!Number.isInteger(animalId) || animalId <= 0) {
-    console.log('[VISITED_LOCATION_CONTROLLER] Invalid animal id detected - returning 400');
-    return res.status(400).json({ message: 'Invalid animal id' });
-  }
+  const { animalId } = animalIdParamSchema.parse(req.params);
+  const { locationPointId, visitedAt }: { locationPointId: number; visitedAt?: string } = req.body;
 
   if (!locationPointId) {
     console.log('[VISITED_LOCATION_CONTROLLER] Missing locationPointId - returning 400');
-    return res
+    res
       .status(400)
       .json({ message: 'locationPointId is required' });
+    return;
   }
 
   try {
@@ -51,10 +43,10 @@ export async function createVisitedLocation(
       visitedAt: visitedAt ? new Date(visitedAt) : undefined,
     });
     console.log(`[VISITED_LOCATION_CONTROLLER] Visited location created successfully with id: ${created.id}`);
-    return res.status(201).json(created);
+    res.status(201).json(created);
   } catch (err) {
     console.log('[VISITED_LOCATION_CONTROLLER] Error creating visited location:', err);
-    return res
+    res
       .status(400)
       .json({ message: 'Failed to create visited location' });
   }
@@ -63,15 +55,10 @@ export async function createVisitedLocation(
 export async function updateVisitedLocation(
   req: UpdateVisitedLocationRequest,
   res: Response,
-) {
+): Promise<void> {
   console.log('[VISITED_LOCATION_CONTROLLER] updateVisitedLocation called with params:', req.params, 'body:', req.body);
-  const id = Number(req.params.id);
-  const { locationPointId, visitedAt } = req.body;
-
-  if (!Number.isInteger(id) || id <= 0) {
-    console.log('[VISITED_LOCATION_CONTROLLER] Invalid visited location id detected - returning 400');
-    return res.status(400).json({ message: 'Invalid visited location id' });
-  }
+  const { id } = visitedLocationIdParamSchema.parse(req.params);
+  const { locationPointId, visitedAt }: { locationPointId?: number; visitedAt?: string } = req.body;
 
   try {
     const updated = await animalVisitedLocationService.update(id, {
@@ -79,10 +66,10 @@ export async function updateVisitedLocation(
       visitedAt: visitedAt ? new Date(visitedAt) : undefined,
     });
     console.log(`[VISITED_LOCATION_CONTROLLER] Visited location updated successfully with id: ${updated.id}`);
-    return res.json(updated);
+    res.json(updated);
   } catch (err) {
     console.log('[VISITED_LOCATION_CONTROLLER] Error updating visited location:', err);
-    return res
+    res
       .status(404)
       .json({ message: 'Visited location not found' });
   }
@@ -91,22 +78,17 @@ export async function updateVisitedLocation(
 export async function deleteVisitedLocation(
   req: DeleteVisitedLocationRequest,
   res: Response,
-) {
+): Promise<void> {
   console.log('[VISITED_LOCATION_CONTROLLER] deleteVisitedLocation called with params:', req.params);
-  const id = Number(req.params.id);
-
-  if (!Number.isInteger(id) || id <= 0) {
-    console.log('[VISITED_LOCATION_CONTROLLER] Invalid visited location id detected - returning 400');
-    return res.status(400).json({ message: 'Invalid visited location id' });
-  }
+  const { id } = visitedLocationIdParamSchema.parse(req.params);
 
   try {
     await animalVisitedLocationService.delete(id);
     console.log(`[VISITED_LOCATION_CONTROLLER] Visited location deleted successfully with id: ${id}`);
-    return res.status(204).send();
+    res.status(204).send();
   } catch (err) {
     console.log('[VISITED_LOCATION_CONTROLLER] Error deleting visited location:', err);
-    return res
+    res
       .status(404)
       .json({ message: 'Visited location not found' });
   }

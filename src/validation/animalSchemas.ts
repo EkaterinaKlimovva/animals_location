@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { longIdSchema, isoDateTimeSchema, genderSchema, lifeStatusSchema } from './commonSchemas';
+import { idSchema, isoDateTimeSchema, genderSchema, lifeStatusSchema } from './commonSchemas';
 
 // Search animals schema with complete validation
 export const searchAnimalsSchema = z.object({
@@ -60,31 +60,27 @@ export const updateAnimalSchema = z.object({
   chippingLocationId: z.number().positive('ChippingLocationId must be positive').optional(),
 });
 
-// Animal ID schema (long ID)
-export const animalIdSchema = z.object({
-  id: longIdSchema,
+// Animal ID parameter schema (allows negative IDs)
+export const animalIdParamSchema = z.object({
+  id: idSchema,
 });
 
 // Add animal type to animal schema
 export const addAnimalTypeSchema = z.object({
-  typeId: longIdSchema,
+  typeId: idSchema,
 });
 
 // Change animal type in animal schema
 export const changeAnimalTypeSchema = z.object({
-  oldTypeId: longIdSchema,
-  newTypeId: longIdSchema,
+  oldTypeId: idSchema,
+  newTypeId: idSchema,
 });
 
 // Remove animal type from animal schema
 export const removeAnimalTypeSchema = z.object({
-  typeId: longIdSchema,
+  typeId: idSchema,
 });
 
 export type SearchAnimalsInput = z.infer<typeof searchAnimalsSchema>;
 export type CreateAnimalInput = z.infer<typeof createAnimalSchema>;
 export type UpdateAnimalInput = z.infer<typeof updateAnimalSchema>;
-export type AnimalIdInput = z.infer<typeof animalIdSchema>;
-export type AddAnimalTypeInput = z.infer<typeof addAnimalTypeSchema>;
-export type ChangeAnimalTypeInput = z.infer<typeof changeAnimalTypeSchema>;
-export type RemoveAnimalTypeInput = z.infer<typeof removeAnimalTypeSchema>;

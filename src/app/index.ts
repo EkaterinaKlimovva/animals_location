@@ -26,7 +26,9 @@ app.use('*', (req, res) => {
 // Global error handler should be registered after routes
 app.use(errorHandler);
 
-const port = process.env.PORT ? Number(process.env.PORT) : 3000;
+const port = process.env.NODE_ENV === 'test'
+  ? 3001
+  : (process.env.PORT ? Number(process.env.PORT) : 3000);
 
 async function startServer() {
   try {

@@ -1,11 +1,23 @@
 import { animalTypeRepository } from '../repositories/animalTypeRepository';
 
+interface CreateAnimalTypeResult {
+  conflict: true;
+  type: any;
+}
+
+interface CreateAnimalTypeSuccess {
+  conflict: false;
+  type: any;
+}
+
+type CreateAnimalTypeResponse = CreateAnimalTypeResult | CreateAnimalTypeSuccess;
+
 export class AnimalTypeService {
   async getById(id: number) {
     return animalTypeRepository.findById(id);
   }
 
-  async create(name: string) {
+  async create(name: string): Promise<CreateAnimalTypeResponse> {
     const existing = await animalTypeRepository.findByName(name);
     if (existing) {
       return { conflict: true as const, type: existing };
@@ -21,6 +33,10 @@ export class AnimalTypeService {
 
   async delete(id: number) {
     return animalTypeRepository.delete(id);
+  }
+
+  async hasDependentAnimals(id: number): Promise<boolean> {
+    return animalTypeRepository.hasDependentAnimals(id);
   }
 }
 

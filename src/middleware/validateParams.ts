@@ -1,46 +1,52 @@
 import type { Request, Response, NextFunction } from 'express';
-import { ZodSchema } from 'zod';
-import { handleControllerError } from '../utils/controllerUtils';
+import { z } from 'zod';
+import type { ParamsDictionary } from 'express-serve-static-core';
 
-/**
- * Middleware factory for validating request parameters using Zod schemas
- * Returns 400 for validation errors before authorization checks
- */
-export function validateParams<T>(schema: ZodSchema<T>, source: 'params' | 'query' | 'body' = 'params') {
+export const validateParams = (schema: z.ZodSchema, source: 'body' | 'query' | 'params' = 'body') => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = schema.parse(req[source]);
-      
-      // Attach validated data to request for controllers to use
-      (req as any).validatedData = data;
-      
+      const data = req[source];
+      const validatedData = schema.parse(data);
+
+      // Replace the request data with validated data
+      if (source === 'params') {
+        req.params = validatedData as ParamsDictionary;
+      } else {
+        req[source] = validatedData;
+      }
       next();
     } catch (error) {
-      handleControllerError(res, error, 'VALIDATION_MIDDLEWARE');
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: error.issues,
+        });
+      }
+      next(error);
     }
   };
-}
+};
 
-/**
- * Middleware for validating multiple sources (params + body)
- * Useful for update operations that need both
- */
-export function validateComposite<TParams, TBody>(
-  paramsSchema: ZodSchema<TParams>,
-  bodySchema: ZodSchema<TBody>
-) {
+export const validateComposite = (paramsSchema: z.ZodSchema, bodySchema: z.ZodSchema) => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
-      const params = paramsSchema.parse(req.params);
-      const body = bodySchema.parse(req.body);
-      
-      // Attach both validated data sets to request
-      (req as any).validatedParams = params;
-      (req as any).validatedBody = body;
-      
+      // Validate params
+      const validatedParams = paramsSchema.parse(req.params);
+      req.params = validatedParams as ParamsDictionary;
+
+      // Validate body
+      const validatedBody = bodySchema.parse(req.body);
+      req.body = validatedBody;
+
       next();
     } catch (error) {
-      handleControllerError(res, error, 'VALIDATION_MIDDLEWARE');
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: error.issues,
+        });
+      }
+      next(error);
     }
   };
-}
+};

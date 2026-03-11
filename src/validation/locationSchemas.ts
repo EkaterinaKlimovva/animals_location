@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { longIdSchema } from './commonSchemas';
+import { idSchema } from './commonSchemas';
 
 // Create location point schema
 export const createLocationPointSchema = z.object({
@@ -15,12 +15,12 @@ export const updateLocationPointSchema = z.object({
 
 // Location point ID schema (long ID)
 export const locationPointIdSchema = z.object({
-  id: longIdSchema,
+  id: idSchema,
 });
 
 // Add location to animal schema
 export const addLocationToAnimalSchema = z.object({
-  pointId: longIdSchema,
+  pointId: idSchema,
 });
 
 // Update visited location schema

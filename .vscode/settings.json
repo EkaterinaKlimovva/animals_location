@@ -1,0 +1,13 @@
+{
+  "jest.jestCommandLine": "npm test --",
+  "jest.autoRun": {
+    "watch": false,
+    "onStartup": ["all-tests"]
+  },
+  "jest.rootPath": "./tests",
+  "testExplorer.onReload": true,
+  "testExplorer.onSave": true,
+  "testExplorer.codeLens": true,
+  "testExplorer.gutterDecoration": true,
+  "typescript.preferences.includePackageJsonAutoImports": "auto"
+}

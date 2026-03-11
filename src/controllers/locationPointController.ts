@@ -19,12 +19,26 @@ import type {
   UpdateLocationPointRequest,
   DeleteLocationPointRequest,
 } from '../types';
+import type {
+  CreateLocationPointInput,
+  UpdateLocationPointInput,
+  LocationPointIdInput,
+} from '../validation';
 
 const CONTROLLER_PREFIX = '[LOCATION_POINT_CONTROLLER]';
 
+export async function getLocationPoints(req: GetLocationPointRequest, res: Response): Promise<void> {
+  try {
+    const points = await locationPointService.getAll();
+    sendControllerSuccess(res, points, SUCCESS_MESSAGES.FOUND(ENTITY_NAMES.LOCATION_POINT));
+  } catch (error) {
+    handleControllerError(res, error, `${CONTROLLER_PREFIX} - getLocationPoints`);
+  }
+}
+
 export async function getLocationPoint(req: GetLocationPointRequest, res: Response): Promise<void> {
   try {
-    const { id } = locationPointIdSchema.parse(req.params);
+    const { id }: LocationPointIdInput = locationPointIdSchema.parse(req.params);
     const point = await locationPointService.getById(id);
 
     if (!point) {
@@ -40,7 +54,7 @@ export async function getLocationPoint(req: GetLocationPointRequest, res: Respon
 
 export async function createLocationPoint(req: CreateLocationPointRequest, res: Response): Promise<void> {
   try {
-    const locationData = createLocationPointSchema.parse(req.body);
+    const locationData: CreateLocationPointInput = createLocationPointSchema.parse(req.body);
     const point = await locationPointService.create(locationData);
 
     sendControllerCreated(res, point, SUCCESS_MESSAGES.CREATED(ENTITY_NAMES.LOCATION_POINT));
@@ -51,8 +65,8 @@ export async function createLocationPoint(req: CreateLocationPointRequest, res: 
 
 export async function updateLocationPoint(req: UpdateLocationPointRequest, res: Response): Promise<void> {
   try {
-    const { id } = locationPointIdSchema.parse(req.params);
-    const updateData = updateLocationPointSchema.parse(req.body);
+    const { id }: LocationPointIdInput = locationPointIdSchema.parse(req.params);
+    const updateData: UpdateLocationPointInput = updateLocationPointSchema.parse(req.body);
 
     const updated = await locationPointService.update(id, updateData);
     sendControllerSuccess(res, updated, SUCCESS_MESSAGES.UPDATED(ENTITY_NAMES.LOCATION_POINT));
@@ -63,7 +77,22 @@ export async function updateLocationPoint(req: UpdateLocationPointRequest, res: 
 
 export async function deleteLocationPoint(req: DeleteLocationPointRequest, res: Response): Promise<void> {
   try {
-    const { id } = locationPointIdSchema.parse(req.params);
+    const { id }: LocationPointIdInput = locationPointIdSchema.parse(req.params);
+
+    // Check if location point exists
+    const locationPoint = await locationPointService.getById(id);
+    if (!locationPoint) {
+      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - deleteLocationPoint`, ENTITY_NAMES.LOCATION_POINT);
+      return;
+    }
+
+    // Check for dependent data
+    const hasDependents = await locationPointService.hasDependents(id);
+    if (hasDependents) {
+      res.status(400).json({ message: 'Cannot delete location point: it has dependent animals or visited locations' });
+      return;
+    }
+
     await locationPointService.delete(id);
 
     sendControllerNoContent(res, SUCCESS_MESSAGES.DELETED(ENTITY_NAMES.LOCATION_POINT));

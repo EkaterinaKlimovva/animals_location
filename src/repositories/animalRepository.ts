@@ -1,59 +1,57 @@
 import { prisma } from '../prisma';
+import type { Prisma } from '../generated/prisma/client';
+
+const animalInclude = {
+  types: {
+    include: { type: true },
+  },
+  visitedLocations: {
+    include: { locationPoint: true },
+    orderBy: { visitedAt: 'asc' as const },
+  },
+  chipper: true,
+  chippingLocation: true,
+} satisfies Prisma.AnimalInclude;
 
 export class AnimalRepository {
   findById(id: number) {
     return prisma.animal.findUnique({
       where: { id },
-      include: {
-        types: {
-          include: {
-            type: true,
-          },
-        },
-        visitedLocations: {
-          include: {
-            locationPoint: true,
-          },
-          orderBy: {
-            visitedAt: 'asc',
-          },
-        },
-        chipper: true,
-        chippingLocation: true,
-      },
+      include: animalInclude,
     });
   }
 
-  findManyByFilters(filters: { chipperId?: number; chippingLocationId?: number }) {
-    const where: any = {};
+  findManyByFilters(filters: {
+    chipperId?: number;
+    chippingLocationId?: number;
+    startDateTime?: string;
+    endDateTime?: string;
+    lifeStatus?: 'ALIVE' | 'DEAD';
+    gender?: 'MALE' | 'FEMALE' | 'OTHER';
+    from?: number;
+    size?: number;
+  }) {
+    const { chipperId, chippingLocationId, startDateTime, endDateTime, lifeStatus, gender, from = 0, size = 10 } = filters;
 
-    if (filters.chipperId !== undefined) {
-      where.chipperId = filters.chipperId;
-    }
+    const where: Prisma.AnimalWhereInput = {};
 
-    if (filters.chippingLocationId !== undefined) {
-      where.chippingLocationId = filters.chippingLocationId;
+    if (chipperId !== undefined) where.chipperId = chipperId;
+    if (chippingLocationId !== undefined) where.chippingLocationId = chippingLocationId;
+    if (lifeStatus !== undefined) where.lifeStatus = lifeStatus;
+    if (gender !== undefined) where.gender = gender;
+
+    if (startDateTime || endDateTime) {
+      where.chippingDateTime = {};
+      if (startDateTime) where.chippingDateTime.gte = new Date(startDateTime);
+      if (endDateTime) where.chippingDateTime.lte = new Date(endDateTime);
     }
 
     return prisma.animal.findMany({
       where,
-      include: {
-        types: {
-          include: {
-            type: true,
-          },
-        },
-        visitedLocations: {
-          include: {
-            locationPoint: true,
-          },
-          orderBy: {
-            visitedAt: 'asc',
-          },
-        },
-        chipper: true,
-        chippingLocation: true,
-      },
+      skip: from,
+      take: size,
+      orderBy: { id: 'asc' },
+      include: animalInclude,
     });
   }
 
@@ -73,31 +71,13 @@ export class AnimalRepository {
     return prisma.animal.create({
       data: {
         ...rest,
-        types: animalTypes
-          ? {
-            create: animalTypes.map((typeId) => ({
-              type: { connect: { id: typeId } },
-            })),
-          }
-          : undefined,
-      },
-      include: {
         types: {
-          include: {
-            type: true,
-          },
+          create: animalTypes.map((typeId) => ({
+            type: { connect: { id: typeId } },
+          })),
         },
-        visitedLocations: {
-          include: {
-            locationPoint: true,
-          },
-          orderBy: {
-            visitedAt: 'asc',
-          },
-        },
-        chipper: true,
-        chippingLocation: true,
       },
+      include: animalInclude,
     });
   }
 
@@ -115,13 +95,13 @@ export class AnimalRepository {
       deathDateTime?: string;
     },
   ) {
-    const { animalTypes, ...rest } = data;
+    const { animalTypes, deathDateTime, ...rest } = data;
 
     return prisma.animal.update({
       where: { id },
       data: {
         ...rest,
-        deathDateTime: data.deathDateTime ? new Date(data.deathDateTime) : undefined,
+        deathDateTime: deathDateTime ? new Date(deathDateTime) : undefined,
         types: animalTypes
           ? {
             deleteMany: {},
@@ -131,30 +111,31 @@ export class AnimalRepository {
           }
           : undefined,
       },
-      include: {
-        types: {
-          include: {
-            type: true,
-          },
-        },
-        visitedLocations: {
-          include: {
-            locationPoint: true,
-          },
-          orderBy: {
-            visitedAt: 'asc',
-          },
-        },
-        chipper: true,
-        chippingLocation: true,
-      },
+      include: animalInclude,
     });
   }
 
   delete(id: number) {
     return prisma.animal.delete({ where: { id } });
   }
+
+  async hasDependentVisitedLocations(id: number): Promise<boolean> {
+    const count = await prisma.animalVisitedLocation.count({ where: { animalId: id } });
+    return count > 0;
+  }
+
+  async hasDependentTypes(id: number): Promise<boolean> {
+    const count = await prisma.animalOnType.count({ where: { animalId: id } });
+    return count > 0;
+  }
+
+  async hasDependents(id: number): Promise<boolean> {
+    const [hasVisitedLocations, hasTypes] = await Promise.all([
+      this.hasDependentVisitedLocations(id),
+      this.hasDependentTypes(id),
+    ]);
+    return hasVisitedLocations || hasTypes;
+  }
 }
 
 export const animalRepository = new AnimalRepository();
-

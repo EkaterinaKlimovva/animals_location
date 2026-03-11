@@ -65,6 +65,13 @@ export class AccountRepository {
   }) {
     return prisma.account.create({ data });
   }
+
+  async hasDependentAnimals(id: number): Promise<boolean> {
+    const count = await prisma.animal.count({
+      where: { chipperId: id },
+    });
+    return count > 0;
+  }
 }
 
 export const accountRepository = new AccountRepository();

@@ -1,10 +1,12 @@
 import type { Request, Response, NextFunction } from 'express';
 
-export function requestLogger(req: Request, res: Response, next: NextFunction) {
-  const startTime = Date.now();
-  const { method, url, ip } = req;
-  const userAgent = req.get('User-Agent') || 'Unknown';
-  const timestamp = new Date().toISOString();
+export function requestLogger(req: Request, res: Response, next: NextFunction): void {
+  const startTime: number = Date.now();
+  const method: string = req.method;
+  const url: string = req.url;
+  const ip: string = req.ip || 'Unknown';
+  const userAgent: string = req.get('User-Agent') || 'Unknown';
+  const timestamp: string = new Date().toISOString();
 
   console.log(`[${timestamp}] ${method} ${url} - IP: ${ip} - User-Agent: ${userAgent}`);
 
@@ -21,10 +23,10 @@ export function requestLogger(req: Request, res: Response, next: NextFunction) {
   }
 
   const originalSend = res.send;
-  res.send = function(data) {
-    const endTime = Date.now();
-    const duration = endTime - startTime;
-    const { statusCode } = res;
+  res.send = function(data: any): Response {
+    const endTime: number = Date.now();
+    const duration: number = endTime - startTime;
+    const { statusCode }: { statusCode: number } = res;
 
     console.log(`[${new Date().toISOString()}] ${method} ${url} - Status: ${statusCode} - Duration: ${duration}ms`);
 

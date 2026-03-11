@@ -23,6 +23,13 @@ export class AnimalTypeRepository {
   delete(id: number) {
     return prisma.animalType.delete({ where: { id } });
   }
+
+  async hasDependentAnimals(id: number): Promise<boolean> {
+    const count = await prisma.animalOnType.count({
+      where: { typeId: id },
+    });
+    return count > 0;
+  }
 }
 
 export const animalTypeRepository = new AnimalTypeRepository();

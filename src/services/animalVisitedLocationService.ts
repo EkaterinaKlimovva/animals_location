@@ -1,25 +1,26 @@
 import { animalVisitedLocationRepository } from '../repositories/animalVisitedLocationRepository';
 
+interface CreateVisitedLocationData {
+  animalId: number;
+  locationPointId: number;
+  visitedAt?: Date;
+}
+
+interface UpdateVisitedLocationData {
+  locationPointId?: number;
+  visitedAt?: Date;
+}
+
 export class AnimalVisitedLocationService {
   listByAnimal(animalId: number) {
     return animalVisitedLocationRepository.findManyByAnimal(animalId);
   }
 
-  create(data: {
-    animalId: number;
-    locationPointId: number;
-    visitedAt?: Date;
-  }) {
+  create(data: CreateVisitedLocationData) {
     return animalVisitedLocationRepository.create(data);
   }
 
-  update(
-    id: number,
-    data: {
-      locationPointId?: number;
-      visitedAt?: Date;
-    },
-  ) {
+  update(id: number, data: UpdateVisitedLocationData) {
     return animalVisitedLocationRepository.update(id, data);
   }
 

@@ -2,29 +2,42 @@ import type { Request, Response, NextFunction } from 'express';
 import { Buffer } from 'buffer';
 import { accountService } from '../services/accountService';
 
+interface AuthenticatedUser {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
+interface AuthenticatedRequest extends Request {
+  user?: AuthenticatedUser;
+}
+
 export async function authMiddleware(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction,
-) {
+): Promise<void> {
   // Check for Basic authentication
-  const authHeader = req.headers.authorization;
+  const authHeader: string | undefined = req.headers.authorization;
 
   if (authHeader && authHeader.startsWith('Basic ')) {
     try {
-      const base64Credentials = authHeader.substring(6); // Remove 'Basic ' prefix
-      const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-      const [email, password] = credentials.split(':');
+      const base64Credentials: string = authHeader.substring(6); // Remove 'Basic ' prefix
+      const credentials: string = Buffer.from(base64Credentials, 'base64').toString('ascii');
+      const [email, password]: string[] = credentials.split(':');
 
       if (!email || !password) {
-        return res.status(401).json({ message: 'Unauthorized' });
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
       }
 
       // Verify account exists and credentials are correct
       const account = await accountService.findByEmail(email);
 
       if (!account) {
-        return res.status(401).json({ message: 'Unauthorized' });
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
       }
 
       // Here you would typically verify the password hash
@@ -32,26 +45,27 @@ export async function authMiddleware(
       const isValidCredentials = await accountService.verifyCredentials(email, password);
 
       if (!isValidCredentials) {
-        return res.status(401).json({ message: 'Unauthorized' });
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
       }
 
       // Attach account info to request for later use
-      (req as any).user = {
+      req.user = {
         id: account.id,
         email: account.email,
         firstName: account.firstName,
         lastName: account.lastName,
       };
 
-      return next();
+      next();
     } catch {
       // Invalid Base64 encoding or other error
-      return res.status(401).json({ message: 'Unauthorized' });
+      res.status(401).json({ message: 'Unauthorized' });
     }
+  } else {
+    // No valid authorization header found
+    res.status(401).json({ message: 'Unauthorized' });
   }
-
-  // No valid authorization header found
-  return res.status(401).json({ message: 'Unauthorized' });
 }
 
 
