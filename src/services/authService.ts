@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import { accountRepository } from '../repositories/accountRepository';
+import type { Account } from '../generated/prisma/client';
 
 interface RegisterData {
   email: string;
@@ -10,12 +11,12 @@ interface RegisterData {
 
 interface RegisterResult {
   conflict: true;
-  account: any;
+  account: Account;
 }
 
 interface RegisterSuccess {
   conflict: false;
-  account: any;
+  account: Account;
 }
 
 type RegisterResponse = RegisterResult | RegisterSuccess;

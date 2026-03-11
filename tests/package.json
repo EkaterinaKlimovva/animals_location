@@ -12,18 +12,7 @@
     "test:debug": "node --inspect --experimental-vm-modules node_modules/.bin/jest --runInBand",
     "test:specific": "node --experimental-vm-modules node_modules/.bin/jest --testNamePattern",
     "test:file": "node --experimental-vm-modules node_modules/.bin/jest --testPathPattern",
-    "test:report": "node --experimental-vm-modules node_modules/.bin/jest --coverage --coverageReporters=html,text,lcov",
-    "test:sonar": "node --experimental-vm-modules node_modules/.bin/jest --coverage --coverageReporters=lcov --reporters=jest-sonar",
-    "test:integration": "node --experimental-vm-modules node_modules/.bin/jest --testPathPattern=\"integration\"",
-    "test:unit": "node --experimental-vm-modules node_modules/.bin/jest --testPathPattern=\"unit\"",
-    "test:e2e": "node --experimental-vm-modules node_modules/.bin/jest --testPathPattern=\"e2e\"",
-    "test:stress": "node --experimental-vm-modules node_modules/.bin/jest --maxWorkers=4",
-    "clean": "rm -rf coverage test-reports",
-    "preview-report": "open test-reports/test-report.html",
-    "lint:tests": "eslint src/**/*.ts --ext .ts",
-    "pre-test-check": "ts-node src/scripts/pre-test-check.ts",
-    "test:with-check": "npm run pre-test-check && npm test",
-    "install-deps": "npm install --save-dev jest @types/jest ts-jest typescript @types/node axios dotenv sinon @types/sinon jest-extended jest-html-reporters jest-sonar-reporter"
+    "test:report": "node --experimental-vm-modules node_modules/.bin/jest --coverage --coverageReporters=html,text,lcov"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",

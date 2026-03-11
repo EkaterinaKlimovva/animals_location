@@ -23,7 +23,7 @@ export function requestLogger(req: Request, res: Response, next: NextFunction): 
   }
 
   const originalSend = res.send;
-  res.send = function(data: any): Response {
+  res.send = function(data: unknown): Response {
     const endTime: number = Date.now();
     const duration: number = endTime - startTime;
     const { statusCode }: { statusCode: number } = res;

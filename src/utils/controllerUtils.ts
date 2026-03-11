@@ -25,14 +25,14 @@ export function handleControllerNotFound(res: Response, context: string, entity:
   res.status(HTTP_STATUS.NOT_FOUND).json({ message });
 }
 
-export function sendControllerSuccess(res: Response, data: any, message?: string): void {
+export function sendControllerSuccess<T>(res: Response, data: T, message?: string): void {
   if (message) {
     console.log(message);
   }
   res.status(HTTP_STATUS.OK).json(data);
 }
 
-export function sendControllerCreated(res: Response, data: any, message?: string): void {
+export function sendControllerCreated<T>(res: Response, data: T, message?: string): void {
   if (message) {
     console.log(message);
   }

@@ -28,7 +28,7 @@ export const errorHandler: ErrorRequestHandler = (err: unknown, req: Request, re
   }
 
   // JSON parse error
-  if (err instanceof SyntaxError && 'status' in err && (err as any).status === 400 && 'body' in err) {
+  if (err instanceof SyntaxError && 'status' in err && (err as SyntaxError & { status: number }).status === 400 && 'body' in err) {
     console.log('[ERROR_HANDLER] JSON parse error - returning 400');
     res.status(400).json({ message: 'Invalid JSON' });
     return;
@@ -37,7 +37,7 @@ export const errorHandler: ErrorRequestHandler = (err: unknown, req: Request, re
   // Zod validation error
   if (err instanceof ZodError) {
     console.log('[ERROR_HANDLER] Zod validation error - returning 400');
-    const errorMessages: string[] = err.issues.map((e: any) => e.message);
+    const errorMessages: string[] = err.issues.map((e) => e.message);
     res.status(400).json({ message: errorMessages.join(', ') });
     return;
   }

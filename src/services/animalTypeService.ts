@@ -1,13 +1,14 @@
 import { animalTypeRepository } from '../repositories/animalTypeRepository';
+import type { AnimalType } from '../generated/prisma/client';
 
 interface CreateAnimalTypeResult {
   conflict: true;
-  type: any;
+  type: AnimalType;
 }
 
 interface CreateAnimalTypeSuccess {
   conflict: false;
-  type: any;
+  type: AnimalType;
 }
 
 type CreateAnimalTypeResponse = CreateAnimalTypeResult | CreateAnimalTypeSuccess;
