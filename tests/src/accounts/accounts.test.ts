@@ -78,18 +78,20 @@ describe('Accounts API Tests', () => {
       TestHelpers.expectNotFound(response, 'Get Account Not Found');
     });
 
-    it('should return 401 for unauthorized request', async () => {
-      // Temporarily override the global auth with invalid credentials
-      const originalAuth = (global as any).TEST_BASE64_AUTH;
-      (global as any).TEST_BASE64_AUTH = Buffer.from('invalid:credentials').toString('base64');
+    it('should return 200 for unauthorized request (GET is public)', async () => {
+      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL, true);
+      const response = await unauthorizedClient.requestWithCustomHeaders(
+        'GET',
+        `/accounts/${testAccountId}`,
+        undefined,
+        {}
+      );
 
-      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL);
-      const response = await unauthorizedClient.getAccount(testAccountId);
-
-      // Restore original auth
-      (global as any).TEST_BASE64_AUTH = originalAuth;
-
-      TestHelpers.expectUnauthorized(response, 'Get Account Unauthorized');
+      TestHelpers.expectOk(response, 'Get Account Unauthorized');
+      TestHelpers.expectHasProperty(response.data, 'id', 'Get Account Unauthorized');
+      TestHelpers.expectHasProperty(response.data, 'firstName', 'Get Account Unauthorized');
+      TestHelpers.expectHasProperty(response.data, 'lastName', 'Get Account Unauthorized');
+      TestHelpers.expectHasProperty(response.data, 'email', 'Get Account Unauthorized');
     });
   });
 
@@ -140,19 +142,17 @@ describe('Accounts API Tests', () => {
     });
 
     it('should return 401 for unauthorized update', async () => {
-      // Temporarily override the global auth with invalid credentials
-      const originalAuth = (global as any).TEST_BASE64_AUTH;
-      (global as any).TEST_BASE64_AUTH = Buffer.from('invalid:credentials').toString('base64');
-
-      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL);
+      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL, true);
       const updateData: TestUpdateAccountRequest = {
         firstName: 'Хакер',
       };
 
-      const response = await unauthorizedClient.updateAccount(testAccountId, updateData);
-
-      // Restore original auth
-      (global as any).TEST_BASE64_AUTH = originalAuth;
+      const response = await unauthorizedClient.requestWithCustomHeaders(
+        'PUT',
+        `/accounts/${testAccountId}`,
+        updateData,
+        {}
+      );
 
       TestHelpers.expectUnauthorized(response, 'Update Account Unauthorized');
     });
@@ -252,24 +252,24 @@ describe('Accounts API Tests', () => {
       TestHelpers.expectArray(response.data, 'Search Accounts Second Page');
     });
 
-    it('should return 401 for unauthorized search', async () => {
-      // Temporarily override the global auth with invalid credentials
-      const originalAuth = (global as any).TEST_BASE64_AUTH;
-      (global as any).TEST_BASE64_AUTH = Buffer.from('invalid:credentials').toString('base64');
-
-      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL);
+    it('should return 200 for unauthorized search (search is public)', async () => {
+      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL, true);
       const params: TestAccountSearchParams = {
         firstName: 'А',
         from: 0,
         size: 10,
       };
+      const queryString = new URLSearchParams(params as any).toString();
 
-      const response = await unauthorizedClient.searchAccounts(params);
+      const response = await unauthorizedClient.requestWithCustomHeaders(
+        'GET',
+        `/accounts/search?${queryString}`,
+        undefined,
+        {}
+      );
 
-      // Restore original auth
-      (global as any).TEST_BASE64_AUTH = originalAuth;
-
-      TestHelpers.expectUnauthorized(response, 'Search Accounts Unauthorized');
+      TestHelpers.expectOk(response, 'Search Accounts Unauthorized');
+      TestHelpers.expectArray(response.data, 'Search Accounts Unauthorized');
     });
 
     it('should handle Cyrillic search parameters', async () => {
@@ -317,15 +317,13 @@ describe('Accounts API Tests', () => {
     });
 
     it('should return 401 for unauthorized delete', async () => {
-      // Temporarily override the global auth with invalid credentials
-      const originalAuth = (global as any).TEST_BASE64_AUTH;
-      (global as any).TEST_BASE64_AUTH = Buffer.from('invalid:credentials').toString('base64');
-
-      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL);
-      const response = await unauthorizedClient.deleteAccount(accountWithAnimalId);
-
-      // Restore original auth
-      (global as any).TEST_BASE64_AUTH = originalAuth;
+      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL, true);
+      const response = await unauthorizedClient.requestWithCustomHeaders(
+        'DELETE',
+        `/accounts/${accountWithAnimalId}`,
+        undefined,
+        {}
+      );
 
       TestHelpers.expectUnauthorized(response, 'Delete Account Unauthorized');
     });

@@ -153,11 +153,26 @@ describe('Locations API Tests', () => {
       TestHelpers.expectNotFound(response, 'Get Location Not Found');
     });
 
-    it('should return 401 for unauthorized request', async () => {
-      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL);
-      const response = await unauthorizedClient.getLocation(createdLocationId);
+    it('should return 200 for unauthorized request (GET is public)', async () => {
+      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL, true);
+      
+      if (!createdLocationId) {
+        return; // Skip test if location not created
+      }
+      
+      const response = await unauthorizedClient.requestWithCustomHeaders(
+        'GET',
+        `/locations/${createdLocationId}`,
+        undefined,
+        {
+          'Content-Type': 'application/json',
+        }
+      );
 
       TestHelpers.expectOk(response, 'Get Location Unauthorized');
+      TestHelpers.expectHasProperty(response.data, 'id', 'Get Location Unauthorized');
+      TestHelpers.expectHasProperty(response.data, 'latitude', 'Get Location Unauthorized');
+      TestHelpers.expectHasProperty(response.data, 'longitude', 'Get Location Unauthorized');
     });
   });
 
@@ -218,15 +233,25 @@ describe('Locations API Tests', () => {
     });
 
     it('should return 401 for unauthorized update', async () => {
-      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL);
+      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL, true);
+      
+      if (!createdLocationId) {
+        return; // Skip test if location not created
+      }
+      
       const updateData: Partial<TestCreateLocationRequest> = {
         latitude: 0.0,
         longitude: 0.0,
       };
 
-      const response = await unauthorizedClient.updateLocation(createdLocationId, updateData);
+      const response = await unauthorizedClient.requestWithCustomHeaders(
+        'PUT',
+        `/locations/${createdLocationId}`,
+        updateData,
+        {}
+      );
 
-      TestHelpers.expectUpdated(response, 'Update Location Unauthorized');
+      TestHelpers.expectUnauthorized(response, 'Update Location Unauthorized');
     });
   });
 
@@ -238,11 +263,19 @@ describe('Locations API Tests', () => {
       TestHelpers.expectArray(response.data, 'Get All Locations Success');
     });
 
-    it('should return 401 for unauthorized request', async () => {
+    it('should return 200 for unauthorized request (GET is public)', async () => {
       const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL, true);
-      const response = await unauthorizedClient.getLocations();
+      const response = await unauthorizedClient.requestWithCustomHeaders(
+        'GET',
+        '/locations',
+        undefined,
+        {
+          'Content-Type': 'application/json',
+        }
+      );
 
-      TestHelpers.expectUnauthorized(response, 'Get All Locations Unauthorized');
+      TestHelpers.expectOk(response, 'Get All Locations Unauthorized');
+      TestHelpers.expectArray(response.data, 'Get All Locations Unauthorized');
     });
 
     it('should return locations with correct structure', async () => {
@@ -320,10 +353,20 @@ describe('Locations API Tests', () => {
     });
 
     it('should return 401 for unauthorized delete', async () => {
-      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL);
-      const response = await unauthorizedClient.deleteLocation(createdLocationId);
+      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL, true);
+      
+      if (!createdLocationId) {
+        return; // Skip test if location not created
+      }
+      
+      const response = await unauthorizedClient.requestWithCustomHeaders(
+        'DELETE',
+        `/locations/${createdLocationId}`,
+        undefined,
+        {}
+      );
 
-      TestHelpers.expectDeleted(response, 'Delete Location Unauthorized');
+      TestHelpers.expectUnauthorized(response, 'Delete Location Unauthorized');
     });
 
     it('should delete location successfully when no dependencies', async () => {

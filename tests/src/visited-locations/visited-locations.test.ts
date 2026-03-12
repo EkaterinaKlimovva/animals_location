@@ -147,8 +147,20 @@ describe('Visited Locations API Tests', () => {
     });
 
     it('should return 401 for unauthorized addition', async () => {
-      // POST uses authMiddleware - the API client always sends auth so this test can't work as intended
-      // Skipping this test
+      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL, true);
+      const locationData: TestAddVisitedLocationRequest = {
+        locationPointId: createdLocationId,
+        visitedAt: '2023-01-01T12:00:00.000Z',
+      };
+
+      const response = await unauthorizedClient.requestWithCustomHeaders(
+        'POST',
+        `/animals/${createdAnimalId}/locations`,
+        locationData,
+        {}
+      );
+
+      TestHelpers.expectUnauthorized(response, 'Add Visited Location Unauthorized');
     });
 
     it('should handle multiple visited locations for same animal', async () => {
@@ -239,13 +251,16 @@ describe('Visited Locations API Tests', () => {
       expect(response.status).toBe(200);
     });
 
-    it('should return 401 for unauthorized request', async () => {
-      // GET uses optionalAuthMiddleware - it's optional, not required
-      // This test expects 401 but actually returns 200 because auth is optional
-      const response = await apiClient.getVisitedLocations(createdAnimalId);
-
-      // With optional auth, the request succeeds even without auth
+it('should return 200 for unauthorized request (GET is public)', async () => {
+      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL, true);
+      const response = await unauthorizedClient.requestWithCustomHeaders(
+        'GET',
+        `/animals/${createdAnimalId}/locations`,
+        undefined,
+        {}
+      );
       TestHelpers.expectOk(response, 'Get Visited Locations Unauthorized');
+      TestHelpers.expectArray(response.data, 'Get Visited Locations Unauthorized');
     });
 
     it('should return visited locations in chronological order', async () => {
@@ -424,8 +439,36 @@ describe('Visited Locations API Tests', () => {
     });
 
     it('should return 401 for unauthorized update', async () => {
-      // POST uses authMiddleware - this test expects 401 but gets 201 because method always sends auth
-      // Skipping this test as the API client always sends auth
+      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL, true);
+      
+      // Сначала создаем новую посещенную локацию
+      const locationData: TestAddVisitedLocationRequest = {
+        locationPointId: createdLocationId,
+        visitedAt: '2023-02-01T10:00:00.000Z',
+      };
+
+      const createResponse = await apiClient.addVisitedLocation(createdAnimalId, locationData);
+
+      if (createResponse.status !== 201) {
+        throw new Error('Failed to create visited location for update test');
+      }
+
+      const locationIdToUpdate = createResponse.data.id;
+      const updateData: TestAddVisitedLocationRequest = {
+        visitedAt: '2023-02-01T15:30:00.000Z',
+      };
+
+      const response = await unauthorizedClient.requestWithCustomHeaders(
+        'PUT',
+        `/animals/${createdAnimalId}/locations/${locationIdToUpdate}`,
+        updateData,
+        {}
+      );
+
+      TestHelpers.expectUnauthorized(response, 'Update Visited Location Unauthorized');
+
+      // Clean up
+      await apiClient.deleteVisitedLocation(createdAnimalId, locationIdToUpdate);
     });
   });
 
@@ -471,6 +514,8 @@ describe('Visited Locations API Tests', () => {
     });
 
     it('should return 401 for unauthorized delete', async () => {
+      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL, true);
+      
       // Ensure we have a valid visited location to delete
       let animalId = createdAnimalId;
       let visitedLocationId = createdVisitedLocationId;
@@ -490,15 +535,12 @@ describe('Visited Locations API Tests', () => {
       animalId = animalId || 1;
       visitedLocationId = visitedLocationId || 1;
 
-      // Use the same pattern as the account test - override auth with invalid credentials
-      const originalAuth = (global as any).TEST_BASE64_AUTH;
-      (global as any).TEST_BASE64_AUTH = Buffer.from('invalid:credentials').toString('base64');
-
-      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL);
-      const response = await unauthorizedClient.deleteVisitedLocation(animalId, visitedLocationId);
-
-      // Restore original auth
-      (global as any).TEST_BASE64_AUTH = originalAuth;
+      const response = await unauthorizedClient.requestWithCustomHeaders(
+        'DELETE',
+        `/animals/${animalId}/locations/${visitedLocationId}`,
+        undefined,
+        {}
+      );
 
       TestHelpers.expectUnauthorized(response, 'Delete Visited Location Unauthorized');
     });

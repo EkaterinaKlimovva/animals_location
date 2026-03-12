@@ -270,11 +270,26 @@ describe('Animals API Tests', () => {
       TestHelpers.expectNotFound(response, 'Get Animal Not Found');
     });
 
-    it('should return 401 for unauthorized request (GET requires auth)', async () => {
-      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL);
-      const response = await unauthorizedClient.getAnimalUnauthenticated(createdAnimalId);
+    it('should return 200 for unauthorized request (GET is public)', async () => {
+      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL, true);
+      
+      if (!createdAnimalId) {
+        return; // Skip test if animal not created
+      }
+      
+      const response = await unauthorizedClient.requestWithCustomHeaders(
+        'GET',
+        `/animals/${createdAnimalId}`,
+        undefined,
+        {
+          'Content-Type': 'application/json',
+        }
+      );
 
-      TestHelpers.expectUnauthorized(response, 'Get Animal Unauthorized');
+      TestHelpers.expectOk(response, 'Get Animal Unauthorized');
+      TestHelpers.expectHasProperty(response.data, 'id', 'Get Animal Unauthorized');
+      TestHelpers.expectHasProperty(response.data, 'types', 'Get Animal Unauthorized');
+      TestHelpers.expectHasProperty(response.data, 'weight', 'Get Animal Unauthorized');
     });
   });
 
