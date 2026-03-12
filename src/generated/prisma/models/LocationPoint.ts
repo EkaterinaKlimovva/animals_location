@@ -1163,6 +1163,11 @@ export type LocationPointFindManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * Skip the first `n` LocationPoints.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of LocationPoints.
+   */
   distinct?: Prisma.LocationPointScalarFieldEnum | Prisma.LocationPointScalarFieldEnum[]
 }
 

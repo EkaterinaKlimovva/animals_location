@@ -2,6 +2,7 @@ import 'dotenv/config';
 import 'jest-extended';
 import { jest } from '@jest/globals';
 import type {} from 'jest-extended';
+import { setupTestDatabase, disconnectTestDatabase } from './database-setup.js';
 
 // Глобальные настройки для тестов
 process.env.NODE_ENV = 'test';
@@ -43,17 +44,22 @@ expect.extend({
 });
 
 // Глобальные хуки для всех тестов
-beforeAll(() => {
+beforeAll(async () => {
   console.log('Тестовая среда запущена');
+  await setupTestDatabase();
 });
 
-afterAll(() => {
+afterAll(async () => {
   console.log('Тестовая среда завершена');
+  await disconnectTestDatabase();
 });
 
-beforeEach(() => {
+beforeEach(async () => {
   // Сбрасываем все моки перед каждым тестом
   jest.resetAllMocks();
+  // Skip database cleanup for now to avoid timeouts
+  // await cleanupTestDatabase();
+  // await setupTestDatabase();
 });
 
 afterEach(() => {

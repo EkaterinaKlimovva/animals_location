@@ -1176,6 +1176,11 @@ export type AnimalOnTypeFindManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Skip the first `n` AnimalOnTypes.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of AnimalOnTypes.
+   */
   distinct?: Prisma.AnimalOnTypeScalarFieldEnum | Prisma.AnimalOnTypeScalarFieldEnum[]
 }
 

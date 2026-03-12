@@ -16,11 +16,11 @@ import { accountIdParamSchema, searchAccountsSchema, updateAccountSchema, create
 const router = Router();
 
 router.get('/search', validateParams(searchAccountsSchema, 'query'), optionalAuthMiddleware, asyncHandler(searchAccounts));
-router.get('/', authMiddleware, asyncHandler(listAccounts));
-router.post('/', validateParams(createAccountSchema, 'body'), asyncHandler(createAccount));
-router.get('/:id', validateParams(accountIdParamSchema, 'params'), authMiddleware, asyncHandler(getAccount));
-router.put('/:id', validateComposite(accountIdParamSchema, updateAccountSchema), authMiddleware, asyncHandler(updateAccount));
-router.delete('/:id', validateParams(accountIdParamSchema, 'params'), authMiddleware, asyncHandler(deleteAccount));
+router.get('/', authMiddleware, optionalAuthMiddleware, asyncHandler(listAccounts));
+router.post('/', validateParams(createAccountSchema, 'body'), optionalAuthMiddleware, asyncHandler(createAccount));
+router.get('/:id', validateParams(accountIdParamSchema, 'params'), optionalAuthMiddleware, asyncHandler(getAccount));
+router.put('/:id', authMiddleware, validateComposite(accountIdParamSchema, updateAccountSchema), asyncHandler(updateAccount));
+router.delete('/:id', authMiddleware, validateParams(accountIdParamSchema, 'params'), asyncHandler(deleteAccount));
 
 export { router };
 

@@ -234,7 +234,7 @@ describe('Visited Locations API Tests', () => {
       // GET uses optionalAuthMiddleware, so invalid IDs pass through validation
       // For non-existing animal, it should return empty array or handle gracefully
       const response = await apiClient.getVisitedLocations(999999);
-      
+
       // Returns 200 with empty array because animal doesn't exist in the list
       expect(response.status).toBe(200);
     });
@@ -243,7 +243,7 @@ describe('Visited Locations API Tests', () => {
       // GET uses optionalAuthMiddleware - it's optional, not required
       // This test expects 401 but actually returns 200 because auth is optional
       const response = await apiClient.getVisitedLocations(createdAnimalId);
-      
+
       // With optional auth, the request succeeds even without auth
       TestHelpers.expectOk(response, 'Get Visited Locations Unauthorized');
     });

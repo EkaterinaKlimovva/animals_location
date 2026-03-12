@@ -32,14 +32,20 @@ const port = process.env.NODE_ENV === 'test'
 
 async function startServer() {
   try {
+    console.log('🚀 Starting server...');
+    console.log(`📊 Database URL: ${process.env.DATABASE_URL || 'Not set'}`);
+    console.log(`🌐 Database Host: ${process.env.DB_HOST || 'postgres'}`);
+    console.log(`🔌 Database Port: ${process.env.DB_PORT || '5432'}`);
+    
     await connectDB();
 
     app.listen(port, '0.0.0.0', () => {
-      //   console.log(`🚀 Server is running on port ${port}`);
+      console.log(`✅ Server is running on port ${port}`);
       console.log(`📚 API documentation available at http://localhost:${port}`);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);
+    console.error('💡 Make sure PostgreSQL is running and accessible');
     process.exit(1);
   }
 }

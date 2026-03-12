@@ -14,10 +14,48 @@ interface EndpointTest {
 class AuthorizationTestSuite {
   private apiClient: ApiClient;
   private unauthorizedClient: ApiClient;
+  private testAnimalTypeId!: number;
+  private testLocationId!: number;
+  private testAnimalId!: number;
 
   constructor(baseUrl: string) {
     this.apiClient = new ApiClient(baseUrl);
     this.unauthorizedClient = new ApiClient(baseUrl, true); // Disable auth for unauthorized tests
+  }
+
+  async setupTestData(): Promise<void> {
+    // Create test account first for chipperId
+    const accountData = {
+      firstName: 'Test',
+      lastName: 'User',
+      email: `testuser${Date.now()}@example.com`,
+      password: 'password123',
+    };
+    const accountResponse = await this.apiClient.register(accountData);
+    const testAccountId = accountResponse.data.id;
+
+    // Create test animal type for GET tests
+    const typeData = { type: `TestType${Date.now()}` };
+    const typeResponse = await this.apiClient.createAnimalType(typeData);
+    this.testAnimalTypeId = typeResponse.data.id;
+
+    // Create test location
+    const locationData = { latitude: 50.0, longitude: 30.0 };
+    const locationResponse = await this.apiClient.createLocation(locationData);
+    this.testLocationId = locationResponse.data.id;
+
+    // Create test animal for visited locations tests
+    const animalData = {
+      animalTypes: [this.testAnimalTypeId],
+      weight: 5.0,
+      length: 0.5,
+      height: 0.3,
+      gender: 'MALE' as const,
+      chipperId: testAccountId,
+      chippingLocationId: this.testLocationId,
+    };
+    const animalResponse = await this.apiClient.createAnimal(animalData);
+    this.testAnimalId = animalResponse.data.id;
   }
 
   private getUnauthorizedEndpoints(): EndpointTest[] {
@@ -32,33 +70,33 @@ class AuthorizationTestSuite {
 
       // Animal Type endpoints
       { method: 'POST', endpoint: '/animals/types', clientMethod: 'createAnimalType', data: { type: 'UnauthorizedType' }, description: 'POST Animal Type No Auth' },
-      { method: 'GET', endpoint: '/animals/types/1', clientMethod: 'getAnimalType', expectedStatus: 200, description: 'GET Animal Type No Auth' },
-      { method: 'PUT', endpoint: '/animals/types/1', clientMethod: 'updateAnimalType', data: { type: 'HackedType' }, description: 'PUT Animal Type No Auth' },
-      { method: 'DELETE', endpoint: '/animals/types/1', clientMethod: 'deleteAnimalType', description: 'DELETE Animal Type No Auth' },
+      { method: 'GET', endpoint: `/animals/types/${this.testAnimalTypeId}`, clientMethod: 'getAnimalType', expectedStatus: 200, description: 'GET Animal Type No Auth' },
+      { method: 'PUT', endpoint: `/animals/types/${this.testAnimalTypeId}`, clientMethod: 'updateAnimalType', data: { type: 'HackedType' }, description: 'PUT Animal Type No Auth' },
+      { method: 'DELETE', endpoint: `/animals/types/${this.testAnimalTypeId}`, clientMethod: 'deleteAnimalType', description: 'DELETE Animal Type No Auth' },
 
       // Location endpoints
       { method: 'POST', endpoint: '/locations', clientMethod: 'createLocation', data: { latitude: 50.0, longitude: 30.0 }, description: 'POST Location No Auth' },
-      { method: 'GET', endpoint: '/locations/1', clientMethod: 'getLocation', description: 'GET Location No Auth' },
-      { method: 'PUT', endpoint: '/locations/1', clientMethod: 'updateLocation', data: { latitude: 0.0, longitude: 0.0 }, description: 'PUT Location No Auth' },
-      { method: 'DELETE', endpoint: '/locations/1', clientMethod: 'deleteLocation', description: 'DELETE Location No Auth' },
+      { method: 'GET', endpoint: `/locations/${this.testLocationId}`, clientMethod: 'getLocation', description: 'GET Location No Auth' },
+      { method: 'PUT', endpoint: `/locations/${this.testLocationId}`, clientMethod: 'updateLocation', data: { latitude: 0.0, longitude: 0.0 }, description: 'PUT Location No Auth' },
+      { method: 'DELETE', endpoint: `/locations/${this.testLocationId}`, clientMethod: 'deleteLocation', description: 'DELETE Location No Auth' },
       { method: 'GET', endpoint: '/locations', clientMethod: 'getLocations', description: 'GET Locations No Auth' },
 
       // Animal endpoints
       { method: 'POST', endpoint: '/animals', clientMethod: 'createAnimal', data: this.getTestAnimalData(), description: 'POST Animal No Auth' },
-      { method: 'GET', endpoint: '/animals/1', clientMethod: 'getAnimal', description: 'GET Animal No Auth' },
-      { method: 'PUT', endpoint: '/animals/1', clientMethod: 'updateAnimal', data: { weight: 999.0 }, description: 'PUT Animal No Auth' },
-      { method: 'DELETE', endpoint: '/animals/1', clientMethod: 'deleteAnimal', description: 'DELETE Animal No Auth' },
+      { method: 'GET', endpoint: `/animals/${this.testAnimalId}`, clientMethod: 'getAnimal', description: 'GET Animal No Auth' },
+      { method: 'PUT', endpoint: `/animals/${this.testAnimalId}`, clientMethod: 'updateAnimal', data: { weight: 999.0 }, description: 'PUT Animal No Auth' },
+      { method: 'DELETE', endpoint: `/animals/${this.testAnimalId}`, clientMethod: 'deleteAnimal', description: 'DELETE Animal No Auth' },
       { method: 'GET', endpoint: '/animals/search', clientMethod: 'searchAnimals', data: { chipperId: 1, from: 0, size: 10 }, expectedStatus: 200, description: 'GET Animals Search No Auth' },
 
       // Animal Type management
-      { method: 'POST', endpoint: '/animals/1/types', clientMethod: 'addAnimalType', data: 2, description: 'POST Animal Type No Auth' },
-      { method: 'DELETE', endpoint: '/animals/1/types/2', clientMethod: 'removeAnimalType', description: 'DELETE Animal Type No Auth' },
+      { method: 'POST', endpoint: `/animals/${this.testAnimalId}/types`, clientMethod: 'addAnimalType', data: 2, description: 'POST Animal Type No Auth' },
+      { method: 'DELETE', endpoint: `/animals/${this.testAnimalId}/types/2`, clientMethod: 'removeAnimalType', description: 'DELETE Animal Type No Auth' },
 
       // Visited Locations
-      { method: 'POST', endpoint: '/animals/1/locations', clientMethod: 'addVisitedLocation', data: { locationPointId: 1, visitedAt: '2025-01-01T12:00:00.000Z' }, description: 'POST Visited Location No Auth' },
-      { method: 'GET', endpoint: '/animals/1/locations', clientMethod: 'getVisitedLocations', expectedStatus: 200, description: 'GET Visited Locations No Auth' },
-      { method: 'PUT', endpoint: '/animals/1/locations/1', clientMethod: 'updateVisitedLocation', data: { locationPointId: 1, visitedAt: '2025-01-01T12:00:00.000Z' }, description: 'PUT Visited Location No Auth' },
-      { method: 'DELETE', endpoint: '/animals/1/locations/1', clientMethod: 'deleteVisitedLocation', description: 'DELETE Visited Location No Auth' },
+      { method: 'POST', endpoint: `/animals/${this.testAnimalId}/locations`, clientMethod: 'addVisitedLocation', data: { locationPointId: this.testLocationId, visitedAt: '2025-01-01T12:00:00.000Z' }, description: 'POST Visited Location No Auth' },
+      { method: 'GET', endpoint: `/animals/${this.testAnimalId}/locations`, clientMethod: 'getVisitedLocations', expectedStatus: 200, description: 'GET Visited Locations No Auth' },
+      { method: 'PUT', endpoint: `/animals/${this.testAnimalId}/locations/1`, clientMethod: 'updateVisitedLocation', data: { locationPointId: this.testLocationId, visitedAt: '2025-01-01T12:00:00.000Z' }, description: 'PUT Visited Location No Auth' },
+      { method: 'DELETE', endpoint: `/animals/${this.testAnimalId}/locations/1`, clientMethod: 'deleteVisitedLocation', description: 'DELETE Visited Location No Auth' },
     ];
   }
 
@@ -74,13 +112,13 @@ class AuthorizationTestSuite {
 
   private getTestAnimalData(): TestCreateAnimalRequest {
     return {
-      animalTypes: [1],
+      animalTypes: [this.testAnimalTypeId],
       weight: 5.0,
       length: 0.5,
       height: 0.3,
       gender: 'MALE' as const,
       chipperId: 1,
-      chippingLocationId: 1,
+      chippingLocationId: this.testLocationId,
     };
   }
 
@@ -112,25 +150,25 @@ class AuthorizationTestSuite {
         response = await client.createAnimalType(endpointTest.data!);
         break;
       case 'getAnimalType':
-        response = await client.getAnimalType(1);
+        response = await client.getAnimalType(this.testAnimalTypeId);
         break;
       case 'updateAnimalType':
-        response = await client.updateAnimalType(1, endpointTest.data!);
+        response = await client.updateAnimalType(this.testAnimalTypeId, endpointTest.data!);
         break;
       case 'deleteAnimalType':
-        response = await client.deleteAnimalType(1);
+        response = await client.deleteAnimalType(this.testAnimalTypeId);
         break;
       case 'createLocation':
         response = await client.createLocation(endpointTest.data!);
         break;
       case 'getLocation':
-        response = await client.getLocation(1);
+        response = await client.getLocation(this.testLocationId);
         break;
       case 'updateLocation':
-        response = await client.updateLocation(1, endpointTest.data!);
+        response = await client.updateLocation(this.testLocationId, endpointTest.data!);
         break;
       case 'deleteLocation':
-        response = await client.deleteLocation(1);
+        response = await client.deleteLocation(this.testLocationId);
         break;
       case 'getLocations':
         response = await client.getLocations();
@@ -139,34 +177,34 @@ class AuthorizationTestSuite {
         response = await client.createAnimal(endpointTest.data!);
         break;
       case 'getAnimal':
-        response = await client.getAnimal(1);
+        response = await client.getAnimal(this.testAnimalId);
         break;
       case 'updateAnimal':
-        response = await client.updateAnimal(1, endpointTest.data!);
+        response = await client.updateAnimal(this.testAnimalId, endpointTest.data!);
         break;
       case 'deleteAnimal':
-        response = await client.deleteAnimal(1);
+        response = await client.deleteAnimal(this.testAnimalId);
         break;
       case 'searchAnimals':
         response = await client.searchAnimals(endpointTest.data!);
         break;
       case 'addAnimalType':
-        response = await client.addAnimalType(1, endpointTest.data!);
+        response = await client.addAnimalType(this.testAnimalId, endpointTest.data!);
         break;
       case 'removeAnimalType':
-        response = await client.removeAnimalType(1, 2);
+        response = await client.removeAnimalType(this.testAnimalId, 2);
         break;
       case 'addVisitedLocation':
-        response = await client.addVisitedLocation(1, endpointTest.data!);
+        response = await client.addVisitedLocation(this.testAnimalId, endpointTest.data!);
         break;
       case 'getVisitedLocations':
-        response = await client.getVisitedLocations(1);
+        response = await client.getVisitedLocations(this.testAnimalId);
         break;
       case 'updateVisitedLocation':
-        response = await client.updateVisitedLocation(1, 1, endpointTest.data!);
+        response = await client.updateVisitedLocation(this.testAnimalId, 1, endpointTest.data!);
         break;
       case 'deleteVisitedLocation':
-        response = await client.deleteVisitedLocation(1, 1);
+        response = await client.deleteVisitedLocation(this.testAnimalId, 1);
         break;
       default:
         throw new Error(`Unknown client method: ${endpointTest.clientMethod} for endpoint: ${endpointTest.description}`);
@@ -176,6 +214,7 @@ class AuthorizationTestSuite {
     }
 
     const expectedStatus = endpointTest.expectedStatus ?? 401;
+
 
     try {
       switch (expectedStatus) {
@@ -350,8 +389,9 @@ class AuthorizationTestSuite {
 describe('Authorization API Tests', () => {
   let testSuite: AuthorizationTestSuite;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     testSuite = new AuthorizationTestSuite((global as any).TEST_BASE_URL);
+    await testSuite.setupTestData();
   });
 
   describe('Unauthorized Access Tests', () => {

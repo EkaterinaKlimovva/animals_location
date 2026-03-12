@@ -1,5 +1,5 @@
-import { prisma } from '../prisma';
 import type { Prisma } from '../generated/prisma/client';
+import { prisma } from '../app/database';
 
 export class AccountRepository {
   findManyByEmail(email?: string) {
@@ -18,13 +18,13 @@ export class AccountRepository {
 
     const where: Prisma.AccountWhereInput = {};
     if (firstName) {
-      where.firstName = { contains: firstName, mode: 'insensitive' };
+      where.firstName = { contains: firstName };
     }
     if (lastName) {
-      where.lastName = { contains: lastName, mode: 'insensitive' };
+      where.lastName = { contains: lastName };
     }
     if (email) {
-      where.email = { contains: email, mode: 'insensitive' };
+      where.email = { contains: email };
     }
 
     return prisma.account.findMany({

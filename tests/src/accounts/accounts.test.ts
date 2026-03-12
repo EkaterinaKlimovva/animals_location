@@ -12,28 +12,28 @@ describe('Accounts API Tests', () => {
 
   beforeAll(async () => {
     apiClient = new ApiClient((global as any).TEST_BASE_URL);
-    
+
     // Create a test account for GET/PUT tests
     const testData = TestHelpers.generateTestData();
     const createResponse = await apiClient.register(testData.user);
     testAccountId = createResponse.data.id;
-    
+
     // Create an account with an animal for delete with dependencies test
     const testData2 = TestHelpers.generateTestData();
     const createResponse2 = await apiClient.register({
       ...testData2.user,
-      email: `test_${Date.now()}@mail.com`
+      email: `test_${Date.now()}@mail.com`,
     });
     accountWithAnimalId = createResponse2.data.id;
-    
+
     // Create animal type and location for the animal
     const testData3 = TestHelpers.generateTestData();
     const typeResponse = await apiClient.createAnimalType(testData3.animalType);
     testAnimalTypeId = typeResponse.data.id;
-    
+
     const locationResponse = await apiClient.createLocation(testData3.location);
     testLocationId = locationResponse.data.id;
-    
+
     // Create an animal with this account as chipper
     const animalData = TestHelpers.generateTestData();
     const animalResponse = await apiClient.createAnimal({
@@ -43,7 +43,7 @@ describe('Accounts API Tests', () => {
       height: animalData.animal.height,
       gender: animalData.animal.gender,
       chipperId: accountWithAnimalId,
-      chippingLocationId: testLocationId
+      chippingLocationId: testLocationId,
     });
     testAnimalId = animalResponse.data.id;
   });

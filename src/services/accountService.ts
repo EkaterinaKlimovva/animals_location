@@ -39,6 +39,10 @@ export class AccountService {
     return account ? stripSensitiveFields(account) : null;
   }
 
+  async findByEmailWithPassword(email: string): Promise<Account | null> {
+    return accountRepository.findByEmail(email);
+  }
+
   async verifyCredentials(email: string, password: string): Promise<boolean> {
     const account = await accountRepository.findByEmail(email);
     if (!account) return false;

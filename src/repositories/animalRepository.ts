@@ -1,4 +1,4 @@
-import { prisma } from '../prisma';
+import { prisma } from '../app/database';
 import type { Prisma } from '../generated/prisma/client';
 
 const animalInclude = {

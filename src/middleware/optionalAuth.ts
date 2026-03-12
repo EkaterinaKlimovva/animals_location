@@ -45,7 +45,7 @@ export async function optionalAuthMiddleware(
     }
 
     // Verify account exists and credentials are correct
-    const account = await accountService.findByEmail(email);
+    const account = await accountService.findByEmailWithPassword(email);
 
     if (!account) {
       res.status(401).json({ message: 'Unauthorized' });

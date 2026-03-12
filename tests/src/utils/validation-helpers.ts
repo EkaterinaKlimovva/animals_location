@@ -111,14 +111,14 @@ export class ValidationHelpers {
     this.expectStatusAuto(response, 400);
     expect(response.data).toBeDefined();
     expect(typeof response.data).toBe('object');
-    
+
     // Check for both old format (error property) and new format (error with details)
     if ('error' in response.data) {
       expect(typeof response.data.error).toBe('string');
       const error = response.data.error || '';
       expect(error.includes('Validation failed') || error.includes('Error') || error.includes('validation')).toBe(true);
     }
-    
+
     // Check for details array in new format
     if ('details' in response.data) {
       this.expectArray(response.data.details || [], _testName);
@@ -133,7 +133,7 @@ export class ValidationHelpers {
     this.expectStatusAuto(response, expectedStatus);
     expect(response.data).toBeDefined();
     expect(typeof response.data).toBe('object');
-    
+
     // Check for both old format (message) and new format (error)
     if ('message' in response.data) {
       expect(typeof response.data.message).toBe('string');
@@ -142,7 +142,7 @@ export class ValidationHelpers {
       expect(typeof response.data.error).toBe('string');
       expect(response.data.error).toContain(expectedMessage);
     } else {
-      throw new Error(`Expected either 'message' or 'error' property in response data`);
+      throw new Error('Expected either \'message\' or \'error\' property in response data');
     }
   }
 
@@ -240,7 +240,7 @@ export class ValidationHelpers {
     this.expectStatusAuto(response, 400);
     expect(response.data).toBeDefined();
     expect(typeof response.data).toBe('object');
-    
+
     // Check for both old format (message) and new format (error with details)
     if ('message' in response.data) {
       expect(typeof response.data.message).toBe('string');
@@ -266,7 +266,7 @@ export class ValidationHelpers {
       expect(response.data.error).toBeDefined();
       expect(response.data.details.length).toBeGreaterThan(0);
     } else {
-      throw new Error(`Expected either 'message' or 'error' property in response data`);
+      throw new Error('Expected either \'message\' or \'error\' property in response data');
     }
   }
 

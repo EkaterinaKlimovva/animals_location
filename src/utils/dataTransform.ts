@@ -28,17 +28,22 @@ export function transformToAccountDtoList(accounts: SafeAccount[]): AccountDto[]
 
 /**
  * Cleans a string value:
- * - Converts null/undefined to empty string
+ * - Converts null/undefined to a default placeholder value
  * - Trims whitespace
  * - Handles newlines and other whitespace characters
  */
 function cleanString(value: string | null | undefined): string {
   if (value === null || value === undefined) {
-    return '';
+    return 'N/A';
   }
 
   // Remove all types of whitespace (spaces, tabs, newlines) and trim
   const cleaned = value.replace(/\s+/g, ' ').trim();
+
+  // If after cleaning it's empty, return default placeholder
+  if (cleaned === '') {
+    return 'N/A';
+  }
 
   return cleaned;
 }

@@ -1,4 +1,4 @@
-import { prisma } from '../prisma';
+import { prisma } from '../app/database';
 
 export class AnimalVisitedLocationRepository {
   findManyByAnimal(animalId: number) {

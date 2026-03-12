@@ -1,4 +1,4 @@
-import { prisma } from '../prisma';
+import { prisma } from '../app/database';
 
 export class AnimalOnTypeRepository {
   createRelation(animalId: number, typeId: number) {
