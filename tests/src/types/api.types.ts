@@ -20,7 +20,7 @@ export type TestAccount = TestUser;
 
 export interface TestAnimalType {
   id: number;
-  name: string;
+  type: string;
 }
 
 export interface TestAnimalTypeLink {
@@ -65,6 +65,7 @@ export interface TestRegistrationRequest {
   lastName: string;
   email: string;
   password: string;
+  role?: string;
 }
 
 export interface TestCreateAnimalTypeRequest {

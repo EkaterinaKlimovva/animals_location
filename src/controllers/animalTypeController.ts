@@ -97,7 +97,7 @@ export async function deleteAnimalType(req: DeleteAnimalTypeRequest, res: Respon
     }
 
     await animalTypeService.delete(id);
-    sendControllerNoContent(res, SUCCESS_MESSAGES.DELETED(ENTITY_NAMES.ANIMAL_TYPE));
+    sendControllerSuccess(res, SUCCESS_MESSAGES.DELETED(ENTITY_NAMES.ANIMAL_TYPE));
   } catch (error) {
     handleControllerError(res, error, `${CONTROLLER_PREFIX} - deleteAnimalType`);
   }

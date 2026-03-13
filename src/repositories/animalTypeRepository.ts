@@ -5,18 +5,18 @@ export class AnimalTypeRepository {
     return prisma.animalType.findUnique({ where: { id } });
   }
 
-  findByName(name: string) {
-    return prisma.animalType.findUnique({ where: { name } });
+  findByType(type: string) {
+    return prisma.animalType.findUnique({ where: { type } });
   }
 
-  create(name: string) {
-    return prisma.animalType.create({ data: { name } });
+  create(type: string) {
+    return prisma.animalType.create({ data: { type } });
   }
 
-  update(id: number, name: string) {
+  update(id: number, type: string) {
     return prisma.animalType.update({
       where: { id },
-      data: { name },
+      data: { type },
     });
   }
 

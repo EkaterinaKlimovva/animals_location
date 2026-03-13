@@ -26,15 +26,8 @@ export async function createVisitedLocation(
 ): Promise<void> {
   console.log('[VISITED_LOCATION_CONTROLLER] createVisitedLocation called with params:', req.params, 'body:', req.body);
   const { animalId } = animalIdParamSchema.parse(req.params);
-  const { locationPointId, visitedAt }: { locationPointId: number; visitedAt?: string } = req.body;
-
-  if (!locationPointId) {
-    console.log('[VISITED_LOCATION_CONTROLLER] Missing locationPointId - returning 400');
-    res
-      .status(400)
-      .json({ message: 'locationPointId is required' });
-    return;
-  }
+  const { id: locationPointId } = visitedLocationIdParamSchema.parse(req.params);
+  const { visitedAt }: { visitedAt?: string } = req.body;
 
   try {
     const created = await animalVisitedLocationService.create({

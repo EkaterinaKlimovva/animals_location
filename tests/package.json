@@ -20,6 +20,7 @@
     "@types/jest": "^29.5.0",
     "@types/node": "^20.0.0",
     "@types/sinon": "^10.0.0",
+    "@types/pg": "^8.11.11",
     "axios": "^1.6.0",
     "babel-jest": "^30.3.0",
     "dotenv": "^16.0.0",
@@ -43,7 +44,9 @@
   "author": "API Test Suite",
   "license": "MIT",
   "dependencies": {
-    "@prisma/client": "^7.5.0",
-    "bcrypt": "^6.0.0"
+    "@prisma/adapter-pg": "^7.4.2",
+    "@prisma/client": "^7.4.2",
+    "pg": "^8.20.0",
+    "prisma": "^7.4.2"
   }
 }

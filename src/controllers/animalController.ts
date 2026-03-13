@@ -15,6 +15,7 @@ import {
   validateControllerTypeId,
 } from '../utils/controllerUtils';
 import { ENTITY_NAMES, SUCCESS_MESSAGES } from '../utils/constants';
+import { transformAnimalResponse } from '../utils/animalResponseTransformer';
 import type {
   GetAnimalRequest,
   SearchAnimalsRequest,
@@ -42,7 +43,8 @@ export async function getAnimal(req: GetAnimalRequest, res: Response): Promise<v
       return;
     }
 
-    sendControllerSuccess(res, animal, SUCCESS_MESSAGES.FOUND(ENTITY_NAMES.ANIMAL));
+    const transformedAnimal = transformAnimalResponse(animal);
+    sendControllerSuccess(res, transformedAnimal, SUCCESS_MESSAGES.FOUND(ENTITY_NAMES.ANIMAL));
   } catch (error) {
     handleControllerError(res, error, `${CONTROLLER_PREFIX} - getAnimal`);
   }
@@ -53,7 +55,8 @@ export async function searchAnimals(req: SearchAnimalsRequest, res: Response): P
     const searchParams: SearchAnimalsInput = searchAnimalsSchema.parse(req.query);
     const animals = await animalService.search(searchParams);
 
-    sendControllerSuccess(res, animals, SUCCESS_MESSAGES.SEARCH_SUCCESSFUL(animals.length, ENTITY_NAMES.ANIMAL));
+    const transformedAnimals = animals.map(transformAnimalResponse);
+    sendControllerSuccess(res, transformedAnimals, SUCCESS_MESSAGES.SEARCH_SUCCESSFUL(animals.length, ENTITY_NAMES.ANIMAL));
   } catch (error) {
     handleControllerError(res, error, `${CONTROLLER_PREFIX} - searchAnimals`);
   }
@@ -64,7 +67,8 @@ export async function createAnimal(req: CreateAnimalRequest, res: Response): Pro
     const animalData: CreateAnimalInput = createAnimalSchema.parse(req.body);
     const animal = await animalService.create(animalData);
 
-    sendControllerCreated(res, animal, SUCCESS_MESSAGES.CREATED(ENTITY_NAMES.ANIMAL));
+    const transformedAnimal = transformAnimalResponse(animal);
+    sendControllerCreated(res, transformedAnimal, SUCCESS_MESSAGES.CREATED(ENTITY_NAMES.ANIMAL));
   } catch (error) {
     handleControllerError(res, error, `${CONTROLLER_PREFIX} - createAnimal`);
   }
@@ -76,7 +80,8 @@ export async function updateAnimal(req: UpdateAnimalRequest, res: Response): Pro
     const updateData: UpdateAnimalInput = updateAnimalSchema.parse(req.body);
 
     const updated = await animalService.update(id, updateData);
-    sendControllerSuccess(res, updated, SUCCESS_MESSAGES.UPDATED(ENTITY_NAMES.ANIMAL));
+    const transformedUpdated = transformAnimalResponse(updated);
+    sendControllerSuccess(res, transformedUpdated, SUCCESS_MESSAGES.UPDATED(ENTITY_NAMES.ANIMAL));
   } catch (error) {
     handleControllerError(res, error, `${CONTROLLER_PREFIX} - updateAnimal`);
   }
@@ -102,7 +107,7 @@ export async function deleteAnimal(req: DeleteAnimalRequest, res: Response): Pro
 
     await animalService.delete(id);
 
-    sendControllerNoContent(res, SUCCESS_MESSAGES.DELETED(ENTITY_NAMES.ANIMAL));
+    sendControllerSuccess(res, SUCCESS_MESSAGES.DELETED(ENTITY_NAMES.ANIMAL));
   } catch (error) {
     handleControllerError(res, error, `${CONTROLLER_PREFIX} - deleteAnimal`);
   }

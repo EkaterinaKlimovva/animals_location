@@ -19,7 +19,7 @@ export class AnimalTypeService {
   }
 
   async create(type: string): Promise<CreateAnimalTypeResponse> {
-    const existing = await animalTypeRepository.findByName(type);
+    const existing = await animalTypeRepository.findByType(type);
     if (existing) {
       return { conflict: true as const, type: existing };
     }
@@ -28,8 +28,8 @@ export class AnimalTypeService {
     return { conflict: false as const, type: created };
   }
 
-  async update(id: number, name: string) {
-    return animalTypeRepository.update(id, name);
+  async update(id: number, type: string) {
+    return animalTypeRepository.update(id, type);
   }
 
   async delete(id: number) {

@@ -60,7 +60,3 @@ export const searchVisitedLocationsSchema = z.object({
 export type CreateLocationPointInput = z.infer<typeof createLocationPointSchema>;
 export type UpdateLocationPointInput = z.infer<typeof updateLocationPointSchema>;
 export type LocationPointIdInput = z.infer<typeof locationPointIdSchema>;
-export type AddLocationToAnimalInput = z.infer<typeof addLocationToAnimalSchema>;
-export type UpdateVisitedLocationInput = z.infer<typeof updateVisitedLocationSchema>;
-export type RemoveVisitedLocationInput = z.infer<typeof removeVisitedLocationSchema>;
-export type SearchVisitedLocationsInput = z.infer<typeof searchVisitedLocationsSchema>;

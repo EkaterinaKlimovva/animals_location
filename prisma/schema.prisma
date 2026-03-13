@@ -31,7 +31,7 @@ model Account {
 
 model AnimalType {
   id   Int    @id @default(autoincrement())
-  name String @unique
+  type String @unique
 
   animals AnimalOnType[]
 

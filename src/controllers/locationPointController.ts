@@ -95,7 +95,7 @@ export async function deleteLocationPoint(req: DeleteLocationPointRequest, res: 
 
     await locationPointService.delete(id);
 
-    sendControllerNoContent(res, SUCCESS_MESSAGES.DELETED(ENTITY_NAMES.LOCATION_POINT));
+    sendControllerSuccess(res, SUCCESS_MESSAGES.DELETED(ENTITY_NAMES.LOCATION_POINT));
   } catch (error) {
     handleControllerError(res, error, `${CONTROLLER_PREFIX} - deleteLocationPoint`);
   }

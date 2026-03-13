@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import type { ParamsDictionary } from 'express-serve-static-core';
 
-export const validateParams = (schema: z.ZodSchema, source: 'body' | 'query' | 'params' = 'body') => {
+export const validateParams = <T = any>(schema: z.ZodSchema<T>, source: 'body' | 'query' | 'params' = 'body') => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = req[source];
@@ -17,9 +17,15 @@ export const validateParams = (schema: z.ZodSchema, source: 'body' | 'query' | '
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
+        const details = error.issues.map((e) => ({
+          path: e.path.join('.'),
+          code: e.code,
+          message: e.message,
+        }));
+        const message = error.issues.length > 0 ? error.issues[0].message : 'Validation failed';
         return res.status(400).json({
-          error: 'Validation failed',
-          details: error.issues,
+          error: message,
+          details,
         });
       }
       next(error);
@@ -41,9 +47,15 @@ export const validateComposite = (paramsSchema: z.ZodSchema, bodySchema: z.ZodSc
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
+        const details = error.issues.map((e) => ({
+          path: e.path.join('.'),
+          code: e.code,
+          message: e.message,
+        }));
+        const message = error.issues.length > 0 ? error.issues[0].message : 'Validation failed';
         return res.status(400).json({
-          error: 'Validation failed',
-          details: error.issues,
+          error: message,
+          details,
         });
       }
       next(error);

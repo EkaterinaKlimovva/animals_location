@@ -19,6 +19,10 @@ describe('Animals API Tests', () => {
     const accountResponse = await apiClient.register(testData.user);
     if (accountResponse.status === 201) {
       createdAccountId = accountResponse.data.id;
+      
+      // Set up global auth for this account
+      const base64Auth = Buffer.from(`${testData.user.email}:${testData.user.password}`).toString('base64');
+      (global as any).TEST_BASE64_AUTH = base64Auth;
     }
 
     // Создаем тип животного

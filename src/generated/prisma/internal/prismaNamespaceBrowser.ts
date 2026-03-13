@@ -90,7 +90,7 @@ export type AccountScalarFieldEnum = (typeof AccountScalarFieldEnum)[keyof typeo
 
 export const AnimalTypeScalarFieldEnum = {
   id: 'id',
-  name: 'name'
+  type: 'type'
 } as const
 
 export type AnimalTypeScalarFieldEnum = (typeof AnimalTypeScalarFieldEnum)[keyof typeof AnimalTypeScalarFieldEnum]

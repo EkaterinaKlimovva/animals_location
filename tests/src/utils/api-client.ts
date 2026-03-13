@@ -89,7 +89,7 @@ export class ApiClient {
     method: 'GET' | 'POST' | 'PUT' | 'DELETE',
     endpoint: string,
     data?: any,
-    headers?: Record<string, string>,
+    headers?: Record<string, string | null>,
   ): Promise<ApiResponse<T>> {
     try {
       const config: any = {
@@ -147,28 +147,40 @@ export class ApiClient {
   }
 
   // Animal Type endpoints
-  async createAnimalType(typeData: TestCreateAnimalTypeRequest): Promise<ApiResponse<TestAnimalType>> {
-    return this.request<TestAnimalType>('POST', '/animals/types', typeData, true);
+  async createAnimalType(typeData: string | TestCreateAnimalTypeRequest): Promise<ApiResponse<TestAnimalType>> {
+    const data = typeof typeData === 'string' ? { type: typeData } : typeData;
+    return this.request<TestAnimalType>('POST', '/animals/types', data, true);
   }
 
-  async createAnimalTypeUnauthenticated(typeData: TestCreateAnimalTypeRequest): Promise<ApiResponse<TestAnimalType>> {
-    return this.request<TestAnimalType>('POST', '/animals/types', typeData, false);
+  async createAnimalTypeUnauthenticated(typeData: string | TestCreateAnimalTypeRequest): Promise<ApiResponse<TestAnimalType>> {
+    const data = typeof typeData === 'string' ? { type: typeData } : typeData;
+    return this.request<TestAnimalType>('POST', '/animals/types', data, false);
   }
 
   async getAnimalType(id: number): Promise<ApiResponse<TestAnimalType>> {
     return this.request<TestAnimalType>('GET', `/animals/types/${id}`, undefined, true);
   }
 
+  async getAnimalTypes(): Promise<ApiResponse<TestAnimalType[]>> {
+    return this.request<TestAnimalType[]>('GET', '/animals/types', undefined, true);
+  }
+
   async getAnimalTypeUnauthenticated(id: number): Promise<ApiResponse<TestAnimalType>> {
     return this.request<TestAnimalType>('GET', `/animals/types/${id}`, undefined, false);
   }
 
-  async updateAnimalType(id: number, data: TestCreateAnimalTypeRequest): Promise<ApiResponse<TestAnimalType>> {
-    return this.request<TestAnimalType>('PUT', `/animals/types/${id}`, data, true);
+  async getAnimalTypesUnauthenticated(): Promise<ApiResponse<TestAnimalType[]>> {
+    return this.request<TestAnimalType[]>('GET', '/animals/types', undefined, false);
   }
 
-  async updateAnimalTypeUnauthenticated(id: number, data: TestCreateAnimalTypeRequest): Promise<ApiResponse<TestAnimalType>> {
-    return this.request<TestAnimalType>('PUT', `/animals/types/${id}`, data, false);
+  async updateAnimalType(id: number, data: string | TestCreateAnimalTypeRequest): Promise<ApiResponse<TestAnimalType>> {
+    const requestData = typeof data === 'string' ? { type: data } : data;
+    return this.request<TestAnimalType>('PUT', `/animals/types/${id}`, requestData, true);
+  }
+
+  async updateAnimalTypeUnauthenticated(id: number, data: string | TestCreateAnimalTypeRequest): Promise<ApiResponse<TestAnimalType>> {
+    const requestData = typeof data === 'string' ? { type: data } : data;
+    return this.request<TestAnimalType>('PUT', `/animals/types/${id}`, requestData, false);
   }
 
   async deleteAnimalType(id: number): Promise<ApiResponse<void>> {
@@ -265,12 +277,22 @@ export class ApiClient {
     return this.request<TestVisitedLocation>('POST', `/animals/${animalId}/locations`, locationData, true);
   }
 
-  async getVisitedLocations(animalId: number): Promise<ApiResponse<TestVisitedLocation[]>> {
-    return this.request<TestVisitedLocation[]>('GET', `/animals/${animalId}/locations`, undefined, true);
+  async getVisitedLocations(animalId: number, params?: { startDateTime?: string; endDateTime?: string }): Promise<ApiResponse<TestVisitedLocation[]>> {
+    let url = `/animals/${animalId}/locations`;
+    if (params) {
+      const queryString = new URLSearchParams(params as any).toString();
+      url += `?${queryString}`;
+    }
+    return this.request<TestVisitedLocation[]>('GET', url, undefined, true);
   }
 
-  async getVisitedLocationsUnauthenticated(animalId: number): Promise<ApiResponse<TestVisitedLocation[]>> {
-    return this.request<TestVisitedLocation[]>('GET', `/animals/${animalId}/locations`, undefined, false);
+  async getVisitedLocationsUnauthenticated(animalId: number, params?: { startDateTime?: string; endDateTime?: string }): Promise<ApiResponse<TestVisitedLocation[]>> {
+    let url = `/animals/${animalId}/locations`;
+    if (params) {
+      const queryString = new URLSearchParams(params as any).toString();
+      url += `?${queryString}`;
+    }
+    return this.request<TestVisitedLocation[]>('GET', url, undefined, false);
   }
 
   async updateVisitedLocation(animalId: number, locationId: number, data: TestAddVisitedLocationRequest): Promise<ApiResponse<TestVisitedLocation>> {

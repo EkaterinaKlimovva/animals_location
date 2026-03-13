@@ -23,22 +23,27 @@ export const errorHandler: ErrorRequestHandler = (err: unknown, req: Request, re
   // Prisma validation error
   if (err instanceof Prisma.PrismaClientValidationError) {
     console.log('[ERROR_HANDLER] Prisma validation error - returning 400');
-    res.status(400).json({ message: 'Validation error', details: String(err.message) });
+    res.status(400).json({ error: 'Validation error', details: String(err.message) });
     return;
   }
 
   // JSON parse error
   if (err instanceof SyntaxError && 'status' in err && (err as SyntaxError & { status: number }).status === 400 && 'body' in err) {
     console.log('[ERROR_HANDLER] JSON parse error - returning 400');
-    res.status(400).json({ message: 'Invalid JSON' });
+    res.status(400).json({ error: 'Invalid JSON' });
     return;
   }
 
   // Zod validation error
   if (err instanceof ZodError) {
     console.log('[ERROR_HANDLER] Zod validation error - returning 400');
-    const errorMessages: string[] = err.issues.map((e) => e.message);
-    res.status(400).json({ message: errorMessages.join(', ') });
+    const details = err.issues.map((e) => ({
+      path: e.path.join('.'),
+      code: e.code,
+      message: e.message,
+    }));
+    const message = err.issues.length > 0 ? err.issues[0].message : 'Validation failed';
+    res.status(400).json({ error: message, details });
     return;
   }
 

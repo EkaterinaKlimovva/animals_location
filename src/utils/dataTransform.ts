@@ -1,21 +1,21 @@
 import type { SafeAccount } from '../types/account';
 
-export interface AccountDto {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-}
+/**
+ * Account DTO for API responses - uses SafeAccount interface directly
+ * Excludes sensitive fields (password, timestamps)
+ */
+export type AccountDto = SafeAccount;
 
 /**
- * Transforms SafeAccount data to AccountDto, cleaning up empty/whitespace values
+ * Transforms SafeAccount data to AccountDto
+ * Note: SafeAccount already contains safe fields, so this is a pass-through
  */
 export function transformToAccountDto(account: SafeAccount): AccountDto {
   return {
     id: account.id,
-    firstName: cleanString(account.firstName),
-    lastName: cleanString(account.lastName),
-    email: cleanString(account.email),
+    firstName: account.firstName,
+    lastName: account.lastName,
+    email: account.email,
   };
 }
 
@@ -24,26 +24,4 @@ export function transformToAccountDto(account: SafeAccount): AccountDto {
  */
 export function transformToAccountDtoList(accounts: SafeAccount[]): AccountDto[] {
   return accounts.map(transformToAccountDto);
-}
-
-/**
- * Cleans a string value:
- * - Converts null/undefined to a default placeholder value
- * - Trims whitespace
- * - Handles newlines and other whitespace characters
- */
-function cleanString(value: string | null | undefined): string {
-  if (value === null || value === undefined) {
-    return 'N/A';
-  }
-
-  // Remove all types of whitespace (spaces, tabs, newlines) and trim
-  const cleaned = value.replace(/\s+/g, ' ').trim();
-
-  // If after cleaning it's empty, return default placeholder
-  if (cleaned === '') {
-    return 'N/A';
-  }
-
-  return cleaned;
 }

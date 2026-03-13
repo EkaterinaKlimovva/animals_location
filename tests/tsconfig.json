@@ -20,12 +20,10 @@
       "@/types/*": ["types/*"],
       "@/utils/*": ["utils/*"]
     },
-    "moduleResolution": "bundler",
-    "verbatimModuleSyntax": true,
+    "moduleResolution": "node"
   },
   "include": [
-    "src/**/*",
-    "../src/**/*"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",

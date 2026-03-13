@@ -4,25 +4,25 @@ import { z } from 'zod';
 export const idSchema = z.union([z.string(), z.number()])
   .transform((val) => typeof val === 'string' ? Number(val) : val)
   .refine((num) => !isNaN(num), {
-    message: 'Invalid id format',
+    message: 'Validation failed',
   })
   .refine((num) => num > 0, {
-    message: 'Invalid id',
+    message: 'Validation failed',
   });
 
-// Common email validation
+// Common email validation with RFC 5322 compliant pattern
 export const emailSchema = z.string()
   .trim()
   .min(1, 'Email is required')
-  .refine((val) => val.trim().length > 0, 'Email cannot be only whitespace')
-  .email('Invalid email format');
-
-// Lenient email validation (for existing data that may have empty/whitespace values)
-export const lenientEmailSchema = z.string()
-  .trim()
-  .max(100, 'Email must be less than 100 characters')
-  .optional()
   .refine((val) => !val || val === '' || val.includes('@'), {
+    message: 'Invalid email format',
+  })
+  .refine((val) => {
+    if (!val || val === '') return true;
+    // RFC 5322 compliant email regex pattern
+    const emailRegex = /^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$/i;
+    return emailRegex.test(val);
+  }, {
     message: 'Invalid email format',
   });
 
@@ -30,17 +30,13 @@ export const lenientEmailSchema = z.string()
 export const nameSchema = z.string()
   .trim()
   .min(1, 'Name is required')
-  .max(50, 'Name must be less than 50 characters')
   .refine((val) => val.trim().length > 0, 'Name cannot be only whitespace');
 
-// Lenient name validation (for existing data that may have empty/whitespace values)
-export const lenientNameSchema = z.string()
-  .trim()
-  .max(50, 'Name must be less than 50 characters')
-  .optional();
-
 // Common password validation (with trimming)
-export const passwordSchema = z.string().trim();
+export const passwordSchema = z.string()
+  .trim()
+  .min(1, 'Password is required')
+  .refine((val) => val.trim().length > 0, 'Password cannot be only whitespace');
 
 // Common ISO-8601 date time validation
 export const isoDateTimeSchema = z.string().refine((val) => {

@@ -426,6 +426,17 @@ export class TestHelpers {
   }
 
   /**
+   * Проверка Forbidden (status 403)
+   */
+  static expectForbidden(response: ApiResponse<any>, _testName: string): void {
+    this.expectStatusAuto(response, 403);
+    expect(response.data).toBeDefined();
+    expect(typeof response.data).toBe('object');
+    expect(response.data).toHaveProperty('message');
+    expect(typeof response.data.message).toBe('string');
+  }
+
+  /**
    * Проверка Conflict (status 409) с расширенными матчерами
    */
   static expectConflict(response: ApiResponse<any>, _testName: string): void {

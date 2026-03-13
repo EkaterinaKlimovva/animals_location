@@ -18,13 +18,13 @@ export class AccountRepository {
 
     const where: Prisma.AccountWhereInput = {};
     if (firstName) {
-      where.firstName = { contains: firstName };
+      where.firstName = { contains: firstName, mode: 'insensitive' };
     }
     if (lastName) {
-      where.lastName = { contains: lastName };
+      where.lastName = { contains: lastName, mode: 'insensitive' };
     }
     if (email) {
-      where.email = { contains: email };
+      where.email = { contains: email, mode: 'insensitive' };
     }
 
     return prisma.account.findMany({
@@ -41,7 +41,7 @@ export class AccountRepository {
 
   update(
     id: number,
-    data: { firstName?: string; lastName?: string; role?: string },
+    data: { firstName?: string; lastName?: string; role?: string; password?: string },
   ) {
     return prisma.account.update({
       where: { id },

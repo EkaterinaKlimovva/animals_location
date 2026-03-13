@@ -25,7 +25,7 @@ export const visitedLocationIdParamSchema = z.object({
 const router = Router({ mergeParams: true });
 
 router.get('/', validateParams(animalIdParamSchema, 'params'), optionalAuthMiddleware, asyncHandler(listVisitedLocations));
-router.post('/', authMiddleware, validateParams(animalIdParamSchema, 'params'), asyncHandler(createVisitedLocation));
+router.post('/:id', authMiddleware, validateParams(animalIdParamSchema, 'params'), asyncHandler(createVisitedLocation));
 router.put('/:id', authMiddleware, validateParams(visitedLocationIdParamSchema, 'params'), asyncHandler(updateVisitedLocation));
 router.delete('/:id', authMiddleware, validateParams(visitedLocationIdParamSchema, 'params'), asyncHandler(deleteVisitedLocation));
 

@@ -5,10 +5,16 @@ import { ZodError } from 'zod';
 // Centralized error handling functions
 export function handleControllerError(res: Response, error: unknown, context: string): void {
   let message: string;
+  let details: { path: string; code: string; message: string }[] = [];
 
   if (error instanceof ZodError) {
     // Extract clean error messages from Zod validation errors
-    message = error.issues.map(e => e.message).join(', ');
+    message = error.issues.length > 0 ? error.issues[0].message : 'Validation failed';
+    details = error.issues.map(e => ({
+      path: e.path.join('.'),
+      code: e.code,
+      message: e.message,
+    }));
   } else if (error instanceof Error) {
     message = error.message;
   } else {
@@ -16,13 +22,13 @@ export function handleControllerError(res: Response, error: unknown, context: st
   }
 
   console.error(`${context} - Error:`, error);
-  res.status(HTTP_STATUS.BAD_REQUEST).json({ message });
+  res.status(HTTP_STATUS.BAD_REQUEST).json({ error: message, details: details.length > 0 ? details: undefined });
 }
 
 export function handleControllerNotFound(res: Response, context: string, entity: string): void {
   const message = `${entity} not found`;
   console.log(`${context} - ${message}`);
-  res.status(HTTP_STATUS.NOT_FOUND).json({ message });
+  res.status(HTTP_STATUS.NOT_FOUND).json({ message: message });
 }
 
 export function sendControllerSuccess<T>(res: Response, data: T, message?: string): void {

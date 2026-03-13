@@ -1,5 +1,16 @@
 import type { Account } from '../generated/prisma/client';
 
+/**
+ * Safe account model - excludes sensitive fields (password, timestamps)
+ * Used for API responses to protect user data
+ */
+export interface SafeAccount {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
 export interface RegisterDto {
   email: string;
   password: string;
@@ -7,5 +18,5 @@ export interface RegisterDto {
   lastName: string;
 }
 
-export type SafeAccount = Omit<Account, 'password' | 'createdAt' | 'updatedAt'>;
-
+// Legacy type alias for backward compatibility
+export type SafeAccountLegacy = Omit<Account, 'password' | 'createdAt' | 'updatedAt'>;

@@ -36,17 +36,17 @@ export type AnimalTypeSumAggregateOutputType = {
 
 export type AnimalTypeMinAggregateOutputType = {
   id: number | null
-  name: string | null
+  type: string | null
 }
 
 export type AnimalTypeMaxAggregateOutputType = {
   id: number | null
-  name: string | null
+  type: string | null
 }
 
 export type AnimalTypeCountAggregateOutputType = {
   id: number
-  name: number
+  type: number
   _all: number
 }
 
@@ -61,17 +61,17 @@ export type AnimalTypeSumAggregateInputType = {
 
 export type AnimalTypeMinAggregateInputType = {
   id?: true
-  name?: true
+  type?: true
 }
 
 export type AnimalTypeMaxAggregateInputType = {
   id?: true
-  name?: true
+  type?: true
 }
 
 export type AnimalTypeCountAggregateInputType = {
   id?: true
-  name?: true
+  type?: true
   _all?: true
 }
 
@@ -163,7 +163,7 @@ export type AnimalTypeGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 
 export type AnimalTypeGroupByOutputType = {
   id: number
-  name: string
+  type: string
   _count: AnimalTypeCountAggregateOutputType | null
   _avg: AnimalTypeAvgAggregateOutputType | null
   _sum: AnimalTypeSumAggregateOutputType | null
@@ -191,28 +191,28 @@ export type AnimalTypeWhereInput = {
   OR?: Prisma.AnimalTypeWhereInput[]
   NOT?: Prisma.AnimalTypeWhereInput | Prisma.AnimalTypeWhereInput[]
   id?: Prisma.IntFilter<"AnimalType"> | number
-  name?: Prisma.StringFilter<"AnimalType"> | string
+  type?: Prisma.StringFilter<"AnimalType"> | string
   animals?: Prisma.AnimalOnTypeListRelationFilter
 }
 
 export type AnimalTypeOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  name?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   animals?: Prisma.AnimalOnTypeOrderByRelationAggregateInput
 }
 
 export type AnimalTypeWhereUniqueInput = Prisma.AtLeast<{
   id?: number
-  name?: string
+  type?: string
   AND?: Prisma.AnimalTypeWhereInput | Prisma.AnimalTypeWhereInput[]
   OR?: Prisma.AnimalTypeWhereInput[]
   NOT?: Prisma.AnimalTypeWhereInput | Prisma.AnimalTypeWhereInput[]
   animals?: Prisma.AnimalOnTypeListRelationFilter
-}, "id" | "name">
+}, "id" | "type">
 
 export type AnimalTypeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  name?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   _count?: Prisma.AnimalTypeCountOrderByAggregateInput
   _avg?: Prisma.AnimalTypeAvgOrderByAggregateInput
   _max?: Prisma.AnimalTypeMaxOrderByAggregateInput
@@ -225,48 +225,48 @@ export type AnimalTypeScalarWhereWithAggregatesInput = {
   OR?: Prisma.AnimalTypeScalarWhereWithAggregatesInput[]
   NOT?: Prisma.AnimalTypeScalarWhereWithAggregatesInput | Prisma.AnimalTypeScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"AnimalType"> | number
-  name?: Prisma.StringWithAggregatesFilter<"AnimalType"> | string
+  type?: Prisma.StringWithAggregatesFilter<"AnimalType"> | string
 }
 
 export type AnimalTypeCreateInput = {
-  name: string
+  type: string
   animals?: Prisma.AnimalOnTypeCreateNestedManyWithoutTypeInput
 }
 
 export type AnimalTypeUncheckedCreateInput = {
   id?: number
-  name: string
+  type: string
   animals?: Prisma.AnimalOnTypeUncheckedCreateNestedManyWithoutTypeInput
 }
 
 export type AnimalTypeUpdateInput = {
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   animals?: Prisma.AnimalOnTypeUpdateManyWithoutTypeNestedInput
 }
 
 export type AnimalTypeUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   animals?: Prisma.AnimalOnTypeUncheckedUpdateManyWithoutTypeNestedInput
 }
 
 export type AnimalTypeCreateManyInput = {
   id?: number
-  name: string
+  type: string
 }
 
 export type AnimalTypeUpdateManyMutationInput = {
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type AnimalTypeUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type AnimalTypeCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  name?: Prisma.SortOrder
+  type?: Prisma.SortOrder
 }
 
 export type AnimalTypeAvgOrderByAggregateInput = {
@@ -275,12 +275,12 @@ export type AnimalTypeAvgOrderByAggregateInput = {
 
 export type AnimalTypeMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  name?: Prisma.SortOrder
+  type?: Prisma.SortOrder
 }
 
 export type AnimalTypeMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  name?: Prisma.SortOrder
+  type?: Prisma.SortOrder
 }
 
 export type AnimalTypeSumOrderByAggregateInput = {
@@ -307,12 +307,12 @@ export type AnimalTypeUpdateOneRequiredWithoutAnimalsNestedInput = {
 }
 
 export type AnimalTypeCreateWithoutAnimalsInput = {
-  name: string
+  type: string
 }
 
 export type AnimalTypeUncheckedCreateWithoutAnimalsInput = {
   id?: number
-  name: string
+  type: string
 }
 
 export type AnimalTypeCreateOrConnectWithoutAnimalsInput = {
@@ -332,12 +332,12 @@ export type AnimalTypeUpdateToOneWithWhereWithoutAnimalsInput = {
 }
 
 export type AnimalTypeUpdateWithoutAnimalsInput = {
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type AnimalTypeUncheckedUpdateWithoutAnimalsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
@@ -373,27 +373,27 @@ export type AnimalTypeCountOutputTypeCountAnimalsArgs<ExtArgs extends runtime.Ty
 
 export type AnimalTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  name?: boolean
+  type?: boolean
   animals?: boolean | Prisma.AnimalType$animalsArgs<ExtArgs>
   _count?: boolean | Prisma.AnimalTypeCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["animalType"]>
 
 export type AnimalTypeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  name?: boolean
+  type?: boolean
 }, ExtArgs["result"]["animalType"]>
 
 export type AnimalTypeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  name?: boolean
+  type?: boolean
 }, ExtArgs["result"]["animalType"]>
 
 export type AnimalTypeSelectScalar = {
   id?: boolean
-  name?: boolean
+  type?: boolean
 }
 
-export type AnimalTypeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name", ExtArgs["result"]["animalType"]>
+export type AnimalTypeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type", ExtArgs["result"]["animalType"]>
 export type AnimalTypeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   animals?: boolean | Prisma.AnimalType$animalsArgs<ExtArgs>
   _count?: boolean | Prisma.AnimalTypeCountOutputTypeDefaultArgs<ExtArgs>
@@ -408,7 +408,7 @@ export type $AnimalTypePayload<ExtArgs extends runtime.Types.Extensions.Internal
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
-    name: string
+    type: string
   }, ExtArgs["result"]["animalType"]>
   composites: {}
 }
@@ -834,7 +834,7 @@ export interface Prisma__AnimalTypeClient<T, Null = never, ExtArgs extends runti
  */
 export interface AnimalTypeFieldRefs {
   readonly id: Prisma.FieldRef<"AnimalType", 'Int'>
-  readonly name: Prisma.FieldRef<"AnimalType", 'String'>
+  readonly type: Prisma.FieldRef<"AnimalType", 'String'>
 }
     
 
