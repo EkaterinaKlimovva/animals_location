@@ -18,13 +18,13 @@ export class AnimalTypeService {
     return animalTypeRepository.findById(id);
   }
 
-  async create(name: string): Promise<CreateAnimalTypeResponse> {
-    const existing = await animalTypeRepository.findByName(name);
+  async create(type: string): Promise<CreateAnimalTypeResponse> {
+    const existing = await animalTypeRepository.findByName(type);
     if (existing) {
       return { conflict: true as const, type: existing };
     }
 
-    const created = await animalTypeRepository.create(name);
+    const created = await animalTypeRepository.create(type);
     return { conflict: false as const, type: created };
   }
 

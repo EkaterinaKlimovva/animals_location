@@ -220,13 +220,13 @@ export class TestHelpers {
         longitude: 37.6173 + Math.random() * 0.01,
       },
       animal: {
-        animalTypes: [1],
+        animalTypes: [], // Will be populated dynamically
         weight: 5.0 + Math.random() * 10,
         length: 0.5 + Math.random() * 0.5,
         height: 0.3 + Math.random() * 0.3,
         gender: 'MALE' as const,
-        chipperId: 1,
-        chippingLocationId: 1,
+        chipperId: 0, // Will be populated dynamically
+        chippingLocationId: 0, // Will be populated dynamically
       },
     };
   }

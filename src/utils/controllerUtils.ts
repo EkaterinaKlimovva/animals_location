@@ -46,10 +46,17 @@ export function sendControllerNoContent(res: Response, message?: string): void {
   res.status(HTTP_STATUS.NO_CONTENT).send();
 }
 
-export function validateControllerTypeId(typeId: unknown): { isValid: boolean; message?: string } {
+export function sendControllerForbidden(res: Response, message?: string): void {
+  if (message) {
+    console.log(message);
+  }
+  res.status(HTTP_STATUS.FORBIDDEN).send();
+}
+
+export function validateControllerTypeId(typeId: unknown): number {
   const num = Number(typeId);
   if (!Number.isInteger(num) || num <= 0) {
-    return { isValid: false, message: VALIDATION_MESSAGES.INVALID_TYPE_ID };
+    throw new Error(VALIDATION_MESSAGES.INVALID_TYPE_ID);
   }
-  return { isValid: true };
+  return num;
 }

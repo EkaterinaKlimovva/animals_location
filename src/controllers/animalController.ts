@@ -113,13 +113,9 @@ export async function addAnimalType(req: AddAnimalTypeRequest, res: Response): P
     const { id } = animalIdParamSchema.parse(req.params);
     const { typeId }: { typeId: number } = req.body;
 
-    const validation = validateControllerTypeId(typeId);
-    if (!validation.isValid) {
-      res.status(400).json({ message: validation.message });
-      return;
-    }
+    const validatedTypeId = validateControllerTypeId(typeId);
 
-    await animalService.addTypeToAnimal(id, typeId);
+    await animalService.addTypeToAnimal(id, validatedTypeId);
     sendControllerSuccess(res, { message: 'Animal type added successfully' }, 'Animal type added successfully');
   } catch (error) {
     handleControllerError(res, error, `${CONTROLLER_PREFIX} - addAnimalType`);
@@ -131,13 +127,9 @@ export async function removeAnimalType(req: RemoveAnimalTypeRequest, res: Respon
     const { id } = animalIdParamSchema.parse(req.params);
     const { typeId }: { typeId: string } = req.params;
 
-    const validation = validateControllerTypeId(typeId);
-    if (!validation.isValid) {
-      res.status(400).json({ message: validation.message });
-      return;
-    }
+    const validatedTypeId = validateControllerTypeId(typeId);
 
-    await animalService.removeTypeFromAnimal(id, Number(typeId));
+    await animalService.removeTypeFromAnimal(id, validatedTypeId);
     sendControllerSuccess(res, { message: 'Animal type removed successfully' }, 'Animal type removed successfully');
   } catch (error) {
     handleControllerError(res, error, `${CONTROLLER_PREFIX} - removeAnimalType`);

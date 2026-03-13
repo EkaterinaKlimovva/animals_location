@@ -6,6 +6,7 @@ import {
   sendControllerSuccess,
   sendControllerCreated,
   sendControllerNoContent,
+  sendControllerForbidden,
 } from '../utils/controllerUtils';
 import { ENTITY_NAMES, SUCCESS_MESSAGES } from '../utils/constants';
 import type {
@@ -78,7 +79,7 @@ export async function updateAccount(req: UpdateAccountRequest, res: Response): P
     // Check if account exists
     const existingAccount = await accountService.getById(id);
     if (!existingAccount) {
-      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - updateAccount`, ENTITY_NAMES.ACCOUNT);
+      sendControllerForbidden(res, `${CONTROLLER_PREFIX} - updateAccount`);
       return;
     }
 
@@ -96,7 +97,7 @@ export async function deleteAccount(req: DeleteAccountRequest, res: Response): P
     // Check if account exists
     const account = await accountService.getById(id);
     if (!account) {
-      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - deleteAccount`, ENTITY_NAMES.ACCOUNT);
+      sendControllerForbidden(res, `${CONTROLLER_PREFIX} - deleteAccount`);
       return;
     }
 
