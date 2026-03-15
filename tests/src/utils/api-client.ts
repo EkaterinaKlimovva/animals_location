@@ -274,7 +274,9 @@ export class ApiClient {
 
   // Visited Locations endpoints
   async addVisitedLocation(animalId: number, locationData: TestAddVisitedLocationRequest): Promise<ApiResponse<TestVisitedLocation>> {
-    return this.request<TestVisitedLocation>('POST', `/animals/${animalId}/locations`, locationData, true);
+    // The route expects POST /animals/:animalId/locations/:locationId
+    // where locationId is in the URL params and locationData is in the body
+    return this.request<TestVisitedLocation>('POST', `/animals/${animalId}/locations/${locationData.locationPointId}`, locationData, true);
   }
 
   async getVisitedLocations(animalId: number, params?: { startDateTime?: string; endDateTime?: string }): Promise<ApiResponse<TestVisitedLocation[]>> {
@@ -295,8 +297,8 @@ export class ApiClient {
     return this.request<TestVisitedLocation[]>('GET', url, undefined, false);
   }
 
-  async updateVisitedLocation(animalId: number, locationId: number, data: TestAddVisitedLocationRequest): Promise<ApiResponse<TestVisitedLocation>> {
-    return this.request<TestVisitedLocation>('PUT', `/animals/${animalId}/locations/${locationId}`, data, true);
+  async updateVisitedLocation(animalId: number, data: TestAddVisitedLocationRequest): Promise<ApiResponse<TestVisitedLocation>> {
+    return this.request<TestVisitedLocation>('PUT', `/animals/${animalId}/locations`, data, true);
   }
 
   async deleteVisitedLocation(animalId: number, locationId: number): Promise<ApiResponse<void>> {

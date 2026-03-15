@@ -78,7 +78,7 @@ model AnimalOnType {
   animalId Int @map("animal_id")
   typeId   Int @map("type_id")
 
-  animal Animal     @relation(fields: [animalId], references: [id])
+  animal Animal     @relation(fields: [animalId], references: [id], onDelete: Cascade)
   type   AnimalType @relation(fields: [typeId], references: [id])
 
   @@id([animalId, typeId])
@@ -92,7 +92,7 @@ model AnimalVisitedLocation {
   locationPointId Int      @map("location_point_id")
   visitedAt       DateTime @default(now()) @map("visited_at")
 
-  animal        Animal        @relation(fields: [animalId], references: [id])
+  animal        Animal        @relation(fields: [animalId], references: [id], onDelete: Cascade)
   locationPoint LocationPoint @relation(fields: [locationPointId], references: [id])
 
   @@map("animal_visited_location")

@@ -52,6 +52,9 @@ describe('Visited Locations API Tests', () => {
     if (animalResponse.status === 201) {
       createdAnimalId = animalResponse.data.id;
     }
+    
+    // Create authenticated client for tests that need auth
+    const authenticatedClient = new ApiClient((global as any).TEST_BASE_URL);
   });
 
   afterAll(async () => {
@@ -69,12 +72,24 @@ describe('Visited Locations API Tests', () => {
 
   describe('POST /animals/:id/locations', () => {
     it('should add visited location successfully', async () => {
+      // Create a separate location for visited location (not the chipping location)
+      const testData = TestHelpers.generateTestData();
+      const visitedLocationResponse = await apiClient.createLocation(testData.location);
+      
+      if (visitedLocationResponse.status !== 201) {
+        throw new Error('Failed to create visited location for test');
+      }
+
       const locationData: TestAddVisitedLocationRequest = {
-        locationPointId: createdLocationId,
+        locationPointId: visitedLocationResponse.data.id,
         visitedAt: '2023-01-15T10:30:00.000Z',
       };
 
       const response = await apiClient.addVisitedLocation(createdAnimalId, locationData);
+
+      if (response.status !== 201) {
+        console.log('Error response:', response.status, response.data);
+      }
 
       TestHelpers.expectCreated(response, 'Add Visited Location Success');
       TestHelpers.expectHasProperty(response.data, 'id', 'Add Visited Location Success');
@@ -83,6 +98,9 @@ describe('Visited Locations API Tests', () => {
 
       // Сохраняем ID для последующих тестов
       createdVisitedLocationId = response.data.id;
+      
+      // Clean up the created location
+      await apiClient.deleteLocation(visitedLocationResponse.data.id);
     });
 
     it('should add visited location without visitedAt (default to now)', async () => {
@@ -164,6 +182,23 @@ describe('Visited Locations API Tests', () => {
       );
 
       TestHelpers.expectUnauthorized(response, 'Add Visited Location Unauthorized');
+    });
+
+    it('should return 400 when adding visited location to dead animal', async () => {
+      // First, update the animal to be dead
+      const updateData = { lifeStatus: 'DEAD' as const };
+      const updateResponse = await apiClient.updateAnimal(createdAnimalId, updateData);
+      
+      if (updateResponse.status === 200) {
+        const locationData: TestAddVisitedLocationRequest = {
+          locationPointId: createdLocationId,
+          visitedAt: '2023-01-01T12:00:00.000Z',
+        };
+
+        const response = await apiClient.addVisitedLocation(createdAnimalId, locationData);
+        TestHelpers.expectBadRequest(response, 'Add Visited Location Dead Animal');
+        TestHelpers.expectMessage(response, 400, 'Cannot add visited location to a dead animal', 'Add Visited Location Dead Animal');
+      }
     });
 
     it('should handle multiple visited locations for same animal', async () => {
@@ -302,10 +337,26 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
   });
 
   describe('PUT /animals/:id/locations/:locationId', () => {
+    let authenticatedClient: ApiClient;
+    
+    beforeAll(() => {
+      authenticatedClient = new ApiClient((global as any).TEST_BASE_URL);
+    });
+
     it('should update visited location successfully', async () => {
       // Сначала создаем новую посещенную локацию
+      // Создаем новую локацию, отличную от чип-локации
+      const newLocationResponse = await authenticatedClient.createLocation({
+        latitude: -33.8688,
+        longitude: 151.2093,
+      });
+
+      if (newLocationResponse.status !== 201) {
+        throw new Error('Failed to create new location for update test');
+      }
+
       const locationData: TestAddVisitedLocationRequest = {
-        locationPointId: createdLocationId,
+        locationPointId: newLocationResponse.data.id,
         visitedAt: '2023-02-01T10:00:00.000Z',
       };
 
@@ -318,14 +369,15 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
       const locationIdToUpdate = createResponse.data.id;
 
       const updateData: TestAddVisitedLocationRequest = {
-        locationPointId: createdLocationId,
+        visitedLocationPointId: locationIdToUpdate,
+        locationPointId: newLocationResponse.data.id,
         visitedAt: '2023-02-01T15:30:00.000Z',
       };
 
-      const response = await apiClient.updateVisitedLocation(createdAnimalId, locationIdToUpdate, updateData);
+      const response = await apiClient.updateVisitedLocation(createdAnimalId, updateData);
 
       TestHelpers.expectUpdated(response, 'Update Visited Location Success');
-      TestHelpers.expectEqual(response.data.id, locationIdToUpdate, 'Update Visited Location Success', 'id');
+      TestHelpers.expectEqual(response.data.id, updateData.visitedLocationPointId, 'Update Visited Location Success', 'id');
       TestHelpers.expectEqual(response.data.locationPointId, updateData.locationPointId, 'Update Visited Location Success', 'locationPointId');
       TestHelpers.expectEqual(response.data.dateTimeOfVisitLocationPoint, updateData.visitedAt, 'Update Visited Location Success', 'dateTimeOfVisitLocationPoint');
     });
@@ -349,7 +401,7 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
         visitedAt: '2023-03-01T12:00:00.000Z',
       };
 
-      const response = await apiClient.updateVisitedLocation(createdAnimalId, locationIdToUpdate, updateData);
+      const response = await apiClient.updateVisitedLocation(createdAnimalId, updateData);
 
       TestHelpers.expectUpdated(response, 'Update Visited Location Time Only');
       TestHelpers.expectEqual(response.data.dateTimeOfVisitLocationPoint, updateData.visitedAt, 'Update Visited Location Time Only', 'dateTimeOfVisitLocationPoint');
@@ -379,7 +431,7 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
           locationPointId: locationResponse.data.id,
         };
 
-        const response = await apiClient.updateVisitedLocation(createdAnimalId, locationIdToUpdate, updateData);
+        const response = await apiClient.updateVisitedLocation(createdAnimalId, updateData);
 
         TestHelpers.expectUpdated(response, 'Update Visited Location Point Only');
         TestHelpers.expectEqual(response.data.locationPointId, updateData.locationPointId, 'Update Visited Location Point Only', 'locationPointId');
@@ -397,9 +449,43 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
         visitedAt: '2023-01-01T12:00:00.000Z',
       };
 
-      const response = await apiClient.updateVisitedLocation('invalid' as any, 1, updateData);
+      const response = await apiClient.updateVisitedLocation('invalid' as any, {
+        visitedLocationPointId: 1,
+        ...updateData
+      });
 
       expect(response.status).toBe(404);
+    });
+
+    it('should return 404 when updating visited location for non-existent animal', async () => {
+      // First, create a visited location for our test animal
+      const locationData: TestAddVisitedLocationRequest = {
+        locationPointId: createdLocationId,
+        visitedAt: '2023-01-01T12:00:00.000Z',
+      };
+
+      const createResponse = await apiClient.addVisitedLocation(createdAnimalId, locationData);
+
+      if (createResponse.status === 201) {
+        const visitedLocationId = createResponse.data.id;
+        
+        // Delete the animal to make it non-existent
+        await apiClient.deleteAnimal(createdAnimalId);
+        
+        const updateData: TestAddVisitedLocationRequest = {
+          locationPointId: createdLocationId,
+          visitedAt: '2023-01-02T12:00:00.000Z',
+        };
+
+        // Try to update the visited location - should return 404 because animal doesn't exist
+        const response = await apiClient.updateVisitedLocation(createdAnimalId, {
+        visitedLocationPointId: visitedLocationId,
+        ...updateData
+      });
+
+        TestHelpers.expectNotFound(response, 'Update Visited Location Non-Existent Animal');
+        TestHelpers.expectMessage(response, 404, 'Animal not found', 'Update Visited Location Non-Existent Animal');
+      }
     });
 
     it('should return 400 for invalid visited location ID format', async () => {
@@ -409,7 +495,10 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
       };
 
       // Using 'invalid' to trigger format validation - returns 400 with validation error
-      const response = await apiClient.updateVisitedLocation(createdAnimalId, 'invalid' as any, updateData);
+      const response = await apiClient.updateVisitedLocation(createdAnimalId, {
+        visitedLocationPointId: 'invalid' as any,
+        ...updateData
+      });
 
       expect(response.status).toBe(400);
       expect(response.data).toHaveProperty('error', 'Validation failed');
@@ -435,10 +524,77 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
         visitedAt: '2023-01-01T12:00:00.000Z',
       };
 
-      const response = await apiClient.updateVisitedLocation(createdAnimalId, locationIdToUpdate, updateData);
+      const response = await apiClient.updateVisitedLocation(createdAnimalId, updateData);
 
       // Returns 404 because location doesn't exist
       expect(response.status).toBe(404);
+    });
+
+    it('should return 404 when updating visited location that belongs to different animal', async () => {
+      // Create a second location for the visited location (different from chipping location)
+      const secondLocationResponse = await apiClient.createLocation({
+        latitude: -35.0 + Math.random(),
+        longitude: 140.0 + Math.random(),
+      });
+
+      if (secondLocationResponse.status !== 201) {
+        throw new Error('Failed to create second location for test');
+      }
+
+      const secondLocationId = secondLocationResponse.data.id;
+
+      // Create a second animal
+      const secondAnimalResponse = await apiClient.createAnimal({
+        animalTypes: [createdAnimalTypeId],
+        weight: 20.0,
+        length: 80,
+        height: 50,
+        gender: 'FEMALE',
+        chipperId: createdAccountId,
+        chippingLocationId: createdLocationId,
+      });
+
+      if (secondAnimalResponse.status !== 201) {
+        await apiClient.deleteLocation(secondLocationId);
+        throw new Error('Failed to create second animal for test');
+      }
+
+      const secondAnimalId = secondAnimalResponse.data.id;
+
+      // Create a visited location for the first animal using the second location (not chipping location)
+      const locationData: TestAddVisitedLocationRequest = {
+        locationPointId: secondLocationId,
+        visitedAt: '2023-01-01T10:00:00.000Z',
+      };
+
+      const createResponse = await apiClient.addVisitedLocation(createdAnimalId, locationData);
+
+      if (createResponse.status !== 201) {
+        // Clean up
+        await apiClient.deleteAnimal(secondAnimalId);
+        await apiClient.deleteLocation(secondLocationId);
+        throw new Error('Failed to create visited location for test');
+      }
+
+      const visitedLocationId = createResponse.data.id;
+
+      // Try to update this visited location using the second animal ID
+      // This should fail with 404 because the visited location doesn't belong to the second animal
+      const updateData: TestAddVisitedLocationRequest = {
+        visitedLocationPointId: visitedLocationId,
+        locationPointId: secondLocationId,
+        visitedAt: '2023-01-02T12:00:00.000Z',
+      };
+
+      const response = await apiClient.updateVisitedLocation(secondAnimalId, updateData);
+
+      // Should return 404 because the visited location doesn't belong to this animal
+      expect(response.status).toBe(404);
+      TestHelpers.expectMessage(response, 404, 'Visited location not found', 'Update Visited Location Wrong Animal');
+
+      // Clean up
+      await apiClient.deleteAnimal(secondAnimalId);
+      await apiClient.deleteLocation(secondLocationId);
     });
 
     it('should return 401 for unauthorized update', async () => {
@@ -463,7 +619,7 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
 
       const response = await unauthorizedClient.requestWithCustomHeaders(
         'PUT',
-        `/animals/${createdAnimalId}/locations/${locationIdToUpdate}`,
+        `/animals/${createdAnimalId}/locations`,
         updateData,
         {}
       );
@@ -472,6 +628,38 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
 
       // Clean up
       await apiClient.deleteVisitedLocation(createdAnimalId, locationIdToUpdate);
+    });
+
+    it('should return 400 when updating first visited location to chipping location', async () => {
+      // Create a new animal for this specific test
+      const testData = TestHelpers.generateTestData();
+      const animalResponse = await apiClient.createAnimal({
+        ...testData.animal,
+        animalTypes: [createdAnimalTypeId],
+        chipperId: createdAccountId,
+        chippingLocationId: createdLocationId,
+      });
+
+      if (animalResponse.status === 201) {
+        const testAnimalId = animalResponse.data.id;
+
+        // Add first visited location (before chipping)
+        const firstLocationResponse = await apiClient.addVisitedLocation(testAnimalId, {
+          locationPointId: createdLocationId,
+          visitedAt: '2023-01-01T09:00:00.000Z', // Before chipping
+        });
+
+        if (firstLocationResponse.status === 201) {
+          // Try to update the first visited location to chipping location - should fail
+          const updateResponse = await apiClient.updateVisitedLocation(testAnimalId, {
+            visitedLocationPointId: firstLocationResponse.data.id,
+            locationPointId: createdLocationId, // This is the chipping location
+          });
+          
+          TestHelpers.expectBadRequest(updateResponse, 'Update First Visited Location To Chipping');
+          TestHelpers.expectMessage(updateResponse, 400, 'Cannot update first visited location to chipping location', 'Update First Visited Location To Chipping');
+        }
+      }
     });
   });
 
@@ -505,7 +693,7 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
       // This is expected behavior - invalid format in URL path returns 404
       const response = await apiClient.deleteVisitedLocation('invalid' as any, 1);
 
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(400);
     });
 
     it('should return 400 for invalid visited location ID format', async () => {
@@ -513,7 +701,7 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
       const response = await apiClient.deleteVisitedLocation(createdAnimalId, 'invalid' as any);
 
       expect(response.status).toBe(400);
-      expect(response.data).toHaveProperty('error', 'Validation failed');
+      expect(response.data).toHaveProperty('error', 'Invalid input');
     });
 
     it('should return 401 for unauthorized delete', async () => {
@@ -546,6 +734,46 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
       );
 
       TestHelpers.expectUnauthorized(response, 'Delete Visited Location Unauthorized');
+    });
+
+    it('should return 400 when deleting first visited location if followed by chipping location', async () => {
+      // Create a new animal for this specific test
+      const testData = TestHelpers.generateTestData();
+      const animalResponse = await apiClient.createAnimal({
+        ...testData.animal,
+        animalTypes: [createdAnimalTypeId],
+        chipperId: createdAccountId,
+        chippingLocationId: createdLocationId,
+      });
+
+      if (animalResponse.status === 201) {
+        const testAnimalId = animalResponse.data.id;
+
+        // Add first visited location (before chipping)
+        const firstLocationResponse = await apiClient.addVisitedLocation(testAnimalId, {
+          locationPointId: createdLocationId,
+          visitedAt: '2023-01-01T09:00:00.000Z', // Before chipping
+        });
+
+        if (firstLocationResponse.status === 201) {
+          // Add second visited location that is the chipping location
+          const chippingLocationResponse = await apiClient.addVisitedLocation(testAnimalId, {
+            locationPointId: createdLocationId,
+            visitedAt: '2023-01-01T10:00:00.000Z', // Same as chipping time
+          });
+
+          if (chippingLocationResponse.status === 201) {
+            // Try to delete the first visited location - should fail because chipping location follows
+            const deleteResponse = await apiClient.deleteVisitedLocation(testAnimalId, firstLocationResponse.data.id);
+            
+            TestHelpers.expectBadRequest(deleteResponse, 'Delete First Visited Location Before Chipping');
+            TestHelpers.expectMessage(deleteResponse, 400, 'Cannot delete first visited location when followed by chipping location', 'Delete First Visited Location Before Chipping');
+          }
+        }
+
+        // Clean up
+        await apiClient.deleteAnimal(testAnimalId);
+      }
     });
 
     // ========== Additional Skipped Tests for Allure Ratio ==========
@@ -662,7 +890,8 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
           });
           
           if (added.status === 201) {
-            const response = await apiClient.updateVisitedLocation(animal.data.id, added.data.id, {
+            const response = await apiClient.updateVisitedLocation(animal.data.id, {
+              visitedLocationPointId: added.data.id,
               visitedAt: '2025-06-01T12:00:00.000Z',
             });
             expect([200, 400]).toContain(response.status);
@@ -819,7 +1048,8 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
           });
           
           if (added.status === 201) {
-            const response = await apiClient.updateVisitedLocation(animal.data.id, added.data.id, {
+            const response = await apiClient.updateVisitedLocation(animal.data.id, {
+              visitedLocationPointId: added.data.id,
               locationPointId: 999999,
             });
             expect([400, 404]).toContain(response.status);

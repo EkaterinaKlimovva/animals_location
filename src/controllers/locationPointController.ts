@@ -54,6 +54,11 @@ export async function createLocationPoint(req: CreateLocationPointRequest, res: 
 
     sendControllerCreated(res, point, SUCCESS_MESSAGES.CREATED(ENTITY_NAMES.LOCATION_POINT));
   } catch (error) {
+    // Check for duplicate coordinates error - should return 409 Conflict
+    if (error instanceof Error && error.message === 'Location point with these coordinates already exists') {
+      res.status(409).json({ message: 'Location point with these coordinates already exists' });
+      return;
+    }
     handleControllerError(res, error, `${CONTROLLER_PREFIX} - createLocationPoint`);
   }
 }

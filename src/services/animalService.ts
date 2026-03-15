@@ -186,15 +186,20 @@ export class AnimalService {
       return false;
     }
 
-    // If animal has no visited locations other than chipping location, it can be deleted
+    // If animal has no visited locations, it can be deleted (still at chipping location)
     if (animal.visitedLocations.length === 0) {
       return true;
     }
 
-    // Check if animal has left the chipping location
-    // The first visited location should be the chipping location
-    // If there are other visited locations, it means the animal has left
-    return animal.visitedLocations.length <= 1;
+    // If animal has exactly 1 visited location and it's the chipping location, it can be deleted
+    if (animal.visitedLocations.length === 1) {
+      const firstVisitedLocation = animal.visitedLocations[0];
+      return firstVisitedLocation.locationPointId === animal.chippingLocationId;
+    }
+
+    // If animal has more than 1 visited location, it has left the chipping location
+    // and cannot be deleted
+    return false;
   }
 
   async addTypeToAnimal(animalId: number, typeId: number): Promise<AnimalOnType> {

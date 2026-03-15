@@ -73,6 +73,9 @@ export const animalIdParamSchema = z.object({
     .transform((val) => typeof val === 'string' ? Number(val) : val)
     .refine((num) => !isNaN(num), {
       message: 'Validation failed',
+    })
+    .refine((num) => num > 0, {
+      message: 'Validation failed',
     }),
 });
 

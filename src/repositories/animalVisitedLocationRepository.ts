@@ -32,6 +32,12 @@ export class AnimalVisitedLocationRepository {
     });
   }
 
+  async findById(id: number): Promise<AnimalVisitedLocation | null> {
+    return prisma.animalVisitedLocation.findUnique({
+      where: { id },
+    });
+  }
+
   async findAnimalById(animalId: number): Promise<Animal | null> {
     const animal = await prisma.animal.findUnique({
       where: { id: animalId },

@@ -37,7 +37,8 @@ export interface TestLocation {
 
 export interface TestAnimal {
   id: number;
-  types: TestAnimalTypeLink[];
+  animalTypes: TestAnimalTypeLink[];
+  types?: TestAnimalTypeLink[]; // for backward compatibility
   weight: number;
   length: number;
   height: number;
@@ -106,6 +107,7 @@ export interface TestUpdateAnimalRequest {
 
 export interface TestAddVisitedLocationRequest {
   locationPointId?: number;
+  visitedLocationPointId?: number;
   visitedAt?: string;
 }
 

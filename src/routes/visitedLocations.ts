@@ -8,15 +8,15 @@ import {
   updateVisitedLocation,
   deleteVisitedLocation,
 } from '../controllers/animalVisitedLocationController';
-import { animalIdParamSchema, visitedLocationIdParamSchema, updateVisitedLocationBodySchema } from '../validation/visitedLocationSchemas';
+import { animalIdParamSchema, visitedPointIdParamSchema, locationPointIdParamSchema, updateVisitedLocationBodySchema, createVisitedLocationBodySchema } from '../validation/visitedLocationSchemas';
 import { optionalAuthMiddleware } from '../middleware/optionalAuth';
 
 const router = Router({ mergeParams: true });
 
 router.get('/', validateParams(animalIdParamSchema, 'params'), optionalAuthMiddleware, asyncHandler(listVisitedLocations));
-router.post('/:id', authMiddleware, validateParams(animalIdParamSchema, 'params'), asyncHandler(createVisitedLocation));
-router.put('/', authMiddleware, validateComposite(animalIdParamSchema, updateVisitedLocationBodySchema), asyncHandler(updateVisitedLocation));
-router.delete('/:id', authMiddleware, validateParams(visitedLocationIdParamSchema, 'params'), asyncHandler(deleteVisitedLocation));
+router.post('/:locationId', authMiddleware, validateParams(animalIdParamSchema, 'params'), validateParams(locationPointIdParamSchema, 'params'), validateParams(createVisitedLocationBodySchema, 'body'), asyncHandler(createVisitedLocation));
+router.put('/', authMiddleware, validateParams(animalIdParamSchema, 'params'), validateParams(updateVisitedLocationBodySchema, 'body'), asyncHandler(updateVisitedLocation));
+router.delete('/:locationId', authMiddleware, validateParams(animalIdParamSchema, 'params'), validateParams(locationPointIdParamSchema, 'params'), asyncHandler(deleteVisitedLocation));
 
 export { router };
 

@@ -201,7 +201,10 @@ class AuthorizationTestSuite {
         response = await client.getVisitedLocations(this.testAnimalId);
         break;
       case 'updateVisitedLocation':
-        response = await client.updateVisitedLocation(this.testAnimalId, 1, endpointTest.data!);
+        response = await client.updateVisitedLocation(this.testAnimalId, {
+        visitedLocationPointId: 1,
+        ...(endpointTest.data as any)
+      });
         break;
       case 'deleteVisitedLocation':
         response = await client.deleteVisitedLocation(this.testAnimalId, 1);

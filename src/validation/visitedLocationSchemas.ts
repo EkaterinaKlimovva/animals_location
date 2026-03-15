@@ -11,8 +11,23 @@ export const visitedLocationIdParamSchema = z.object({
   id: idSchema,
 });
 
+// Visited point ID parameter schema for PUT endpoint
+export const visitedPointIdParamSchema = z.object({
+  visitedPointId: idSchema,
+});
+
+// Location point ID parameter schema for POST endpoint
+export const locationPointIdParamSchema = z.object({
+  locationId: idSchema,
+});
+
 // Update visited location body schema
 export const updateVisitedLocationBodySchema = z.object({
   visitedLocationPointId: idSchema,
   locationPointId: idSchema,
+});
+
+// Create visited location body schema
+export const createVisitedLocationBodySchema = z.object({
+  visitedAt: z.string().optional(),
 });
