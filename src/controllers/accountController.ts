@@ -1,34 +1,26 @@
-import type { Request, Response } from 'express';
+import type { Response } from 'express';
 import { accountService } from '../services/accountService';
 import {
   handleControllerError,
   handleControllerNotFound,
   sendControllerSuccess,
   sendControllerCreated,
-  sendControllerForbidden,
 } from '../utils/controllerUtils';
 import { ENTITY_NAMES, SUCCESS_MESSAGES } from '../utils/constants';
+import { requireOwnership, handleAuthError } from '../utils/authUtils';
+import { validateAnimalsExist, createAnimalValidationError } from '../utils/validationUtils';
 import type {
   ListAccountsRequest,
   SearchAccountsRequest,
   CreateAccountRequest,
+  CreateAccountWithAnimalsRequest,
   GetAccountRequest,
   UpdateAccountRequest,
   DeleteAccountRequest, SafeAccount,
 } from '../types';
-import type { CreateAccountInput, UpdateAccountInput, SearchAccountsInput } from '../validation';
-import { accountIdParamSchema, searchAccountsSchema } from '../validation';
-
-interface AuthenticatedUser {
-  id: number;
-  email: string;
-  firstName: string;
-  lastName: string;
-}
-
-interface AuthenticatedRequest extends Request {
-  user?: AuthenticatedUser;
-}
+import type { CreateAccountInput, CreateAccountWithAnimalsInput, UpdateAccountInput, SearchAccountsInput } from '../validation';
+import { accountIdParamSchema, searchAccountsSchema, createAccountWithAnimalsSchema } from '../validation';
+import type { AuthenticatedRequest } from '../middleware/auth';
 
 const CONTROLLER_PREFIX = '[ACCOUNT_CONTROLLER]';
 
@@ -40,6 +32,29 @@ export async function createAccount(req: CreateAccountRequest, res: Response): P
     sendControllerCreated(res, account, SUCCESS_MESSAGES.CREATED(ENTITY_NAMES.ACCOUNT));
   } catch (error) {
     handleControllerError(res, error, `${CONTROLLER_PREFIX} - createAccount`);
+  }
+}
+
+export async function createAccountWithAnimalValidation(req: CreateAccountWithAnimalsRequest, res: Response): Promise<void> {
+  try {
+    const accountData: CreateAccountWithAnimalsInput = createAccountWithAnimalsSchema.parse(req.body);
+
+    // Explicit validation using database queries instead of try-catch
+    if (accountData.animalIds && accountData.animalIds.length > 0) {
+      const validation = await validateAnimalsExist(accountData.animalIds);
+      if (!validation.valid) {
+        res.status(400).json({
+          error: createAnimalValidationError(validation.invalidIds),
+          invalidIds: validation.invalidIds,
+        });
+        return;
+      }
+    }
+
+    const account: SafeAccount = await accountService.createWithAnimalValidation(accountData);
+    sendControllerCreated(res, account, SUCCESS_MESSAGES.CREATED(ENTITY_NAMES.ACCOUNT));
+  } catch (error) {
+    handleControllerError(res, error, `${CONTROLLER_PREFIX} - createAccountWithAnimalValidation`);
   }
 }
 
@@ -56,9 +71,9 @@ export async function listAccounts(req: ListAccountsRequest, res: Response): Pro
   }
 }
 
-export async function searchAccounts(req: Request, res: Response): Promise<void> {
+export async function searchAccounts(req: SearchAccountsRequest, res: Response): Promise<void> {
   try {
-    const searchParams: SearchAccountsInput = req.query as unknown as SearchAccountsInput;
+    const searchParams: SearchAccountsInput = searchAccountsSchema.parse(req.query);
 
     const accounts: SafeAccount[] = await accountService.search(searchParams);
 
@@ -90,16 +105,10 @@ export async function updateAccount(req: UpdateAccountRequest, res: Response): P
     const updateData: UpdateAccountInput = req.body as UpdateAccountInput;
 
     // Check if the authenticated user is editing their own account
-    const authenticatedUser = (req as AuthenticatedRequest).user;
-    if (!authenticatedUser || authenticatedUser.id !== id) {
-      sendControllerForbidden(res, `${CONTROLLER_PREFIX} - updateAccount`);
-      return;
-    }
-
-    // Check if account exists
-    const existingAccount: SafeAccount | null = await accountService.getById(id);
-    if (!existingAccount) {
-      sendControllerForbidden(res, `${CONTROLLER_PREFIX} - updateAccount`);
+    try {
+      requireOwnership(req as AuthenticatedRequest, id);
+    } catch (_authError) {
+      handleAuthError(res, `${CONTROLLER_PREFIX} - updateAccount`);
       return;
     }
 
@@ -115,12 +124,10 @@ export async function deleteAccount(req: DeleteAccountRequest, res: Response): P
     const { id } = accountIdParamSchema.parse(req.params);
 
     // Check if the authenticated user is deleting their own account
-    const authenticatedUser = (req as AuthenticatedRequest).user;
-
-    // Check if account exists
-    const account: SafeAccount | null = await accountService.getById(id);
-    if (!account || !authenticatedUser || authenticatedUser.id !== id) {
-      sendControllerForbidden(res, `${CONTROLLER_PREFIX} - deleteAccount`);
+    try {
+      requireOwnership(req as AuthenticatedRequest, id);
+    } catch (_authError) {
+      handleAuthError(res, `${CONTROLLER_PREFIX} - deleteAccount`);
       return;
     }
 
@@ -132,7 +139,6 @@ export async function deleteAccount(req: DeleteAccountRequest, res: Response): P
     }
 
     await accountService.delete(id);
-
     sendControllerSuccess(res, SUCCESS_MESSAGES.DELETED(ENTITY_NAMES.ACCOUNT));
   } catch (error) {
     handleControllerError(res, error, `${CONTROLLER_PREFIX} - deleteAccount`);

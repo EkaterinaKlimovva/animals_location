@@ -9,7 +9,6 @@ import {
   handleControllerNotFound,
   sendControllerSuccess,
   sendControllerCreated,
-  sendControllerNoContent,
   validateControllerTypeId,
 } from '../utils/controllerUtils';
 import { ENTITY_NAMES, SUCCESS_MESSAGES } from '../utils/constants';

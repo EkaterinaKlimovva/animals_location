@@ -1,4 +1,5 @@
 import { locationPointRepository } from '../repositories/locationPointRepository';
+import { createLocationPointSchema, updateLocationPointSchema } from '../validation';
 
 interface CreateLocationPointData {
   latitude: number;
@@ -19,12 +20,23 @@ export class LocationPointService {
     return locationPointRepository.findById(id);
   }
 
-  create(data: CreateLocationPointData) {
-    return locationPointRepository.create(data);
+  async create(data: CreateLocationPointData) {
+    // Validate input data using Zod schema
+    const validatedData = createLocationPointSchema.parse(data);
+    
+    // Check if location point with these coordinates already exists
+    const existing = await locationPointRepository.findByCoordinates(validatedData.latitude, validatedData.longitude);
+    if (existing) {
+      throw new Error('Location point with these coordinates already exists');
+    }
+    
+    return locationPointRepository.create(validatedData);
   }
 
   update(id: number, data: UpdateLocationPointData) {
-    return locationPointRepository.update(id, data);
+    // Validate input data using Zod schema
+    const validatedData = updateLocationPointSchema.parse(data);
+    return locationPointRepository.update(id, validatedData);
   }
 
   delete(id: number) {

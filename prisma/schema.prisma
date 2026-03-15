@@ -47,6 +47,7 @@ model LocationPoint {
   visitedLocations AnimalVisitedLocation[]
   chippedAnimals   Animal[]                @relation("ChippingLocation")
 
+  @@unique([latitude, longitude])
   @@map("location_point")
   @@schema("animals_location")
 }

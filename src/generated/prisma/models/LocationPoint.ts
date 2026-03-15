@@ -222,6 +222,7 @@ export type LocationPointOrderByWithRelationInput = {
 
 export type LocationPointWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  latitude_longitude?: Prisma.LocationPointLatitudeLongitudeCompoundUniqueInput
   AND?: Prisma.LocationPointWhereInput | Prisma.LocationPointWhereInput[]
   OR?: Prisma.LocationPointWhereInput[]
   NOT?: Prisma.LocationPointWhereInput | Prisma.LocationPointWhereInput[]
@@ -229,7 +230,7 @@ export type LocationPointWhereUniqueInput = Prisma.AtLeast<{
   longitude?: Prisma.FloatFilter<"LocationPoint"> | number
   visitedLocations?: Prisma.AnimalVisitedLocationListRelationFilter
   chippedAnimals?: Prisma.AnimalListRelationFilter
-}, "id">
+}, "id" | "latitude_longitude">
 
 export type LocationPointOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -296,6 +297,11 @@ export type LocationPointUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   latitude?: Prisma.FloatFieldUpdateOperationsInput | number
   longitude?: Prisma.FloatFieldUpdateOperationsInput | number
+}
+
+export type LocationPointLatitudeLongitudeCompoundUniqueInput = {
+  latitude: number
+  longitude: number
 }
 
 export type LocationPointCountOrderByAggregateInput = {

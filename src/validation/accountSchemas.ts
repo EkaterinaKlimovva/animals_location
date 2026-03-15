@@ -12,6 +12,11 @@ export const registrationSchema = z.object({
 // Create account schema (alias for registration)
 export const createAccountSchema = registrationSchema;
 
+// Extended create account schema with optional animal validation
+export const createAccountWithAnimalsSchema = registrationSchema.extend({
+  animalIds: z.array(z.number().positive()).optional(),
+});
+
 // Update account schema (all fields optional but with validation when present)
 export const updateAccountSchema = z.object({
   firstName: nameSchema.optional(),
@@ -53,5 +58,6 @@ export const searchAccountsSchema = z.object({
 });
 
 export type CreateAccountInput = z.infer<typeof createAccountSchema>;
+export type CreateAccountWithAnimalsInput = z.infer<typeof createAccountWithAnimalsSchema>;
 export type UpdateAccountInput = z.infer<typeof updateAccountSchema>;
 export type SearchAccountsInput = z.infer<typeof searchAccountsSchema>;

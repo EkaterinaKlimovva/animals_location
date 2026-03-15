@@ -1,15 +1,27 @@
 import { prisma } from '../app/database';
+import type { LocationPoint } from '../generated/prisma/client';
 
 export class LocationPointRepository {
-  findAll() {
+  findAll(): Promise<LocationPoint[]> {
     return prisma.locationPoint.findMany();
   }
 
-  findById(id: number) {
+  findById(id: number): Promise<LocationPoint | null> {
     return prisma.locationPoint.findUnique({ where: { id } });
   }
 
-  create(data: { latitude: number; longitude: number }) {
+  findByCoordinates(latitude: number, longitude: number): Promise<LocationPoint | null> {
+    return prisma.locationPoint.findUnique({
+      where: {
+        latitude_longitude: {
+          latitude,
+          longitude,
+        },
+      },
+    });
+  }
+
+  create(data: { latitude: number; longitude: number }): Promise<LocationPoint> {
     return prisma.locationPoint.create({ data });
   }
 
@@ -19,14 +31,14 @@ export class LocationPointRepository {
       latitude?: number;
       longitude?: number;
     },
-  ) {
+  ): Promise<LocationPoint> {
     return prisma.locationPoint.update({
       where: { id },
       data,
     });
   }
 
-  delete(id: number) {
+  delete(id: number): Promise<LocationPoint> {
     return prisma.locationPoint.delete({ where: { id } });
   }
 

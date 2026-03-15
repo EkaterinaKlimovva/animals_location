@@ -56,7 +56,7 @@ export interface TestVisitedLocation {
   id: number;
   animalId: number;
   locationPointId: number;
-  visitedAt: string;
+  dateTimeOfVisitLocationPoint: string;
   locationPoint?: TestLocation;
 }
 

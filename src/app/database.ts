@@ -32,12 +32,12 @@ async function connectDB() {
       return;
     } catch (error) {
       console.error(`Database connection attempt ${attempt}/${maxRetries} failed:`, error instanceof Error ? error.message : String(error));
-      
+
       if (attempt === maxRetries) {
         console.error('Max retry attempts reached. Database connection failed.');
         throw error;
       }
-      
+
       console.log(`Retrying in ${retryDelay / 1000} seconds...`);
       await new Promise(resolve => setTimeout(resolve, retryDelay));
     }

@@ -7,17 +7,19 @@ import {
   listAccounts,
   searchAccounts,
   createAccount,
+  createAccountWithAnimalValidation,
   getAccount,
   updateAccount,
   deleteAccount,
 } from '../controllers/accountController';
-import { accountIdParamSchema, searchAccountsSchema, updateAccountSchema, createAccountSchema } from '../validation';
+import { accountIdParamSchema, searchAccountsSchema, updateAccountSchema, createAccountSchema, createAccountWithAnimalsSchema } from '../validation';
 
 const router = Router();
 
-router.get('/search', validateParams(searchAccountsSchema, 'query'), optionalAuthMiddleware, asyncHandler(searchAccounts));
+router.get('/search', validateParams(searchAccountsSchema, 'query'), optionalAuthMiddleware, asyncHandler((req, res) => searchAccounts(req as any, res)));
 router.get('/', authMiddleware, optionalAuthMiddleware, asyncHandler(listAccounts));
 router.post('/', validateParams(createAccountSchema, 'body'), optionalAuthMiddleware, asyncHandler(createAccount));
+router.post('/with-animals', validateParams(createAccountWithAnimalsSchema, 'body'), optionalAuthMiddleware, asyncHandler(createAccountWithAnimalValidation));
 router.get('/:id', validateParams(accountIdParamSchema, 'params'), optionalAuthMiddleware, asyncHandler(getAccount));
 router.put('/:id', authMiddleware, validateComposite(accountIdParamSchema, updateAccountSchema), asyncHandler(updateAccount));
 router.delete('/:id', authMiddleware, validateParams(accountIdParamSchema, 'params'), asyncHandler(deleteAccount));

@@ -6,7 +6,7 @@ import type {
   UpdateVisitedLocationRequest,
   DeleteVisitedLocationRequest,
 } from '../types';
-import { animalIdParamSchema, visitedLocationIdParamSchema } from '../routes/visitedLocations';
+import { animalIdParamSchema, visitedLocationIdParamSchema } from '../validation/visitedLocationSchemas';
 
 export async function listVisitedLocations(
   req: ListVisitedLocationsRequest,
@@ -15,9 +15,18 @@ export async function listVisitedLocations(
   console.log('[VISITED_LOCATION_CONTROLLER] listVisitedLocations called with params:', req.params);
   const { animalId } = animalIdParamSchema.parse(req.params);
 
-  const locations = await animalVisitedLocationService.listByAnimal(animalId);
-  console.log(`[VISITED_LOCATION_CONTROLLER] Found ${locations.length} visited locations for animalId: ${animalId}`);
-  res.json(locations);
+  try {
+    const locations = await animalVisitedLocationService.listByAnimal(animalId);
+    console.log(`[VISITED_LOCATION_CONTROLLER] Found ${locations.length} visited locations for animalId: ${animalId}`);
+    res.json(locations);
+  } catch (err) {
+    console.log('[VISITED_LOCATION_CONTROLLER] Error listing visited locations:', err);
+    if (err instanceof Error && err.message === 'Animal not found') {
+      res.status(404).json({ message: 'Animal not found' });
+    } else {
+      res.status(400).json({ message: 'Failed to list visited locations' });
+    }
+  }
 }
 
 export async function createVisitedLocation(
@@ -39,9 +48,21 @@ export async function createVisitedLocation(
     res.status(201).json(created);
   } catch (err) {
     console.log('[VISITED_LOCATION_CONTROLLER] Error creating visited location:', err);
-    res
-      .status(400)
-      .json({ message: 'Failed to create visited location' });
+    if (err instanceof Error) {
+      if (err.message === 'Animal not found') {
+        res.status(404).json({ message: 'Animal not found' });
+      } else if (err.message === 'Location point not found') {
+        res.status(404).json({ message: 'Location point not found' });
+      } else if (err.message === 'Location already visited by this animal') {
+        res.status(400).json({ message: 'Location already visited by this animal' });
+      } else if (err.message === 'Cannot add chipping location as visited location when animal has not left it') {
+        res.status(400).json({ message: 'Cannot add chipping location as visited location when animal has not left it' });
+      } else {
+        res.status(400).json({ message: 'Failed to create visited location' });
+      }
+    } else {
+      res.status(400).json({ message: 'Failed to create visited location' });
+    }
   }
 }
 

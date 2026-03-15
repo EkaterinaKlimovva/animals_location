@@ -1,5 +1,5 @@
 import { prisma } from '../app/database';
-import type { Prisma } from '../generated/prisma/client';
+import type { Prisma, Animal, AnimalOnType, AnimalVisitedLocation, AnimalType, LocationPoint, Account } from '../generated/prisma/client';
 
 const animalInclude = {
   types: {
@@ -14,7 +14,16 @@ const animalInclude = {
 } satisfies Prisma.AnimalInclude;
 
 export class AnimalRepository {
-  findById(id: number) {
+  findById(id: number): Promise<(Animal & {
+    types: (AnimalOnType & {
+      type: AnimalType;
+    })[];
+    visitedLocations: (AnimalVisitedLocation & {
+      locationPoint: LocationPoint;
+    })[];
+    chipper: Account | null;
+    chippingLocation: LocationPoint | null;
+  }) | null> {
     return prisma.animal.findUnique({
       where: { id },
       include: animalInclude,
@@ -30,7 +39,16 @@ export class AnimalRepository {
     gender?: 'MALE' | 'FEMALE' | 'OTHER';
     from?: number;
     size?: number;
-  }) {
+  }): Promise<(Animal & {
+    types: (AnimalOnType & {
+      type: AnimalType;
+    })[];
+    visitedLocations: (AnimalVisitedLocation & {
+      locationPoint: LocationPoint;
+    })[];
+    chipper: Account | null;
+    chippingLocation: LocationPoint | null;
+  })[]> {
     const { chipperId, chippingLocationId, startDateTime, endDateTime, lifeStatus, gender, from = 0, size = 10 } = filters;
 
     const where: Prisma.AnimalWhereInput = {};
@@ -65,7 +83,16 @@ export class AnimalRepository {
     chippingLocationId: number;
     lifeStatus: string;
     chippingDateTime: Date;
-  }) {
+  }): Promise<(Animal & {
+    types: (AnimalOnType & {
+      type: AnimalType;
+    })[];
+    visitedLocations: (AnimalVisitedLocation & {
+      locationPoint: LocationPoint;
+    })[];
+    chipper: Account | null;
+    chippingLocation: LocationPoint | null;
+  })> {
     const { animalTypes, ...rest } = data;
 
     return prisma.animal.create({
@@ -94,7 +121,16 @@ export class AnimalRepository {
       chippingLocationId?: number;
       deathDateTime?: string;
     },
-  ) {
+  ): Promise<(Animal & {
+    types: (AnimalOnType & {
+      type: AnimalType;
+    })[];
+    visitedLocations: (AnimalVisitedLocation & {
+      locationPoint: LocationPoint;
+    })[];
+    chipper: Account | null;
+    chippingLocation: LocationPoint | null;
+  })> {
     const { animalTypes, deathDateTime, ...rest } = data;
 
     return prisma.animal.update({
@@ -115,7 +151,7 @@ export class AnimalRepository {
     });
   }
 
-  delete(id: number) {
+  delete(id: number): Promise<Animal> {
     return prisma.animal.delete({ where: { id } });
   }
 

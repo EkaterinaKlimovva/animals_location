@@ -1,8 +1,9 @@
 import { accountRepository } from '../repositories/accountRepository';
+import { animalRepository } from '../repositories/animalRepository';
 import bcrypt from 'bcrypt';
 import type { SafeAccount } from '../types/account';
 import type { Account } from '../generated/prisma/client';
-import type { AccountDto } from '../utils/dataTransform';
+import { validateAnimalsExist } from '../utils/validationUtils';
 
 const SALT_ROUNDS = 10;
 
@@ -15,23 +16,29 @@ function stripSensitiveFields(account: Account): SafeAccount {
   };
 }
 
+function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, SALT_ROUNDS);
+}
+
 export class AccountService {
-  listByEmail(email?: string): Promise<SafeAccount[]> {
-    return accountRepository
-      .findManyByEmail(email)
-      .then((accounts) => accounts.map(stripSensitiveFields));
+  private async processAccountsWithSafety(accounts: Account[]): Promise<SafeAccount[]> {
+    return Promise.all(accounts.map(stripSensitiveFields));
   }
 
-  search(params: {
+  async listByEmail(email?: string): Promise<SafeAccount[]> {
+    const accounts = await accountRepository.findManyByEmail(email);
+    return this.processAccountsWithSafety(accounts);
+  }
+
+  async search(params: {
     firstName?: string;
     lastName?: string;
     email?: string;
     from: number;
     size: number;
   }): Promise<SafeAccount[]> {
-    return accountRepository
-      .search(params)
-      .then((accounts) => accounts.map(stripSensitiveFields));
+    const accounts = await accountRepository.search(params);
+    return this.processAccountsWithSafety(accounts);
   }
 
   async getById(id: number): Promise<SafeAccount | null> {
@@ -60,19 +67,42 @@ export class AccountService {
     firstName: string;
     lastName: string;
   }): Promise<SafeAccount> {
-    const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
+    const hashedPassword = await hashPassword(data.password);
     const account = await accountRepository.create({ ...data, password: hashedPassword });
+    return stripSensitiveFields(account);
+  }
+
+  async createWithAnimalValidation(data: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    animalIds?: number[];
+  }): Promise<SafeAccount> {
+    // Validate animals if provided
+    if (data.animalIds && data.animalIds.length > 0) {
+      const validation = await validateAnimalsExist(data.animalIds);
+      if (!validation.valid) {
+        throw new Error(`Animals with IDs [${validation.invalidIds.join(', ')}] not found`);
+      }
+    }
+
+    const hashedPassword = await hashPassword(data.password);
+    const account = await accountRepository.create({
+      ...data,
+      password: hashedPassword,
+    });
     return stripSensitiveFields(account);
   }
 
   async update(id: number, data: { firstName?: string; lastName?: string; role?: string; password?: string }): Promise<SafeAccount> {
     const updateData: { firstName?: string; lastName?: string; role?: string; password?: string } = { ...data };
-    
+
     // Hash password if provided
     if (data.password) {
-      updateData.password = await bcrypt.hash(data.password, SALT_ROUNDS);
+      updateData.password = await hashPassword(data.password);
     }
-    
+
     const account = await accountRepository.update(id, updateData);
     return stripSensitiveFields(account);
   }
@@ -83,6 +113,11 @@ export class AccountService {
 
   hasDependentAnimals(id: number): Promise<boolean> {
     return accountRepository.hasDependentAnimals(id);
+  }
+
+  async validateAnimalExists(animalId: number): Promise<boolean> {
+    const animal = await animalRepository.findById(animalId);
+    return animal !== null;
   }
 }
 

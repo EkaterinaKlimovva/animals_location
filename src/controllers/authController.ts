@@ -1,8 +1,25 @@
 import type { Response } from 'express';
 import { authService } from '../services/authService';
-import type { RegisterRequest } from '../types';
+import type { RegisterRequest, AuthenticatedRequest } from '../types';
 
-export async function register(req: RegisterRequest, res: Response): Promise<void> {
+interface AuthenticatedUser {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
+interface AuthenticatedRegisterRequest extends RegisterRequest {
+  user?: AuthenticatedUser;
+}
+
+export async function register(req: AuthenticatedRegisterRequest, res: Response): Promise<void> {
+  // Check if user is already authenticated
+  if (req.user) {
+    res.status(403).json({ message: 'Already authenticated users cannot create new accounts' });
+    return;
+  }
+
   console.log('[AUTH_CONTROLLER] register called with body:', { ...req.body, password: '[REDACTED]' });
   const { email, password, firstName, lastName }: { email: string; password: string; firstName: string; lastName: string } = req.body;
 

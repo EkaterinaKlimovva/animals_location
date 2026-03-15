@@ -51,6 +51,13 @@ export const createAnimalSchema = z.object({
 
 // Update animal schema (all fields optional but with validation when present)
 export const updateAnimalSchema = z.object({
+  animalTypes: z.array(z.number().positive()).min(1, 'At least one animal type is required').refine(
+    (types) => {
+      const uniqueTypes = new Set(types);
+      return uniqueTypes.size === types.length;
+    },
+    { message: 'Animal types must be unique' },
+  ).optional(),
   weight: z.number().positive('Weight must be positive').optional(),
   length: z.number().positive('Length must be positive').optional(),
   height: z.number().positive('Height must be positive').optional(),
@@ -60,9 +67,13 @@ export const updateAnimalSchema = z.object({
   chippingLocationId: z.number().positive('ChippingLocationId must be positive').optional(),
 });
 
-// Animal ID parameter schema (allows negative IDs)
+// Animal ID parameter schema (allows negative IDs for proper error handling)
 export const animalIdParamSchema = z.object({
-  id: idSchema,
+  id: z.union([z.string(), z.number()])
+    .transform((val) => typeof val === 'string' ? Number(val) : val)
+    .refine((num) => !isNaN(num), {
+      message: 'Validation failed',
+    }),
 });
 
 // Add animal type to animal schema

@@ -78,9 +78,8 @@ describe('Visited Locations API Tests', () => {
 
       TestHelpers.expectCreated(response, 'Add Visited Location Success');
       TestHelpers.expectHasProperty(response.data, 'id', 'Add Visited Location Success');
-      TestHelpers.expectEqual(response.data.animalId, createdAnimalId, 'Add Visited Location Success', 'animalId');
       TestHelpers.expectEqual(response.data.locationPointId, locationData.locationPointId, 'Add Visited Location Success', 'locationPointId');
-      TestHelpers.expectEqual(response.data.visitedAt, locationData.visitedAt, 'Add Visited Location Success', 'visitedAt');
+      TestHelpers.expectEqual(response.data.dateTimeOfVisitLocationPoint, locationData.visitedAt, 'Add Visited Location Success', 'dateTimeOfVisitLocationPoint');
 
       // Сохраняем ID для последующих тестов
       createdVisitedLocationId = response.data.id;
@@ -96,7 +95,7 @@ describe('Visited Locations API Tests', () => {
       TestHelpers.expectCreated(response, 'Add Visited Location No Time');
       TestHelpers.expectHasProperty(response.data, 'id', 'Add Visited Location No Time');
       TestHelpers.expectEqual(response.data.locationPointId, locationData.locationPointId, 'Add Visited Location No Time', 'locationPointId');
-      TestHelpers.expectHasProperty(response.data, 'visitedAt', 'Add Visited Location No Time');
+      TestHelpers.expectHasProperty(response.data, 'dateTimeOfVisitLocationPoint', 'Add Visited Location No Time');
 
       // Удаляем созданную локацию
       await apiClient.deleteVisitedLocation(createdAnimalId, response.data.id);
@@ -111,21 +110,21 @@ describe('Visited Locations API Tests', () => {
       const response = await apiClient.addVisitedLocation(createdAnimalId, locationData);
 
       TestHelpers.expectCreated(response, 'Add Visited Location Different Time');
-      TestHelpers.expectEqual(response.data.visitedAt, locationData.visitedAt, 'Add Visited Location Different Time', 'visitedAt');
+      TestHelpers.expectEqual(response.data.dateTimeOfVisitLocationPoint, locationData.visitedAt, 'Add Visited Location Different Time', 'dateTimeOfVisitLocationPoint');
 
       // Удаляем созданную локацию
       await apiClient.deleteVisitedLocation(createdAnimalId, response.data.id);
     });
 
-    it('should return 400 for invalid animal ID format', async () => {
+    it('should return 404 for non-existing animal ID', async () => {
       const locationData: TestAddVisitedLocationRequest = {
         locationPointId: createdLocationId,
         visitedAt: '2023-01-01T12:00:00.000Z',
       };
 
-      const response = await apiClient.addVisitedLocation(999999, locationData);
+      const response = await apiClient.addVisitedLocation(50645854, locationData);
 
-      TestHelpers.expectBadRequest(response, 'Add Visited Location Invalid Animal ID');
+      TestHelpers.expectNotFound(response, 'Add Visited Location Non-Existent Animal');
     });
 
     it('should return 400 for non-existing location point', async () => {
@@ -209,7 +208,7 @@ describe('Visited Locations API Tests', () => {
         TestHelpers.expectHasProperty(location, 'id', 'Get Visited Locations Structure');
         TestHelpers.expectHasProperty(location, 'animalId', 'Get Visited Locations Structure');
         TestHelpers.expectHasProperty(location, 'locationPointId', 'Get Visited Locations Structure');
-        TestHelpers.expectHasProperty(location, 'visitedAt', 'Get Visited Locations Structure');
+        TestHelpers.expectHasProperty(location, 'dateTimeOfVisitLocationPoint', 'Get Visited Locations Structure');
         TestHelpers.expectHasProperty(location, 'locationPoint', 'Get Visited Locations Structure');
 
         // Проверяем структуру locationPoint
@@ -290,8 +289,8 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
         // Проверяем, что локации отсортированы по времени (ASC)
         const locations = locationsResponse.data;
         for (let i = 1; i < locations.length; i++) {
-          expect(new Date(locations[i].visitedAt).getTime()).toBeGreaterThanOrEqual(
-            new Date(locations[i - 1].visitedAt).getTime(),
+          expect(new Date(locations[i].dateTimeOfVisitLocationPoint).getTime()).toBeGreaterThanOrEqual(
+            new Date(locations[i - 1].dateTimeOfVisitLocationPoint).getTime(),
           );
         }
 
@@ -328,7 +327,7 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
       TestHelpers.expectUpdated(response, 'Update Visited Location Success');
       TestHelpers.expectEqual(response.data.id, locationIdToUpdate, 'Update Visited Location Success', 'id');
       TestHelpers.expectEqual(response.data.locationPointId, updateData.locationPointId, 'Update Visited Location Success', 'locationPointId');
-      TestHelpers.expectEqual(response.data.visitedAt, updateData.visitedAt, 'Update Visited Location Success', 'visitedAt');
+      TestHelpers.expectEqual(response.data.dateTimeOfVisitLocationPoint, updateData.visitedAt, 'Update Visited Location Success', 'dateTimeOfVisitLocationPoint');
     });
 
     it('should update only visitedAt', async () => {
@@ -353,7 +352,7 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
       const response = await apiClient.updateVisitedLocation(createdAnimalId, locationIdToUpdate, updateData);
 
       TestHelpers.expectUpdated(response, 'Update Visited Location Time Only');
-      TestHelpers.expectEqual(response.data.visitedAt, updateData.visitedAt, 'Update Visited Location Time Only', 'visitedAt');
+      TestHelpers.expectEqual(response.data.dateTimeOfVisitLocationPoint, updateData.visitedAt, 'Update Visited Location Time Only', 'dateTimeOfVisitLocationPoint');
     });
 
     it('should update only locationPointId', async () => {

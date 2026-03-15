@@ -1,8 +1,8 @@
-import type { Prisma } from '../generated/prisma/client';
+import type { Prisma, Account } from '../generated/prisma/client';
 import { prisma } from '../app/database';
 
 export class AccountRepository {
-  findManyByEmail(email?: string) {
+  findManyByEmail(email?: string): Promise<Account[]> {
     const where: Prisma.AccountWhereInput = email ? { email: { equals: email } } : {};
     return prisma.account.findMany({ where });
   }
@@ -13,7 +13,7 @@ export class AccountRepository {
     email?: string;
     from: number;
     size: number;
-  }) {
+  }): Promise<Account[]> {
     const { firstName, lastName, email, from, size } = params;
 
     const where: Prisma.AccountWhereInput = {};
@@ -35,25 +35,25 @@ export class AccountRepository {
     });
   }
 
-  findById(id: number) {
+  findById(id: number): Promise<Account | null> {
     return prisma.account.findUnique({ where: { id } });
   }
 
   update(
     id: number,
     data: { firstName?: string; lastName?: string; role?: string; password?: string },
-  ) {
+  ): Promise<Account> {
     return prisma.account.update({
       where: { id },
       data,
     });
   }
 
-  delete(id: number) {
+  delete(id: number): Promise<Account> {
     return prisma.account.delete({ where: { id } });
   }
 
-  findByEmail(email: string) {
+  findByEmail(email: string): Promise<Account | null> {
     return prisma.account.findUnique({ where: { email } });
   }
 
@@ -62,7 +62,7 @@ export class AccountRepository {
     password: string;
     firstName: string;
     lastName: string;
-  }) {
+  }): Promise<Account> {
     return prisma.account.create({ data });
   }
 

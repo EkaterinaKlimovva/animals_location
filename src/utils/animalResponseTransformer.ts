@@ -1,48 +1,4 @@
-interface AnimalWithRelations {
-  id: number;
-  weight: number | null;
-  length: number | null;
-  height: number | null;
-  gender: string;
-  lifeStatus: string;
-  chippingDateTime: Date;
-  chipperId: number | null;
-  chippingLocationId: number;
-  deathDateTime: Date | null;
-  types: Array<{
-    animalId: number;
-    typeId: number;
-    type: {
-      id: number;
-      type: string;
-    };
-  }>;
-  visitedLocations: Array<{
-    id: number;
-    animalId: number;
-    locationPointId: number;
-    visitedAt: Date;
-    locationPoint?: {
-      id: number;
-      latitude: number;
-      longitude: number;
-    };
-  }>;
-  chipper?: {
-    id: number;
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    createdAt: Date;
-    updatedAt: Date;
-  } | null;
-  chippingLocation?: {
-    id: number;
-    latitude: number;
-    longitude: number;
-  };
-}
+import type { AnimalWithRelations } from '../types/animal';
 
 export function transformAnimalResponse(animal: AnimalWithRelations) {
   return {

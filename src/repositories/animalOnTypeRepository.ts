@@ -1,7 +1,8 @@
 import { prisma } from '../app/database';
+import type { AnimalOnType } from '../generated/prisma/client';
 
 export class AnimalOnTypeRepository {
-  createRelation(animalId: number, typeId: number) {
+  createRelation(animalId: number, typeId: number): Promise<AnimalOnType> {
     return prisma.animalOnType.create({
       data: {
         animal: { connect: { id: animalId } },
@@ -10,7 +11,7 @@ export class AnimalOnTypeRepository {
     });
   }
 
-  deleteRelation(animalId: number, typeId: number) {
+  deleteRelation(animalId: number, typeId: number): Promise<AnimalOnType> {
     return prisma.animalOnType.delete({
       where: { animalId_typeId: { animalId, typeId } },
     });

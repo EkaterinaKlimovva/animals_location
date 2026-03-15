@@ -4,8 +4,10 @@ export * from './accountRequests';
 
 // Auth types
 export * from './authRequests';
+export { AuthenticatedRequest } from '../middleware/auth';
 
 // Animal types
+export * from './animal';
 export * from './animalRequests';
 
 // Animal type types

@@ -1,8 +1,6 @@
 import type { Response } from 'express';
 import { locationPointService } from '../services/locationPointService';
 import {
-  createLocationPointSchema,
-  updateLocationPointSchema,
   locationPointIdSchema,
 } from '../validation';
 import {
@@ -20,8 +18,6 @@ import type {
   DeleteLocationPointRequest,
 } from '../types';
 import type {
-  CreateLocationPointInput,
-  UpdateLocationPointInput,
   LocationPointIdInput,
 } from '../validation';
 
@@ -54,8 +50,7 @@ export async function getLocationPoint(req: GetLocationPointRequest, res: Respon
 
 export async function createLocationPoint(req: CreateLocationPointRequest, res: Response): Promise<void> {
   try {
-    const locationData: CreateLocationPointInput = createLocationPointSchema.parse(req.body);
-    const point = await locationPointService.create(locationData);
+    const point = await locationPointService.create(req.body);
 
     sendControllerCreated(res, point, SUCCESS_MESSAGES.CREATED(ENTITY_NAMES.LOCATION_POINT));
   } catch (error) {
@@ -66,9 +61,8 @@ export async function createLocationPoint(req: CreateLocationPointRequest, res: 
 export async function updateLocationPoint(req: UpdateLocationPointRequest, res: Response): Promise<void> {
   try {
     const { id }: LocationPointIdInput = locationPointIdSchema.parse(req.params);
-    const updateData: UpdateLocationPointInput = updateLocationPointSchema.parse(req.body);
 
-    const updated = await locationPointService.update(id, updateData);
+    const updated = await locationPointService.update(id, req.body);
     sendControllerSuccess(res, updated, SUCCESS_MESSAGES.UPDATED(ENTITY_NAMES.LOCATION_POINT));
   } catch (error) {
     handleControllerError(res, error, `${CONTROLLER_PREFIX} - updateLocationPoint`);

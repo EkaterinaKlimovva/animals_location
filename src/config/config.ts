@@ -5,7 +5,7 @@ dotenv.config();
 // Helper function to detect if running in Docker container
 function isDockerEnvironment(): boolean {
   // Check for Docker-specific environment variables or files
-  return process.env.DOCKER_ENV === 'true' || 
+  return process.env.DOCKER_ENV === 'true' ||
          process.env.NODE_ENV === 'production' ||
          process.env.DB_HOST === 'postgres' ||
          (process.env.DATABASE_URL?.includes('@postgres:') ?? false);
