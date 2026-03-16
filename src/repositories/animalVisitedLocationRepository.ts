@@ -23,11 +23,12 @@ export class AnimalVisitedLocationRepository {
     return location;
   }
 
-  async findExistingVisit(animalId: number, locationPointId: number): Promise<AnimalVisitedLocation | null> {
+  async findExistingVisit(animalId: number, locationPointId: number, excludeId?: number): Promise<AnimalVisitedLocation | null> {
     return prisma.animalVisitedLocation.findFirst({
       where: {
         animalId,
         locationPointId,
+        ...(excludeId && { id: { not: excludeId } }),
       },
     });
   }

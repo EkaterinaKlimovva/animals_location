@@ -33,9 +33,16 @@ export class LocationPointService {
     return locationPointRepository.create(validatedData);
   }
 
-  update(id: number, data: UpdateLocationPointData) {
+  async update(id: number, data: UpdateLocationPointData) {
     // Validate input data using Zod schema
     const validatedData = updateLocationPointSchema.parse(data);
+    
+    // Check if location point exists
+    const existing = await locationPointRepository.findById(id);
+    if (!existing) {
+      throw new Error('Location point not found');
+    }
+    
     return locationPointRepository.update(id, validatedData);
   }
 

@@ -144,15 +144,20 @@ describe('Locations API Tests', () => {
     });
 
     it('should return 401 for unauthorized creation', async () => {
-      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL);
+      const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL, true);
       const locationData: TestCreateLocationRequest = {
         latitude: 50.0,
         longitude: 30.0,
       };
 
-      const response = await unauthorizedClient.createLocation(locationData);
+      const response = await unauthorizedClient.requestWithCustomHeaders(
+        'POST',
+        '/locations',
+        locationData,
+        {}
+      );
 
-      TestHelpers.expectCreated(response, 'Create Location Unauthorized');
+      TestHelpers.expectUnauthorized(response, 'Create Location Unauthorized');
     });
   });
 

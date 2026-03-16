@@ -154,6 +154,14 @@ export class AnimalService {
       if (!chippingLocation) {
         throw new LocationPointNotFoundError(data.chippingLocationId);
       }
+      // Check if the new chippingLocationId matches the first visited location
+      const animal = await animalRepository.findById(id);
+      if (animal && animal.visitedLocations.length > 0) {
+        const firstVisitedLocation = animal.visitedLocations[0];
+        if (firstVisitedLocation.locationPointId === data.chippingLocationId) {
+          throw new Error('Cannot set chippingLocationId to the first visited location');
+        }
+      }
     }
 
     // If chipperId is being updated, validate it exists
@@ -232,6 +240,58 @@ export class AnimalService {
     }
 
     return animalOnTypeRepository.deleteRelation(animalId, typeId);
+  }
+
+  async changeTypeOfAnimal(animalId: number, oldTypeId: number, newTypeId: number): Promise<(Animal & {
+    types: (AnimalOnType & {
+      type: AnimalType;
+    })[];
+    visitedLocations: (AnimalVisitedLocation & {
+      locationPoint: LocationPoint;
+    })[];
+    chipper: Account | null;
+    chippingLocation: LocationPoint | null;
+  })> {
+    // Validate that the animal exists
+    const animal = await animalRepository.findById(animalId);
+    if (!animal) {
+      throw new AnimalNotFoundError(animalId);
+    }
+
+    // Validate that the old animal type exists
+    const oldAnimalType = await animalTypeRepository.findById(oldTypeId);
+    if (!oldAnimalType) {
+      throw new AnimalTypeNotFoundError(oldTypeId);
+    }
+
+    // Validate that the new animal type exists
+    const newAnimalType = await animalTypeRepository.findById(newTypeId);
+    if (!newAnimalType) {
+      throw new AnimalTypeNotFoundError(newTypeId);
+    }
+
+    // Check if animal has the old type
+    const hasOldType = await animalOnTypeRepository.findRelation(animalId, oldTypeId);
+    if (!hasOldType) {
+      throw new Error(`Animal does not have type ${oldTypeId}`);
+    }
+
+    // Check if animal already has the new type
+    const hasNewType = await animalOnTypeRepository.findRelation(animalId, newTypeId);
+    if (hasNewType) {
+      throw new Error(`Animal already has type ${newTypeId}`);
+    }
+
+    // Remove old type and add new type
+    await animalOnTypeRepository.deleteRelation(animalId, oldTypeId);
+    await animalOnTypeRepository.createRelation(animalId, newTypeId);
+
+    // Return updated animal
+    const updatedAnimal = await animalRepository.findById(animalId);
+    if (!updatedAnimal) {
+      throw new AnimalNotFoundError(animalId);
+    }
+    return updatedAnimal;
   }
 }
 

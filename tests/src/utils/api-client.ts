@@ -268,6 +268,10 @@ export class ApiClient {
     return this.request<void>('DELETE', `/animals/${animalId}/types/${typeId}`, undefined, true);
   }
 
+  async changeAnimalType(animalId: number, data: { oldTypeId: number; newTypeId: number }): Promise<ApiResponse<any>> {
+    return this.request<any>('PUT', `/animals/${animalId}/types`, data, true);
+  }
+
   async removeAnimalTypeUnauthenticated(animalId: number, typeId: number): Promise<ApiResponse<void>> {
     return this.request<void>('DELETE', `/animals/${animalId}/types/${typeId}`, undefined, false);
   }

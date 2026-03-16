@@ -84,14 +84,20 @@ export const addAnimalTypeSchema = z.object({
   typeId: idSchema,
 });
 
-// Change animal type in animal schema
+// Change animal type in animal schema (body only)
 export const changeAnimalTypeSchema = z.object({
   oldTypeId: idSchema,
   newTypeId: idSchema,
 });
 
+// Change animal type params schema (for validateParams)
+export const changeAnimalTypeParamsSchema = z.object({
+  id: idSchema,
+});
+
 // Remove animal type from animal schema
 export const removeAnimalTypeSchema = z.object({
+  id: idSchema,
   typeId: idSchema,
 });
 

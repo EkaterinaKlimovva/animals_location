@@ -11,6 +11,18 @@ export class AnimalOnTypeRepository {
     });
   }
 
+  async findRelation(animalId: number, typeId: number): Promise<AnimalOnType | null> {
+    return prisma.animalOnType.findUnique({
+      where: { animalId_typeId: { animalId, typeId } },
+    });
+  }
+
+  async findByAnimalId(animalId: number): Promise<AnimalOnType[]> {
+    return prisma.animalOnType.findMany({
+      where: { animalId },
+    });
+  }
+
   deleteRelation(animalId: number, typeId: number): Promise<AnimalOnType> {
     return prisma.animalOnType.delete({
       where: { animalId_typeId: { animalId, typeId } },

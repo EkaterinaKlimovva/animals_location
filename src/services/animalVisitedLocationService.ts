@@ -8,12 +8,20 @@ export class SameAsAdjacentLocationError extends Error {
   }
 }
 
-export class SameAsPreviousOrNextLocationError extends Error {
-  constructor(public data: VisitedLocationResponse) {
-    super('New location point is the same as the previous or next location');
-    this.name = 'SameAsPreviousOrNextLocationError';
+export class SameAsPreviousLocationError extends Error {
+  constructor() {
+    super('New location point is the same as the previous location');
+    this.name = 'SameAsPreviousLocationError';
   }
 }
+
+export class SameAsNextLocationError extends Error {
+  constructor() {
+    super('New location point is the same as the next location');
+    this.name = 'SameAsNextLocationError';
+  }
+}
+
 
 interface CreateVisitedLocationData {
   animalId: number;
@@ -56,6 +64,7 @@ export class AnimalVisitedLocationService {
       throw new Error('Location point not found');
     }
 
+    // Check if this location already exists for this animal (duplicate)
     const existingVisit = await animalVisitedLocationRepository.findExistingVisit(data.animalId, data.locationPointId);
     if (existingVisit) {
       throw new Error('Location already visited by this animal');
@@ -89,7 +98,8 @@ export class AnimalVisitedLocationService {
       throw new Error('Animal not found');
     }
 
-    let isAdjacentMatch = false;
+    let matchesPrevious = false;
+    let matchesNext = false;
 
     if (data.locationPointId !== undefined) {
       if (data.locationPointId === existingLocation.locationPointId) {
@@ -108,9 +118,19 @@ export class AnimalVisitedLocationService {
         const previousLocation = currentIndex > 0 ? allVisitedLocations[currentIndex - 1] : null;
         const nextLocation = currentIndex < allVisitedLocations.length - 1 ? allVisitedLocations[currentIndex + 1] : null;
 
-        if ((previousLocation && data.locationPointId === previousLocation.locationPointId) ||
-            (nextLocation && data.locationPointId === nextLocation.locationPointId)) {
-          isAdjacentMatch = true;
+        if (previousLocation && data.locationPointId === previousLocation.locationPointId) {
+          matchesPrevious = true;
+        }
+        if (nextLocation && data.locationPointId === nextLocation.locationPointId) {
+          matchesNext = true;
+        }
+      }
+
+      // Check for duplicates, but allow if it matches previous or next
+      if (!matchesPrevious && !matchesNext) {
+        const existingVisit = await animalVisitedLocationRepository.findExistingVisit(animalId, data.locationPointId, id);
+        if (existingVisit) {
+          throw new Error('Location already visited by this animal');
         }
       }
 
@@ -124,8 +144,16 @@ export class AnimalVisitedLocationService {
 
     const updatedLocation = await animalVisitedLocationRepository.update(id, data);
 
-    if (isAdjacentMatch) {
+    // Handle adjacent location matches
+    if (matchesPrevious && matchesNext) {
+      // Matches both previous and next: allow with 201
       throw new SameAsAdjacentLocationError(updatedLocation);
+    } else if (matchesPrevious) {
+      // Matches only previous: reject with 400
+      throw new SameAsPreviousLocationError();
+    } else if (matchesNext) {
+      // Matches only next: reject with 400
+      throw new SameAsNextLocationError();
     }
 
     return updatedLocation;
@@ -163,6 +191,7 @@ export class AnimalVisitedLocationService {
           
           if (chippingLocationIndex > 0) {
             // The chipping location appears after this first visited location
+            // Prevent deletion and return 400
             throw new Error('Cannot delete first visited location when followed by chipping location');
           }
         }

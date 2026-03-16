@@ -70,6 +70,20 @@ export async function updateAnimalType(req: UpdateAnimalTypeRequest, res: Respon
       return;
     }
 
+    // Check if animal type exists
+    const existingType = await animalTypeService.getById(id);
+    if (!existingType) {
+      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - updateAnimalType`, ENTITY_NAMES.ANIMAL_TYPE);
+      return;
+    }
+
+    // Check if the new type already exists (for another type)
+    const typeByName = await animalTypeService.getByType(updateData.type);
+    if (typeByName && typeByName.id !== id) {
+      res.status(409).json({ message: 'Animal type already exists' });
+      return;
+    }
+
     const updated = await animalTypeService.update(id, updateData.type);
     sendControllerSuccess(res, updated, SUCCESS_MESSAGES.UPDATED(ENTITY_NAMES.ANIMAL_TYPE));
   } catch (error) {

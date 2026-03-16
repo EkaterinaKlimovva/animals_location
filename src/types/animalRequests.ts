@@ -15,6 +15,7 @@ export type SearchAnimalsQuery = {
 
 // Body Types
 export type AddAnimalTypeBody = { typeId: number };
+export type ChangeAnimalTypeBody = { oldTypeId: number; newTypeId: number };
 
 // Request Types
 export type GetAnimalRequest = Request<AnimalIdParams>;
@@ -24,3 +25,4 @@ export type UpdateAnimalRequest = Request<AnimalIdParams, unknown, UpdateAnimalI
 export type DeleteAnimalRequest = Request<AnimalIdParams>;
 export type AddAnimalTypeRequest = Request<AnimalIdParams, unknown, AddAnimalTypeBody>;
 export type RemoveAnimalTypeRequest = Request<AnimalIdAndTypeParams>;
+export type ChangeAnimalTypeRequest = Request<AnimalIdParams, unknown, ChangeAnimalTypeBody>;

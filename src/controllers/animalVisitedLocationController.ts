@@ -1,5 +1,6 @@
 import type { Response } from 'express';
-import { animalVisitedLocationService, SameAsAdjacentLocationError } from '../services/animalVisitedLocationService';
+import { animalVisitedLocationService, SameAsAdjacentLocationError, SameAsPreviousLocationError, SameAsNextLocationError } from '../services/animalVisitedLocationService';
+import { sendControllerSuccess } from '../utils/controllerUtils';
 import type {
   ListVisitedLocationsRequest,
   CreateVisitedLocationRequest,
@@ -92,7 +93,11 @@ export async function updateVisitedLocation(
   } catch (err) {
     console.log('[VISITED_LOCATION_CONTROLLER] Error updating visited location:', err);
     if (err instanceof SameAsAdjacentLocationError) {
-      res.status(201).json((err as SameAsAdjacentLocationError).data);
+      res.status(201).json(err.data);
+    } else if (err instanceof SameAsPreviousLocationError) {
+      res.status(400).json({ message: 'New location point is the same as the previous location' });
+    } else if (err instanceof SameAsNextLocationError) {
+      res.status(400).json({ message: 'New location point is the same as the next location' });
     } else if (err instanceof Error) {
       if (err.message === 'New location point is the same as the old one') {
         res.status(400).json({ message: 'New location point is the same as the old one' });
@@ -104,6 +109,8 @@ export async function updateVisitedLocation(
         res.status(404).json({ message: 'Location point not found' });
       } else if (err.message === 'Cannot update first visited location to chipping location') {
         res.status(400).json({ message: 'Cannot update first visited location to chipping location' });
+      } else if (err.message === 'Location already visited by this animal') {
+        res.status(201).json({ message: 'Location already visited by this animal' });
       } else {
         res.status(400).json({ message: 'Failed to update visited location' });
       }
@@ -124,7 +131,7 @@ export async function deleteVisitedLocation(
   try {
     await animalVisitedLocationService.delete(animalId, visitedPointId);
     console.log(`[VISITED_LOCATION_CONTROLLER] Visited location deleted successfully with id: ${visitedPointId}`);
-    res.status(200).send();
+    sendControllerSuccess(res, { message: 'Visited location deleted successfully' });
   } catch (err) {
     console.log('[VISITED_LOCATION_CONTROLLER] Error deleting visited location:', err);
     if (err instanceof Error) {

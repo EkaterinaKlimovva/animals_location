@@ -1,6 +1,7 @@
 import type { Response } from 'express';
 import { animalService } from '../services/animalService';
 import { animalTypeRepository } from '../repositories/animalTypeRepository';
+import { animalOnTypeRepository } from '../repositories/animalOnTypeRepository';
 import { locationPointRepository } from '../repositories/locationPointRepository';
 import { accountRepository } from '../repositories/accountRepository';
 import {
@@ -8,6 +9,9 @@ import {
   createAnimalSchema,
   updateAnimalSchema,
   animalIdParamSchema,
+  removeAnimalTypeSchema,
+  changeAnimalTypeSchema,
+  changeAnimalTypeParamsSchema,
 } from '../validation';
 import {
   handleControllerError,
@@ -26,6 +30,7 @@ import type {
   DeleteAnimalRequest,
   AddAnimalTypeRequest,
   RemoveAnimalTypeRequest,
+  ChangeAnimalTypeRequest,
 } from '../types';
 import type {
   SearchAnimalsInput,
@@ -184,7 +189,10 @@ export async function deleteAnimal(req: DeleteAnimalRequest, res: Response): Pro
 export async function addAnimalType(req: AddAnimalTypeRequest, res: Response): Promise<void> {
   try {
     const { id } = animalIdParamSchema.parse(req.params);
-    const { typeId }: { typeId: number } = req.body;
+    // Get typeId from params (if provided in URL) or body
+    const typeIdFromParams = (req.params as any).typeId;
+    const { typeId: typeIdFromBody }: { typeId: number } = req.body;
+    const typeId = typeIdFromParams ? Number(typeIdFromParams) : typeIdFromBody;
 
     const validatedTypeId = validateControllerTypeId(typeId);
 
@@ -203,7 +211,9 @@ export async function addAnimalType(req: AddAnimalTypeRequest, res: Response): P
     }
 
     await animalService.addTypeToAnimal(id, validatedTypeId);
-    sendControllerSuccess(res, { message: 'Animal type added successfully' }, 'Animal type added successfully');
+    const updatedAnimal = await animalService.getById(id);
+    const transformedAnimal = transformAnimalResponse(updatedAnimal!);
+    sendControllerCreated(res, transformedAnimal, SUCCESS_MESSAGES.CREATED(`${ENTITY_NAMES.ANIMAL_TYPE} association`));
   } catch (error) {
     handleControllerError(res, error, `${CONTROLLER_PREFIX} - addAnimalType`);
   }
@@ -211,8 +221,7 @@ export async function addAnimalType(req: AddAnimalTypeRequest, res: Response): P
 
 export async function removeAnimalType(req: RemoveAnimalTypeRequest, res: Response): Promise<void> {
   try {
-    const { id } = animalIdParamSchema.parse(req.params);
-    const { typeId }: { typeId: string } = req.params;
+    const { id, typeId } = removeAnimalTypeSchema.parse(req.params);
 
     const validatedTypeId = validateControllerTypeId(typeId);
 
@@ -230,9 +239,76 @@ export async function removeAnimalType(req: RemoveAnimalTypeRequest, res: Respon
       return;
     }
 
+    // Check if animal has this type
+    const animalHasType = await animalOnTypeRepository.findRelation(id, validatedTypeId);
+    if (!animalHasType) {
+      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - removeAnimalType`, `${ENTITY_NAMES.ANIMAL_TYPE} with id ${validatedTypeId} is not associated with animal`);
+      return;
+    }
+
+    // Check if this is the only type - animal must have at least one type
+    const animalTypes = await animalOnTypeRepository.findByAnimalId(id);
+    if (animalTypes.length === 1) {
+      res.status(400).json({ message: 'Cannot remove the only animal type' });
+      return;
+    }
+
     await animalService.removeTypeFromAnimal(id, validatedTypeId);
-    sendControllerSuccess(res, { message: 'Animal type removed successfully' }, 'Animal type removed successfully');
+    sendControllerSuccess(res, { message: 'Animal type removed successfully' }, SUCCESS_MESSAGES.DELETED(`${ENTITY_NAMES.ANIMAL_TYPE} association`));
   } catch (error) {
     handleControllerError(res, error, `${CONTROLLER_PREFIX} - removeAnimalType`);
+  }
+}
+
+export async function changeAnimalType(req: ChangeAnimalTypeRequest, res: Response): Promise<void> {
+  try {
+    const { id } = changeAnimalTypeParamsSchema.parse(req.params);
+    const { oldTypeId, newTypeId } = changeAnimalTypeSchema.parse(req.body);
+
+    const validatedOldTypeId = validateControllerTypeId(oldTypeId);
+    const validatedNewTypeId = validateControllerTypeId(newTypeId);
+
+    // Validate that animal exists
+    const animal = await animalService.getById(id);
+    if (!animal) {
+      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - changeAnimalType`, ENTITY_NAMES.ANIMAL);
+      return;
+    }
+
+    // Validate that old animal type exists
+    const oldAnimalType = await animalTypeRepository.findById(validatedOldTypeId);
+    if (!oldAnimalType) {
+      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - changeAnimalType`, `${ENTITY_NAMES.ANIMAL_TYPE} with id ${validatedOldTypeId}`);
+      return;
+    }
+
+    // Validate that new animal type exists
+    const newAnimalType = await animalTypeRepository.findById(validatedNewTypeId);
+    if (!newAnimalType) {
+      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - changeAnimalType`, `${ENTITY_NAMES.ANIMAL_TYPE} with id ${validatedNewTypeId}`);
+      return;
+    }
+
+    // Check if animal has the old type
+    const animalHasOldType = await animalOnTypeRepository.findRelation(id, validatedOldTypeId);
+    if (!animalHasOldType) {
+      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - changeAnimalType`, `${ENTITY_NAMES.ANIMAL_TYPE} with id ${validatedOldTypeId} is not associated with animal`);
+      return;
+    }
+
+    // Check if animal already has the new type
+    const animalHasNewType = await animalOnTypeRepository.findRelation(id, validatedNewTypeId);
+    if (animalHasNewType) {
+      res.status(409).json({ message: 'Animal already has this type - conflict' });
+      return;
+    }
+
+    // Perform the change using the service method
+    const updatedAnimal = await animalService.changeTypeOfAnimal(id, validatedOldTypeId, validatedNewTypeId);
+    const transformedAnimal = transformAnimalResponse(updatedAnimal);
+
+    sendControllerSuccess(res, transformedAnimal, SUCCESS_MESSAGES.UPDATED(`${ENTITY_NAMES.ANIMAL} ${ENTITY_NAMES.ANIMAL_TYPE}`));
+  } catch (error) {
+    handleControllerError(res, error, `${CONTROLLER_PREFIX} - changeAnimalType`);
   }
 }

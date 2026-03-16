@@ -18,6 +18,10 @@ export class AnimalTypeService {
     return animalTypeRepository.findById(id);
   }
 
+  async getByType(type: string) {
+    return animalTypeRepository.findByType(type);
+  }
+
   async create(type: string): Promise<CreateAnimalTypeResponse> {
     const existing = await animalTypeRepository.findByType(type);
     if (existing) {

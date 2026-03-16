@@ -496,7 +496,13 @@ describe('Animals API Tests', () => {
       if (typeResponse.status === 201) {
         const response = await apiClient.addAnimalType(createdAnimalId, typeResponse.data.id);
 
-        TestHelpers.expectOk(response, 'Add Animal Type Success');
+        TestHelpers.expectStatus(response.status, 201, 'Add Animal Type Success');
+        expect(response.data).toBeDefined();
+        expect(typeof response.data).toBe('object');
+        expect(response.data).toHaveProperty('animalId');
+        expect(response.data).toHaveProperty('typeId');
+        expect(typeof (response.data as any).animalId).toBe('number');
+        expect(typeof (response.data as any).typeId).toBe('number');
 
         // Удаляем тип после теста
         await apiClient.removeAnimalType(createdAnimalId, typeResponse.data.id);
@@ -539,11 +545,78 @@ describe('Animals API Tests', () => {
       }
     });
 
+    it('should return 400 when trying to remove the only animal type', async () => {
+      // Создаем новый тип для этого теста
+      const testData = TestHelpers.generateTestData();
+      const typeResponse = await apiClient.createAnimalType(testData.animalType);
+
+      if (typeResponse.status === 201) {
+        // Создаем новое животное с одним типом
+        const animalResponse = await apiClient.createAnimal({
+          animalTypes: [typeResponse.data.id], // Используем ID созданного типа
+          weight: testData.animal.weight || 10,
+          length: testData.animal.length || 5,
+          height: testData.animal.height || 3,
+          gender: testData.animal.gender || 'MALE',
+          chipperId: createdAccountId || 1, // Используем существующий chipper
+          chippingLocationId: createdLocationId || 1, // Используем существующую локацию
+        });
+
+        if (animalResponse.status === 201) {
+          const testAnimalId = animalResponse.data.id;
+          const typeId = typeResponse.data.id; // Используем ID типа, который мы создали
+          
+          // Пытаемся удалить единственный тип
+          const response = await apiClient.removeAnimalType(testAnimalId, typeId);
+
+          TestHelpers.expectBadRequest(response, 'Remove Only Animal Type Not Allowed');
+          TestHelpers.expectHasProperty(response.data, 'message', 'Remove Only Animal Type Not Allowed');
+          TestHelpers.expectEqual((response.data as any).message, 'Cannot remove the only animal type', 'Remove Only Animal Type Not Allowed', 'message');
+
+          // Очищаем - удаляем тестовое животное и тип
+          await apiClient.deleteAnimal(testAnimalId);
+        }
+        
+        // Удаляем созданный тип
+        await apiClient.deleteAnimalType(typeResponse.data.id);
+      }
+    });
+
     it('should return 401 for unauthorized type management', async () => {
       const unauthorizedClient = new ApiClient((global as any).TEST_BASE_URL);
       const response = await unauthorizedClient.addAnimalTypeUnauthenticated(createdAnimalId, createdAnimalTypeId);
 
       TestHelpers.expectUnauthorized(response, 'Add Animal Type Unauthorized');
+    });
+
+    it('should return 409 when trying to change to a type that animal already has', async () => {
+      // Создаем два новых типа для этого теста
+      const testData = TestHelpers.generateTestData();
+      const typeResponse1 = await apiClient.createAnimalType(testData.animalType);
+      const typeResponse2 = await apiClient.createAnimalType({
+        type: `AnotherType-${Date.now()}`,
+      });
+
+      if (typeResponse1.status === 201 && typeResponse2.status === 201) {
+        // Добавляем оба типа животному
+        await apiClient.addAnimalType(createdAnimalId, typeResponse1.data.id);
+        await apiClient.addAnimalType(createdAnimalId, typeResponse2.data.id);
+
+        // Пытаемся изменить тип1 на тип2 (который уже есть у животного)
+        const response = await apiClient.changeAnimalType(createdAnimalId, {
+          oldTypeId: typeResponse1.data.id,
+          newTypeId: typeResponse2.data.id,
+        });
+
+        // Должен вернуть 409 Conflict
+        TestHelpers.expectConflict(response, 'Change Animal Type To Existing Type');
+
+        // Очищаем
+        await apiClient.removeAnimalType(createdAnimalId, typeResponse1.data.id);
+        await apiClient.removeAnimalType(createdAnimalId, typeResponse2.data.id);
+        await apiClient.deleteAnimalType(typeResponse1.data.id);
+        await apiClient.deleteAnimalType(typeResponse2.data.id);
+      }
     });
   });
 

@@ -70,6 +70,10 @@ export async function updateLocationPoint(req: UpdateLocationPointRequest, res: 
     const updated = await locationPointService.update(id, req.body);
     sendControllerSuccess(res, updated, SUCCESS_MESSAGES.UPDATED(ENTITY_NAMES.LOCATION_POINT));
   } catch (error) {
+    if (error instanceof Error && error.message === 'Location point not found') {
+      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - updateLocationPoint`, ENTITY_NAMES.LOCATION_POINT);
+      return;
+    }
     handleControllerError(res, error, `${CONTROLLER_PREFIX} - updateLocationPoint`);
   }
 }
