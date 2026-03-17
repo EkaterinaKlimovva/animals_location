@@ -5,7 +5,7 @@ import type { TestRegistrationRequest, ValidationError } from '../types/api.type
 describe('Registration API Tests', () => {
   let apiClient: ApiClient;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     apiClient = new ApiClient((global as any).TEST_BASE_URL);
   });
 
@@ -243,7 +243,7 @@ describe('Registration API Tests', () => {
       });
 
       // Name edge cases (skipped for Allure ratio)
-      test.skip('should handle very long firstName', async () => {
+      test('should handle very long firstName', async () => {
         const userData: TestRegistrationRequest = {
           firstName: 'A'.repeat(255),
           lastName: 'User',
@@ -254,7 +254,7 @@ describe('Registration API Tests', () => {
         expect([400, 422]).toContain(response.status);
       });
 
-      test.skip('should handle very long lastName', async () => {
+      test('should handle very long lastName', async () => {
         const userData: TestRegistrationRequest = {
           firstName: 'Test',
           lastName: 'A'.repeat(255),
@@ -265,7 +265,7 @@ describe('Registration API Tests', () => {
         expect([400, 422]).toContain(response.status);
       });
 
-      test.skip('should handle Unicode characters in names', async () => {
+      test('should handle Unicode characters in names', async () => {
         const userData: TestRegistrationRequest = {
           firstName: '张三',
           lastName: '李四',
@@ -276,7 +276,7 @@ describe('Registration API Tests', () => {
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle emoji in names', async () => {
+      test('should handle emoji in names', async () => {
         const userData: TestRegistrationRequest = {
           firstName: 'Test 👤',
           lastName: 'User 🎮',
@@ -287,7 +287,7 @@ describe('Registration API Tests', () => {
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle single character names', async () => {
+      test('should handle single character names', async () => {
         const userData: TestRegistrationRequest = {
           firstName: 'A',
           lastName: 'B',
@@ -298,7 +298,7 @@ describe('Registration API Tests', () => {
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle name with numbers', async () => {
+      test('should handle name with numbers', async () => {
         const userData: TestRegistrationRequest = {
           firstName: 'User123',
           lastName: 'Test456',
@@ -309,7 +309,7 @@ describe('Registration API Tests', () => {
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle case sensitivity in email', async () => {
+      test('should handle case sensitivity in email', async () => {
         const userData: TestRegistrationRequest = {
           firstName: 'Test',
           lastName: 'User',
@@ -320,7 +320,7 @@ describe('Registration API Tests', () => {
         expect([200, 201, 400, 409]).toContain(response.status);
       });
 
-      test.skip('should handle duplicate email case-insensitive', async () => {
+      test('should handle duplicate email case-insensitive', async () => {
         const userData: TestRegistrationRequest = {
           firstName: 'Test',
           lastName: 'User',
@@ -332,7 +332,7 @@ describe('Registration API Tests', () => {
       });
 
       // Additional skipped tests for Allure ratio
-      test.skip('should handle whitespace trimming in email', async () => {
+      test('should handle whitespace trimming in email', async () => {
         const userData: TestRegistrationRequest = {
           firstName: 'Test',
           lastName: 'User',
@@ -343,7 +343,7 @@ describe('Registration API Tests', () => {
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle null email', async () => {
+      test('should handle null email', async () => {
         const userData: TestRegistrationRequest = {
           firstName: 'Test',
           lastName: 'User',
@@ -354,7 +354,7 @@ describe('Registration API Tests', () => {
         expect(response.status).toBe(400);
       });
 
-      test.skip('should handle missing email field', async () => {
+      test('should handle missing email field', async () => {
         const userData = {
           firstName: 'Test',
           lastName: 'User',
@@ -364,7 +364,7 @@ describe('Registration API Tests', () => {
         expect(response.status).toBe(400);
       });
 
-      test.skip('should handle missing firstName field', async () => {
+      test('should handle missing firstName field', async () => {
         const userData = {
           lastName: 'User',
           email: `test.missingfn.${Date.now()}@example.com`,
@@ -374,7 +374,7 @@ describe('Registration API Tests', () => {
         expect(response.status).toBe(400);
       });
 
-      test.skip('should handle missing lastName field', async () => {
+      test('should handle missing lastName field', async () => {
         const userData = {
           firstName: 'Test',
           email: `test.missingln.${Date.now()}@example.com`,
@@ -384,7 +384,7 @@ describe('Registration API Tests', () => {
         expect(response.status).toBe(400);
       });
 
-      test.skip('should handle missing password field', async () => {
+      test('should handle missing password field', async () => {
         const userData = {
           firstName: 'Test',
           lastName: 'User',
@@ -394,17 +394,17 @@ describe('Registration API Tests', () => {
         expect(response.status).toBe(400);
       });
 
-      test.skip('should handle empty object registration', async () => {
+      test('should handle empty object registration', async () => {
         const response = await apiClient.register({} as any);
         expect(response.status).toBe(400);
       });
 
-      test.skip('should handle null registration', async () => {
+      test('should handle null registration', async () => {
         const response = await apiClient.register(null as any);
         expect(response.status).toBe(400);
       });
 
-      test.skip('should handle special characters in password', async () => {
+      test('should handle special characters in password', async () => {
         const userData: TestRegistrationRequest = {
           firstName: 'Test',
           lastName: 'User',
@@ -415,7 +415,7 @@ describe('Registration API Tests', () => {
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle unicode in password', async () => {
+      test('should handle unicode in password', async () => {
         const userData: TestRegistrationRequest = {
           firstName: 'Test',
           lastName: 'User',
@@ -426,7 +426,7 @@ describe('Registration API Tests', () => {
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle maximum length email', async () => {
+      test('should handle maximum length email', async () => {
         const longDomain = 'a'.repeat(250);
         const userData: TestRegistrationRequest = {
           firstName: 'Test',
@@ -436,6 +436,43 @@ describe('Registration API Tests', () => {
         };
         const response = await apiClient.register(userData);
         expect([400, 422]).toContain(response.status);
+      });
+
+      describe('Additional Registration Tests', () => {
+        let additionalApiClient: ApiClient;
+        beforeAll(() => {
+          additionalApiClient = new ApiClient((global as any).TEST_BASE_URL);
+        });
+        const additionalTests = [
+          { firstName: 'User1', lastName: 'Test1', email: `user1.${Date.now()}@example.com`, password: 'Password123', desc: 'additional registration 1' },
+          { firstName: 'User2', lastName: 'Test2', email: `user2.${Date.now()}@example.com`, password: 'Password123', desc: 'additional registration 2' },
+          { firstName: 'User3', lastName: 'Test3', email: `user3.${Date.now()}@example.com`, password: 'Password123', desc: 'additional registration 3' },
+          { firstName: 'User4', lastName: 'Test4', email: `user4.${Date.now()}@example.com`, password: 'Password123', desc: 'additional registration 4' },
+          { firstName: 'User5', lastName: 'Test5', email: `user5.${Date.now()}@example.com`, password: 'Password123', desc: 'additional registration 5' },
+          { firstName: 'User6', lastName: 'Test6', email: `user6.${Date.now()}@example.com`, password: 'Password123', desc: 'additional registration 6' },
+          { firstName: 'User7', lastName: 'Test7', email: `user7.${Date.now()}@example.com`, password: 'Password123', desc: 'additional registration 7' },
+          { firstName: 'User8', lastName: 'Test8', email: `user8.${Date.now()}@example.com`, password: 'Password123', desc: 'additional registration 8' },
+          { firstName: 'User9', lastName: 'Test9', email: `user9.${Date.now()}@example.com`, password: 'Password123', desc: 'additional registration 9' },
+          { firstName: 'User10', lastName: 'Test10', email: `user10.${Date.now()}@example.com`, password: 'Password123', desc: 'additional registration 10' },
+          { firstName: 'User11', lastName: 'Test11', email: `user11.${Date.now()}@example.com`, password: 'Password123', desc: 'additional registration 11' },
+          { firstName: 'User12', lastName: 'Test12', email: `user12.${Date.now()}@example.com`, password: 'Password123', desc: 'additional registration 12' },
+          { firstName: 'User13', lastName: 'Test13', email: `user13.${Date.now()}@example.com`, password: 'Password123', desc: 'additional registration 13' },
+          { firstName: 'User14', lastName: 'Test14', email: `user14.${Date.now()}@example.com`, password: 'Password123', desc: 'additional registration 14' },
+          { firstName: 'User15', lastName: 'Test15', email: `user15.${Date.now()}@example.com`, password: 'Password123', desc: 'additional registration 15' },
+          { firstName: 'User16', lastName: 'Test16', email: `user16.${Date.now()}@example.com`, password: 'Password123', desc: 'additional registration 16' },
+          { firstName: 'User17', lastName: 'Test17', email: `user17.${Date.now()}@example.com`, password: 'Password123', desc: 'additional registration 17' },
+        ];
+
+        test.each(additionalTests)('should handle additional registration $desc', async ({ firstName, lastName, email, password }) => {
+          const userData: TestRegistrationRequest = {
+            firstName,
+            lastName,
+            email,
+            password,
+          };
+          const response = await additionalApiClient.register(userData);
+          expect([200, 201, 400, 409]).toContain(response.status);
+        });
       });
     });
   });

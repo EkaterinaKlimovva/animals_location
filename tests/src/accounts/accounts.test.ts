@@ -462,7 +462,7 @@ describe('Accounts API Tests', () => {
       });
 
       // Account creation variations
-      test.skip('should handle very long email', async () => {
+      test('should handle very long email', async () => {
         const response = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',
@@ -472,7 +472,7 @@ describe('Accounts API Tests', () => {
         expect([400, 422]).toContain(response.status);
       });
 
-      test.skip('should handle email with only special chars', async () => {
+      test('should handle email with only special chars', async () => {
         const response = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',
@@ -482,7 +482,7 @@ describe('Accounts API Tests', () => {
         expect(response.status).toBe(400);
       });
 
-      test.skip('should handle name with numbers only', async () => {
+      test('should handle name with numbers only', async () => {
         const response = await apiClient.register({
           firstName: '12345',
           lastName: '67890',
@@ -492,7 +492,7 @@ describe('Accounts API Tests', () => {
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle email with subdomain', async () => {
+      test('should handle email with subdomain', async () => {
         const response = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',
@@ -502,7 +502,7 @@ describe('Accounts API Tests', () => {
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle email with plus sign', async () => {
+      test('should handle email with plus sign', async () => {
         const response = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',
@@ -512,7 +512,7 @@ describe('Accounts API Tests', () => {
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should reject email without TLD', async () => {
+      test('should reject email without TLD', async () => {
         const response = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',
@@ -522,7 +522,7 @@ describe('Accounts API Tests', () => {
         expect([400, 422]).toContain(response.status);
       });
 
-      test.skip('should handle case sensitive email duplicates', async () => {
+      test('should handle case sensitive email duplicates', async () => {
         const response = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',
@@ -532,7 +532,7 @@ describe('Accounts API Tests', () => {
         expect([200, 201, 400, 409]).toContain(response.status);
       });
 
-      test.skip('should handle role transition USER to ADMIN', async () => {
+      test('should handle role transition USER to ADMIN', async () => {
         const account = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',
@@ -546,7 +546,7 @@ describe('Accounts API Tests', () => {
         }
       });
 
-      test.skip('should handle role transition ADMIN to USER', async () => {
+      test('should handle role transition ADMIN to USER', async () => {
         const account = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',
@@ -560,7 +560,7 @@ describe('Accounts API Tests', () => {
         }
       });
 
-      test.skip('should reject delete of own account by regular user', async () => {
+      test('should reject delete of own account by regular user', async () => {
         const account = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',
@@ -574,27 +574,27 @@ describe('Accounts API Tests', () => {
         }
       });
 
-      test.skip('should handle get non-existent account', async () => {
+      test('should handle get non-existent account', async () => {
         const response = await apiClient.getAccount(999999);
         expect(response.status).toBe(404);
       });
 
-      test.skip('should handle delete non-existent account', async () => {
+      test('should handle delete non-existent account', async () => {
         const response = await apiClient.deleteAccount(999999);
         expect(response.status).toBe(404);
       });
 
-      test.skip('should handle update non-existent account', async () => {
+      test('should handle update non-existent account', async () => {
         const response = await apiClient.updateAccount(999999, { firstName: 'Test' });
         expect(response.status).toBe(404);
       });
 
-      test.skip('should handle empty search results', async () => {
+      test('should handle empty search results', async () => {
         const response = await apiClient.searchAccounts({ firstName: 'NonExistentName12345' });
         expect(response.status).toBe(200);
       });
 
-      test.skip('should handle unicode in email', async () => {
+      test('should handle unicode in email', async () => {
         const response = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',
@@ -604,7 +604,7 @@ describe('Accounts API Tests', () => {
         expect([400, 422]).toContain(response.status);
       });
 
-      test.skip('should handle password with special chars', async () => {
+      test('should handle password with special chars', async () => {
         const response = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',
@@ -614,7 +614,7 @@ describe('Accounts API Tests', () => {
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle very long password', async () => {
+      test('should handle very long password', async () => {
         const response = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',
@@ -624,7 +624,7 @@ describe('Accounts API Tests', () => {
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle empty firstName in update', async () => {
+      test('should handle empty firstName in update', async () => {
         const account = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',
@@ -638,7 +638,7 @@ describe('Accounts API Tests', () => {
         }
       });
 
-      test.skip('should handle whitespace-only firstName in update', async () => {
+      test('should handle whitespace-only firstName in update', async () => {
         const account = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',
@@ -652,7 +652,7 @@ describe('Accounts API Tests', () => {
         }
       });
 
-      test.skip('should handle update with null role', async () => {
+      test('should handle update with null role', async () => {
         const account = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',
@@ -666,48 +666,48 @@ describe('Accounts API Tests', () => {
         }
       });
 
-      test.skip('should handle pagination with zero size', async () => {
+      test('should handle pagination with zero size', async () => {
         const response = await apiClient.searchAccounts({ from: 0, size: 0 });
         expect([200, 400]).toContain(response.status);
       });
 
-      test.skip('should handle pagination with negative from', async () => {
+      test('should handle pagination with negative from', async () => {
         const response = await apiClient.searchAccounts({ from: -1, size: 10 });
         expect([200, 400]).toContain(response.status);
       });
 
-      test.skip('should handle pagination with negative size', async () => {
+      test('should handle pagination with negative size', async () => {
         const response = await apiClient.searchAccounts({ from: 0, size: -5 });
         expect([200, 400]).toContain(response.status);
       });
 
-      test.skip('should handle get account with string ID', async () => {
+      test('should handle get account with string ID', async () => {
         const response = await apiClient.getAccount('abc' as any);
         expect([400, 404]).toContain(response.status);
       });
 
-      test.skip('should handle update account with string ID', async () => {
+      test('should handle update account with string ID', async () => {
         const response = await apiClient.updateAccount('abc' as any, { firstName: 'Test' });
         expect([400, 404]).toContain(response.status);
       });
 
-      test.skip('should handle delete account with string ID', async () => {
+      test('should handle delete account with string ID', async () => {
         const response = await apiClient.deleteAccount('abc' as any);
         expect([400, 404]).toContain(response.status);
       });
 
-      test.skip('should handle search with empty string params', async () => {
+      test('should handle search with empty string params', async () => {
         const response = await apiClient.searchAccounts({ firstName: '', lastName: '' });
         expect([200, 400]).toContain(response.status);
       });
 
-      test.skip('should handle search with special chars in params', async () => {
+      test('should handle search with special chars in params', async () => {
         const response = await apiClient.searchAccounts({ firstName: '<script>' });
         expect([200, 400]).toContain(response.status);
       });
 
       // Additional edge cases for account count
-      test.skip('should handle minimal valid data', async () => {
+      test('should handle minimal valid data', async () => {
         const response = await apiClient.register({
           firstName: 'A',
           lastName: 'B',
@@ -717,7 +717,7 @@ describe('Accounts API Tests', () => {
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle duplicate email (case insensitive)', async () => {
+      test('should handle duplicate email (case insensitive)', async () => {
         const email = `dupcase_${Date.now()}@test.com`;
         const account = await apiClient.register({
           firstName: 'Test',
@@ -737,7 +737,7 @@ describe('Accounts API Tests', () => {
         }
       });
 
-      test.skip('should handle email with consecutive dots', async () => {
+      test('should handle email with consecutive dots', async () => {
         const response = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',
@@ -747,7 +747,7 @@ describe('Accounts API Tests', () => {
         expect([400, 422]).toContain(response.status);
       });
 
-      test.skip('should handle email starting with dot', async () => {
+      test('should handle email starting with dot', async () => {
         const response = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',
@@ -757,7 +757,7 @@ describe('Accounts API Tests', () => {
         expect([400, 422]).toContain(response.status);
       });
 
-      test.skip('should handle email ending with dot', async () => {
+      test('should handle email ending with dot', async () => {
         const response = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',
@@ -767,7 +767,7 @@ describe('Accounts API Tests', () => {
         expect([400, 422]).toContain(response.status);
       });
 
-      test.skip('should handle password without numbers', async () => {
+      test('should handle password without numbers', async () => {
         const response = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',
@@ -777,7 +777,7 @@ describe('Accounts API Tests', () => {
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle password without letters', async () => {
+      test('should handle password without letters', async () => {
         const response = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',
@@ -787,7 +787,7 @@ describe('Accounts API Tests', () => {
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle whitespace in password', async () => {
+      test('should handle whitespace in password', async () => {
         const response = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',
@@ -797,7 +797,7 @@ describe('Accounts API Tests', () => {
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle role ADMIN (if allowed)', async () => {
+      test('should handle role ADMIN (if allowed)', async () => {
         const response = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',
@@ -808,7 +808,7 @@ describe('Accounts API Tests', () => {
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle multiple rapid registrations', async () => {
+      test('should handle multiple rapid registrations', async () => {
         const promises = [];
         for (let i = 0; i < 5; i++) {
           promises.push(apiClient.register({
@@ -822,7 +822,7 @@ describe('Accounts API Tests', () => {
         results.forEach(r => expect([200, 201, 400, 409]).toContain(r.status));
       });
 
-      test.skip('should handle update same name multiple times', async () => {
+      test('should handle update same name multiple times', async () => {
         const account = await apiClient.register({
           firstName: 'Test',
           lastName: 'User',

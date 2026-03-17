@@ -53,6 +53,8 @@ export interface TestAnimal {
   chippingLocation?: TestLocation;
 }
 
+export type AnimalDto = TestAnimal;
+
 export interface TestVisitedLocation {
   id: number;
   animalId: number;

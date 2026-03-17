@@ -807,7 +807,7 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
         }
       });
 
-      test.skip('should handle visited location without visitedAt', async () => {
+      test('should handle visited location without visitedAt', async () => {
         const animal = await apiClient.createAnimal({
           animalTypes: [createdAnimalTypeId!],
           weight: 5,
@@ -826,7 +826,7 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
         }
       });
 
-      test.skip('should reject non-existent location point', async () => {
+      test('should reject non-existent location point', async () => {
         const animal = await apiClient.createAnimal({
           animalTypes: [createdAnimalTypeId!],
           weight: 5,
@@ -845,7 +845,7 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
         }
       });
 
-      test.skip('should handle multiple visited locations', async () => {
+      test('should handle multiple visited locations', async () => {
         const animal = await apiClient.createAnimal({
           animalTypes: [createdAnimalTypeId!],
           weight: 5,
@@ -873,7 +873,7 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
         }
       });
 
-      test.skip('should update visited location date', async () => {
+      test('should update visited location date', async () => {
         const animal = await apiClient.createAnimal({
           animalTypes: [createdAnimalTypeId!],
           weight: 5,
@@ -899,7 +899,7 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
         }
       });
 
-      test.skip('should delete specific visited location', async () => {
+      test('should delete specific visited location', async () => {
         const animal = await apiClient.createAnimal({
           animalTypes: [createdAnimalTypeId!],
           weight: 5,
@@ -922,7 +922,7 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
         }
       });
 
-      test.skip('should handle filter by date range', async () => {
+      test('should handle filter by date range', async () => {
         const response = await apiClient.getVisitedLocations(createdAnimalId!, {
           startDateTime: '2025-01-01T00:00:00.000Z',
           endDateTime: '2025-12-31T23:59:59.999Z',
@@ -930,21 +930,21 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
         expect([200, 400]).toContain(response.status);
       });
 
-      test.skip('should handle filter with only start date', async () => {
+      test('should handle filter with only start date', async () => {
         const response = await apiClient.getVisitedLocations(createdAnimalId!, {
           startDateTime: '2025-01-01T00:00:00.000Z',
         });
         expect([200, 400]).toContain(response.status);
       });
 
-      test.skip('should handle filter with only end date', async () => {
+      test('should handle filter with only end date', async () => {
         const response = await apiClient.getVisitedLocations(createdAnimalId!, {
           endDateTime: '2025-12-31T23:59:59.999Z',
         });
         expect([200, 400]).toContain(response.status);
       });
 
-      test.skip('should reject invalid date format', async () => {
+      test('should reject invalid date format', async () => {
         const animal = await apiClient.createAnimal({
           animalTypes: [createdAnimalTypeId!],
           weight: 5,
@@ -964,7 +964,7 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
         }
       });
 
-      test.skip('should reject future date', async () => {
+      test('should reject future date', async () => {
         const animal = await apiClient.createAnimal({
           animalTypes: [createdAnimalTypeId!],
           weight: 5,
@@ -984,7 +984,7 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
         }
       });
 
-      test.skip('should handle visited location for dead animal', async () => {
+      test('should handle visited location for dead animal', async () => {
         // First create animal
         const animal = await apiClient.createAnimal({
           animalTypes: [createdAnimalTypeId!],
@@ -1011,7 +1011,7 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
         }
       });
 
-      test.skip('should reject adding location before chipping date', async () => {
+      test('should reject adding location before chipping date', async () => {
         const animal = await apiClient.createAnimal({
           animalTypes: [createdAnimalTypeId!],
           weight: 5,
@@ -1031,7 +1031,7 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
         }
       });
 
-      test.skip('should reject update with invalid location point', async () => {
+      test('should reject update with invalid location point', async () => {
         const animal = await apiClient.createAnimal({
           animalTypes: [createdAnimalTypeId!],
           weight: 5,
@@ -1057,12 +1057,12 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
         }
       });
 
-      test.skip('should handle get visited locations for non-existent animal', async () => {
+      test('should handle get visited locations for non-existent animal', async () => {
         const response = await apiClient.getVisitedLocations(999999);
         expect(response.status).toBe(404);
       });
 
-      test.skip('should handle empty visited locations list', async () => {
+      test('should handle empty visited locations list', async () => {
         const animal = await apiClient.createAnimal({
           animalTypes: [createdAnimalTypeId!],
           weight: 5,
@@ -1079,7 +1079,7 @@ it('should return 200 for unauthorized request (GET is public)', async () => {
         }
       });
 
-      test.skip('should handle pagination in visited locations', async () => {
+      test('should handle pagination in visited locations', async () => {
         const animal = await apiClient.createAnimal({
           animalTypes: [createdAnimalTypeId!],
           weight: 5,

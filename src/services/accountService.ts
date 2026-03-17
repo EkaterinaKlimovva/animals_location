@@ -1,7 +1,7 @@
 import { accountRepository } from '../repositories/accountRepository';
 import { animalRepository } from '../repositories/animalRepository';
 import bcrypt from 'bcrypt';
-import type { SafeAccount } from '../types/account';
+import type { SafeAccount } from '../common';
 import type { Account } from '../generated/prisma/client';
 import { validateAnimalsExist } from '../utils/validationUtils';
 

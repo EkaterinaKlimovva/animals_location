@@ -499,10 +499,12 @@ describe('Animals API Tests', () => {
         TestHelpers.expectStatus(response.status, 201, 'Add Animal Type Success');
         expect(response.data).toBeDefined();
         expect(typeof response.data).toBe('object');
-        expect(response.data).toHaveProperty('animalId');
-        expect(response.data).toHaveProperty('typeId');
-        expect(typeof (response.data as any).animalId).toBe('number');
-        expect(typeof (response.data as any).typeId).toBe('number');
+        // Now returns full AnimalDto
+        TestHelpers.expectHasProperty(response.data, 'id', 'Add Animal Type Success');
+        TestHelpers.expectHasProperty(response.data, 'animalTypes', 'Add Animal Type Success');
+        TestHelpers.expectEqual(response.data.id, createdAnimalId, 'Add Animal Type Success', 'id');
+        TestHelpers.expectArray(response.data.animalTypes, 'Add Animal Type Success');
+        expect(response.data.animalTypes).toContain(typeResponse.data.id);
 
         // Удаляем тип после теста
         await apiClient.removeAnimalType(createdAnimalId, typeResponse.data.id);

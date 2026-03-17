@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { VALIDATION_MESSAGES, GENDER_VALUES, LIFE_STATUS_VALUES } from '../common';
 
 // Common integer ID validation schema (for account IDs)
 export const idSchema = z.union([z.string(), z.number()])

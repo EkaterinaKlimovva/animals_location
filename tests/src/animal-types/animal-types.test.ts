@@ -335,28 +335,28 @@ describe('Animal Types API Tests', () => {
         expect(response.status).toBe(400);
       });
 
-      test.skip('should handle very long type name', async () => {
+      test('should handle very long type name', async () => {
         const longName = 'A'.repeat(500);
         const response = await apiClient.createAnimalType(longName);
         expect([400, 422]).toContain(response.status);
       });
 
-      test.skip('should handle special characters in type', async () => {
+      test('should handle special characters in type', async () => {
         const response = await apiClient.createAnimalType('Dog- breed @#$%');
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle numbers in type', async () => {
+      test('should handle numbers in type', async () => {
         const response = await apiClient.createAnimalType('Type 2024');
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle Unicode in type', async () => {
+      test('should handle Unicode in type', async () => {
         const response = await apiClient.createAnimalType('Собака 🐕');
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should reject duplicate type name', async () => {
+      test('should reject duplicate type name', async () => {
         const type = await apiClient.createAnimalType(`Duplicate_${Date.now()}`);
         if (type.status === 201) {
           const dup = await apiClient.createAnimalType(`Duplicate_${Date.now()}`);
@@ -364,7 +364,7 @@ describe('Animal Types API Tests', () => {
         }
       });
 
-      test.skip('should handle empty type update', async () => {
+      test('should handle empty type update', async () => {
         const type = await apiClient.createAnimalType(`Update_${Date.now()}`);
         if (type.status === 201) {
           const response = await apiClient.updateAnimalType(type.data.id, '');
@@ -372,12 +372,12 @@ describe('Animal Types API Tests', () => {
         }
       });
 
-      test.skip('should reject update to non-existent type', async () => {
+      test('should reject update to non-existent type', async () => {
         const response = await apiClient.updateAnimalType(999999, 'NewType');
         expect(response.status).toBe(404);
       });
 
-      test.skip('should handle update with same name', async () => {
+      test('should handle update with same name', async () => {
         const type = await apiClient.createAnimalType(`SameName_${Date.now()}`);
         if (type.status === 201) {
           const response = await apiClient.updateAnimalType(type.data.id, type.data.type);
@@ -385,17 +385,17 @@ describe('Animal Types API Tests', () => {
         }
       });
 
-      test.skip('should handle null type', async () => {
+      test('should handle null type', async () => {
         const response = await apiClient.createAnimalType(null as any);
         expect(response.status).toBe(400);
       });
 
-      test.skip('should handle missing type field', async () => {
+      test('should handle missing type field', async () => {
         const response = await apiClient.createAnimalType({} as any);
         expect(response.status).toBe(400);
       });
 
-      test.skip('should reject update with null', async () => {
+      test('should reject update with null', async () => {
         const type = await apiClient.createAnimalType(`Null_${Date.now()}`);
         if (type.status === 201) {
           const response = await apiClient.updateAnimalType(type.data.id, null as any);
@@ -403,17 +403,17 @@ describe('Animal Types API Tests', () => {
         }
       });
 
-      test.skip('should handle whitespace-only type', async () => {
+      test('should handle whitespace-only type', async () => {
         const response = await apiClient.createAnimalType('   ');
         expect(response.status).toBe(400);
       });
 
-      test.skip('should handle single character type', async () => {
+      test('should handle single character type', async () => {
         const response = await apiClient.createAnimalType('A');
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle case sensitivity', async () => {
+      test('should handle case sensitivity', async () => {
         const type = await apiClient.createAnimalType('dog');
         if (type.status === 201) {
           const dup = await apiClient.createAnimalType('DOG');
@@ -421,34 +421,34 @@ describe('Animal Types API Tests', () => {
         }
       });
 
-      test.skip('should handle hyphenated type', async () => {
+      test('should handle hyphenated type', async () => {
         const response = await apiClient.createAnimalType('Large-Dog');
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle type with apostrophe', async () => {
+      test('should handle type with apostrophe', async () => {
         const response = await apiClient.createAnimalType("Dog's Favorite");
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle type with parentheses', async () => {
+      test('should handle type with parentheses', async () => {
         const response = await apiClient.createAnimalType('Dog (Breed)');
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle type with slash', async () => {
+      test('should handle type with slash', async () => {
         const response = await apiClient.createAnimalType('Dog/Feline');
         expect([200, 201, 400]).toContain(response.status);
       });
 
-      test.skip('should handle very short type names', async () => {
+      test('should handle very short type names', async () => {
         for (const name of ['a', 'ab', 'abc']) {
           const response = await apiClient.createAnimalType(name);
           expect([200, 201, 400]).toContain(response.status);
         }
       });
 
-      test.skip('should handle update with whitespace', async () => {
+      test('should handle update with whitespace', async () => {
         const type = await apiClient.createAnimalType(`WS_${Date.now()}`);
         if (type.status === 201) {
           const response = await apiClient.updateAnimalType(type.data.id, '  New Type  ');
@@ -456,12 +456,12 @@ describe('Animal Types API Tests', () => {
         }
       });
 
-      test.skip('should handle get all types', async () => {
+      test('should handle get all types', async () => {
         const response = await apiClient.getAnimalTypes();
         expect(response.status).toBe(200);
       });
 
-      test.skip('should handle get type with invalid id', async () => {
+      test('should handle get type with invalid id', async () => {
         const response = await apiClient.getAnimalType(-1);
         expect(response.status).toBe(404);
       });

@@ -13,10 +13,11 @@ import {
   deleteAccount,
 } from '../controllers/accountController';
 import { accountIdParamSchema, searchAccountsSchema, updateAccountSchema, createAccountSchema, createAccountWithAnimalsSchema } from '../validation';
+import type { SearchAccountsRequest } from '../types';
 
 const router = Router();
 
-router.get('/search', validateParams(searchAccountsSchema, 'query'), optionalAuthMiddleware, asyncHandler((req, res) => searchAccounts(req as any, res)));
+router.get('/search', validateParams(searchAccountsSchema, 'query'), optionalAuthMiddleware, asyncHandler((req, res) => searchAccounts(req as unknown as SearchAccountsRequest, res)));
 router.get('/', authMiddleware, optionalAuthMiddleware, asyncHandler(listAccounts));
 router.post('/', validateParams(createAccountSchema, 'body'), optionalAuthMiddleware, asyncHandler(createAccount));
 router.post('/with-animals', validateParams(createAccountWithAnimalsSchema, 'body'), optionalAuthMiddleware, asyncHandler(createAccountWithAnimalValidation));

@@ -14,9 +14,9 @@ import { optionalAuthMiddleware } from '../middleware/optionalAuth';
 const router = Router({ mergeParams: true });
 
 router.get('/', validateParams(animalIdParamSchema, 'params'), optionalAuthMiddleware, asyncHandler(listVisitedLocations));
-router.post('/:locationId', authMiddleware, validateParams(animalIdParamSchema, 'params'), validateParams(locationPointIdParamSchema, 'params'), validateParams(createVisitedLocationBodySchema, 'body'), asyncHandler(createVisitedLocation));
-router.put('/', authMiddleware, validateParams(animalIdParamSchema, 'params'), validateParams(updateVisitedLocationBodySchema, 'body'), asyncHandler(updateVisitedLocation));
-router.delete('/:locationId', authMiddleware, validateParams(animalIdParamSchema, 'params'), validateParams(locationPointIdParamSchema, 'params'), asyncHandler(deleteVisitedLocation));
+router.post('/:locationId', validateParams(animalIdParamSchema, 'params'), validateParams(locationPointIdParamSchema, 'params'), validateParams(createVisitedLocationBodySchema, 'body'), authMiddleware, asyncHandler(createVisitedLocation));
+router.put('/', validateParams(animalIdParamSchema, 'params'), validateParams(updateVisitedLocationBodySchema, 'body'), authMiddleware, asyncHandler(updateVisitedLocation));
+router.delete('/:locationId', validateParams(animalIdParamSchema, 'params'), validateParams(locationPointIdParamSchema, 'params'), authMiddleware, asyncHandler(deleteVisitedLocation));
 
 export { router };
 

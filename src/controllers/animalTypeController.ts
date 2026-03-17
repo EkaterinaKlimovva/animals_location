@@ -11,7 +11,7 @@ import {
   sendControllerCreated,
   validateControllerTypeId,
 } from '../utils/controllerUtils';
-import { ENTITY_NAMES, SUCCESS_MESSAGES } from '../utils/constants';
+import { ENTITY_NAMES, SUCCESS_MESSAGES } from '../common';
 import type {
   GetAnimalTypeRequest,
   CreateAnimalTypeRequest,

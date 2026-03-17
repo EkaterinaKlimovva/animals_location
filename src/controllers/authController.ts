@@ -1,6 +1,7 @@
 import type { Response } from 'express';
 import { authService } from '../services/authService';
-import type { RegisterRequest, AuthenticatedRequest } from '../types';
+import type { RegisterRequest } from '../types';
+import type { AuthenticatedRequest } from '../common';
 
 interface AuthenticatedUser {
   id: number;

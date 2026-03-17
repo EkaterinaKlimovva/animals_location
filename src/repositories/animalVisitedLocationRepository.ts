@@ -12,7 +12,7 @@ export class AnimalVisitedLocationRepository {
     return prisma.animalVisitedLocation.findMany({
       where: { animalId },
       include: { locationPoint: true },
-      orderBy: { visitedAt: 'asc' },
+      orderBy: { id: 'asc' },
     }).then(locations => locations.map(this.transformToResponse));
   }
 
@@ -57,7 +57,7 @@ export class AnimalVisitedLocationRepository {
       include: {
         visitedLocations: {
           include: { locationPoint: true },
-          orderBy: { visitedAt: 'asc' },
+          orderBy: { id: 'asc' },
         },
         chippingLocation: true,
       },

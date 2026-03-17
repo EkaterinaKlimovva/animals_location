@@ -1,34 +1,86 @@
 import type { Response } from 'express';
-import { HTTP_STATUS, VALIDATION_MESSAGES } from './constants';
 import { ZodError } from 'zod';
+import { HTTP_STATUS, VALIDATION_MESSAGES, AppError, ERROR_CODES, createValidationError, createNotFoundError } from '../common';
 
 // Centralized error handling functions
 export function handleControllerError(res: Response, error: unknown, context: string): void {
-  let message: string;
-  let details: { path: string; code: string; message: string }[] = [];
+  console.error(`${context} - Error:`, error);
 
-  if (error instanceof ZodError) {
-    // Extract clean error messages from Zod validation errors
-    message = error.issues.length > 0 ? error.issues[0].message : 'Validation failed';
-    details = error.issues.map(e => ({
+  if (error instanceof AppError) {
+    // Handle our standardized AppError
+    const errorResponse = error.toJSON();
+    res.status(error.statusCode).json({
+      message: errorResponse.message,
+      code: errorResponse.code,
+      details: errorResponse.details,
+    });
+  } else if (error instanceof ZodError) {
+    // Handle Zod validation errors with standardized format
+    const details = error.issues.map(e => ({
       path: e.path.join('.'),
       code: e.code,
       message: e.message,
     }));
+    
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: error.issues.length > 0 ? error.issues[0].message : 'Validation failed',
+      code: ERROR_CODES.VALIDATION_ERROR,
+      details,
+    });
   } else if (error instanceof Error) {
-    message = error.message;
+    // Handle generic errors
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: error.message,
+      code: ERROR_CODES.VALIDATION_ERROR,
+    });
   } else {
-    message = VALIDATION_MESSAGES.VALIDATION_ERROR;
+    // Handle unknown errors
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      message: 'An unexpected error occurred',
+      code: ERROR_CODES.INTERNAL_SERVER_ERROR,
+    });
   }
-
-  console.error(`${context} - Error:`, error);
-  res.status(HTTP_STATUS.BAD_REQUEST).json({ error: message, details: details.length > 0 ? details: undefined });
 }
 
 export function handleControllerNotFound(res: Response, context: string, entity: string): void {
-  const message = `${entity} not found`;
-  console.log(`${context} - ${message}`);
-  res.status(HTTP_STATUS.NOT_FOUND).json({ message: message });
+  console.log(`${context} - ${entity} not found`);
+  res.status(HTTP_STATUS.NOT_FOUND).json({ 
+    message: `${entity} not found`,
+    code: ERROR_CODES.ANIMAL_NOT_FOUND, // This will be overridden by specific error codes
+  });
+}
+
+// New helper functions for standardized error responses
+export function handleNotFoundError(res: Response, entity: string, id?: number): void {
+  const error = createNotFoundError(entity, id);
+  res.status(error.statusCode).json({
+    message: error.message,
+    code: error.code,
+  });
+}
+
+export function handleValidationError(res: Response, field: string, message?: string): void {
+  const error = createValidationError(field, message);
+  res.status(error.statusCode).json({
+    message: error.message,
+    code: error.code,
+  });
+}
+
+export function handleBusinessLogicError(res: Response, code: ERROR_CODES, message?: string): void {
+  const error = new AppError(code, message);
+  res.status(error.statusCode).json({
+    message: error.message,
+    code: error.code,
+  });
+}
+
+export function handleAuthError(res: Response, context: string): void {
+  console.log(`${context} - Unauthorized`);
+  res.status(HTTP_STATUS.UNAUTHORIZED).json({
+    message: 'Unauthorized access',
+    code: ERROR_CODES.UNAUTHORIZED,
+  });
 }
 
 export function sendControllerSuccess<T>(res: Response, data: T, message?: string): void {

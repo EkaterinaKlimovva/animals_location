@@ -1,4 +1,4 @@
-import type { SafeAccount } from '../types/account';
+import type { SafeAccount } from '../common';
 
 /**
  * Account DTO for API responses - uses SafeAccount interface directly

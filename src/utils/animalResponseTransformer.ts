@@ -1,4 +1,4 @@
-import type { AnimalWithRelations } from '../types/animal';
+import type { AnimalWithRelations } from '../common';
 
 export function transformAnimalResponse(animal: AnimalWithRelations) {
   return {

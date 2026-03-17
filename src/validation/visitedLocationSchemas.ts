@@ -24,10 +24,11 @@ export const locationPointIdParamSchema = z.object({
 // Update visited location body schema
 export const updateVisitedLocationBodySchema = z.object({
   visitedLocationPointId: idSchema,
-  locationPointId: idSchema,
+  locationPointId: idSchema.optional(),
+  visitedAt: z.string().datetime().optional(),
 });
 
 // Create visited location body schema
 export const createVisitedLocationBodySchema = z.object({
-  visitedAt: z.string().optional(),
+  visitedAt: z.string().datetime().optional(),
 });

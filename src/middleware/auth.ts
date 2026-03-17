@@ -1,16 +1,13 @@
 import type { Request, Response, NextFunction } from 'express';
 import { Buffer } from 'buffer';
 import { accountService } from '../services/accountService';
+import type { AuthenticatedRequest } from '../common';
 
 interface AuthenticatedUser {
   id: number;
   email: string;
   firstName: string;
   lastName: string;
-}
-
-export interface AuthenticatedRequest extends Request {
-  user?: AuthenticatedUser;
 }
 
 export async function authMiddleware(

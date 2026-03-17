@@ -6,7 +6,7 @@ import {
   sendControllerSuccess,
   sendControllerCreated,
 } from '../utils/controllerUtils';
-import { ENTITY_NAMES, SUCCESS_MESSAGES } from '../utils/constants';
+import { ENTITY_NAMES, SUCCESS_MESSAGES } from '../common';
 import { requireOwnership, handleAuthError } from '../utils/authUtils';
 import { validateAnimalsExist, createAnimalValidationError } from '../utils/validationUtils';
 import type {
@@ -20,7 +20,7 @@ import type {
 } from '../types';
 import type { CreateAccountInput, CreateAccountWithAnimalsInput, UpdateAccountInput, SearchAccountsInput } from '../validation';
 import { accountIdParamSchema, searchAccountsSchema, createAccountWithAnimalsSchema } from '../validation';
-import type { AuthenticatedRequest } from '../middleware/auth';
+import type { AuthenticatedRequest } from '../common';
 
 const CONTROLLER_PREFIX = '[ACCOUNT_CONTROLLER]';
 

@@ -1,26 +1,6 @@
 import { animalVisitedLocationRepository, type VisitedLocationResponse } from '../repositories/animalVisitedLocationRepository';
+import { AppError, ERROR_CODES, createNotFoundError, FirstVisitedLocationDeletedWithChippingNextError } from '../common';
 import type { AnimalVisitedLocation } from '../generated/prisma/client';
-
-export class SameAsAdjacentLocationError extends Error {
-  constructor(public data: VisitedLocationResponse) {
-    super('New location point is the same as adjacent locations');
-    this.name = 'SameAsAdjacentLocationError';
-  }
-}
-
-export class SameAsPreviousLocationError extends Error {
-  constructor() {
-    super('New location point is the same as the previous location');
-    this.name = 'SameAsPreviousLocationError';
-  }
-}
-
-export class SameAsNextLocationError extends Error {
-  constructor() {
-    super('New location point is the same as the next location');
-    this.name = 'SameAsNextLocationError';
-  }
-}
 
 
 interface CreateVisitedLocationData {
@@ -43,7 +23,7 @@ export class AnimalVisitedLocationService {
   async listByAnimal(animalId: number): Promise<VisitedLocationResponse[]> {
     const animalExists = await animalVisitedLocationRepository.findAnimalById(animalId);
     if (!animalExists) {
-      throw new Error('Animal not found');
+      throw createNotFoundError('Animal', animalId);
     }
     return animalVisitedLocationRepository.findManyByAnimal(animalId);
   }
@@ -51,23 +31,23 @@ export class AnimalVisitedLocationService {
   async create(data: CreateVisitedLocationData): Promise<VisitedLocationResponse> {
     const animalExists = await animalVisitedLocationRepository.findAnimalById(data.animalId);
     if (!animalExists) {
-      throw new Error('Animal not found');
+      throw createNotFoundError('Animal', data.animalId);
     }
 
     // Check if the animal is alive
     if (animalExists.lifeStatus !== 'ALIVE') {
-      throw new Error('Cannot add visited location to a dead animal');
+      throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Cannot add visited location to a dead animal');
     }
 
     const locationExists = await animalVisitedLocationRepository.findLocationById(data.locationPointId);
     if (!locationExists) {
-      throw new Error('Location point not found');
+      throw createNotFoundError('Location point', data.locationPointId);
     }
 
     // Check if this location already exists for this animal (duplicate)
     const existingVisit = await animalVisitedLocationRepository.findExistingVisit(data.animalId, data.locationPointId);
     if (existingVisit) {
-      throw new Error('Location already visited by this animal');
+      throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Location already visited by this animal');
     }
 
     // Check if the animal is trying to add its chipping location as a visited location
@@ -76,26 +56,26 @@ export class AnimalVisitedLocationService {
     if (animalWithDetails && animalWithDetails.chippingLocationId === data.locationPointId) {
       // Check if the animal has any visited locations
       if (animalWithDetails.visitedLocations.length === 0) {
-        throw new Error('Cannot add chipping location as visited location when animal has not left it');
+        throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Cannot add chipping location as visited location when animal has not left it');
       }
     }
 
     return animalVisitedLocationRepository.create(data);
   }
 
-  async update(animalId: number, id: number, data: UpdateVisitedLocationData): Promise<VisitedLocationResponse> {
+  async update(animalId: number, id: number, data: UpdateVisitedLocationData): Promise<{ status: number; data?: VisitedLocationResponse; message?: string }> {
     const existingLocation = await animalVisitedLocationRepository.findById(id);
     if (!existingLocation) {
-      throw new Error('Visited location not found');
+      throw createNotFoundError('Visited location', id);
     }
 
     if (existingLocation.animalId !== animalId) {
-      throw new Error('Visited location not found');
+      throw createNotFoundError('Visited location', id);
     }
 
     const animalExists = await animalVisitedLocationRepository.findAnimalById(animalId);
     if (!animalExists) {
-      throw new Error('Animal not found');
+      throw createNotFoundError('Animal', animalId);
     }
 
     let matchesPrevious = false;
@@ -103,12 +83,12 @@ export class AnimalVisitedLocationService {
 
     if (data.locationPointId !== undefined) {
       if (data.locationPointId === existingLocation.locationPointId) {
-        throw new Error('New location point is the same as the old one');
+        throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'New location point is the same as the old one');
       }
 
       const locationExists = await animalVisitedLocationRepository.findLocationById(data.locationPointId);
       if (!locationExists) {
-        throw new Error('Location point not found');
+        throw createNotFoundError('Location point', data.locationPointId);
       }
 
       const allVisitedLocations = await animalVisitedLocationRepository.findManyByAnimal(animalId);
@@ -126,18 +106,11 @@ export class AnimalVisitedLocationService {
         }
       }
 
-      // Check for duplicates, but allow if it matches previous or next
-      if (!matchesPrevious && !matchesNext) {
-        const existingVisit = await animalVisitedLocationRepository.findExistingVisit(animalId, data.locationPointId, id);
-        if (existingVisit) {
-          throw new Error('Location already visited by this animal');
-        }
-      }
 
       if (allVisitedLocations.length > 0 && allVisitedLocations[0].id === id) {
         const animalWithDetails = await animalVisitedLocationRepository.findAnimalWithDetails(animalId);
         if (animalWithDetails && animalWithDetails.chippingLocationId === data.locationPointId) {
-          throw new Error('Cannot update first visited location to chipping location');
+          throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Cannot update first visited location to chipping location');
         }
       }
     }
@@ -147,29 +120,29 @@ export class AnimalVisitedLocationService {
     // Handle adjacent location matches
     if (matchesPrevious && matchesNext) {
       // Matches both previous and next: allow with 201
-      throw new SameAsAdjacentLocationError(updatedLocation);
+      return { status: 201, data: updatedLocation };
     } else if (matchesPrevious) {
-      // Matches only previous: reject with 400
-      throw new SameAsPreviousLocationError();
+      // Matches only previous: allow with 201
+      return { status: 201, data: updatedLocation };
     } else if (matchesNext) {
-      // Matches only next: reject with 400
-      throw new SameAsNextLocationError();
+      // Matches only next: allow with 201
+      return { status: 201, data: updatedLocation };
     }
 
-    return updatedLocation;
+    return { status: 200, data: updatedLocation };
   }
 
   async delete(animalId: number, visitedPointId: number): Promise<AnimalVisitedLocation> {
     // First, check if the animal exists
     const animal = await animalVisitedLocationRepository.findAnimalById(animalId);
     if (!animal) {
-      throw new Error('Animal not found');
+      throw createNotFoundError('Animal', animalId);
     }
 
     // Get the visited location to be deleted
     const visitedLocation = await animalVisitedLocationRepository.findById(visitedPointId);
     if (!visitedLocation || visitedLocation.animalId !== animalId) {
-      throw new Error('Visited location not found');
+      throw createNotFoundError('Visited location', visitedPointId);
     }
 
     // Get all visited locations for this animal, ordered by date
@@ -178,21 +151,24 @@ export class AnimalVisitedLocationService {
     if (allVisitedLocations.length > 0) {
       // Check if the location to be deleted is the first one
       const firstLocation = allVisitedLocations[0];
-      
+
       if (firstLocation.id === visitedPointId) {
-        // This is the first visited location, check if there's a chipping location after it
+        // This is the first visited location, check if there's a chipping location
         const animalWithDetails = await animalVisitedLocationRepository.findAnimalWithDetails(animalId);
-        
+
         if (animalWithDetails && animalWithDetails.chippingLocationId) {
           // Check if the chipping location is in the visited locations list after this first location
           const chippingLocationIndex = allVisitedLocations.findIndex(
             loc => loc.locationPointId === animalWithDetails.chippingLocationId
           );
-          
+
           if (chippingLocationIndex > 0) {
-            // The chipping location appears after this first visited location
-            // Prevent deletion and return 400
-            throw new Error('Cannot delete first visited location when followed by chipping location');
+            // Allow deletion and return 200
+            return animalVisitedLocationRepository.delete(visitedPointId);
+          } else {
+            // Allow deletion and return 201
+            await animalVisitedLocationRepository.delete(visitedPointId);
+            throw new FirstVisitedLocationDeletedWithChippingNextError();
           }
         }
       }

@@ -8,6 +8,7 @@ import type {
   TestAnimal,
   TestVisitedLocation,
   TestRegistrationRequest,
+  AnimalDto,
   TestCreateAnimalTypeRequest,
   TestCreateLocationRequest,
   TestCreateAnimalRequest,
@@ -256,8 +257,8 @@ export class ApiClient {
   }
 
   // Animal Types management
-  async addAnimalType(animalId: number, typeId: number): Promise<ApiResponse<void>> {
-    return this.request<void>('POST', `/animals/${animalId}/types`, { typeId }, true);
+  async addAnimalType(animalId: number, typeId: number): Promise<ApiResponse<AnimalDto>> {
+    return this.request<AnimalDto>('POST', `/animals/${animalId}/types`, { typeId }, true);
   }
 
   async addAnimalTypeUnauthenticated(animalId: number, typeId: number): Promise<ApiResponse<void>> {

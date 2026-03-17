@@ -27,7 +27,7 @@ export const validateParams = <T>(schema: z.ZodSchema<T>, source: 'body' | 'quer
         }));
         const message = error.issues.length > 0 ? error.issues[0].message : 'Validation failed';
         return res.status(400).json({
-          error: message,
+          message,
           details,
         });
       }
@@ -57,7 +57,7 @@ export const validateComposite = (paramsSchema: z.ZodSchema, bodySchema: z.ZodSc
         }));
         const message = error.issues.length > 0 ? error.issues[0].message : 'Validation failed';
         return res.status(400).json({
-          error: message,
+          message,
           details,
         });
       }

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { idSchema, isoDateTimeSchema, genderSchema, lifeStatusSchema } from './commonSchemas';
+import { GENDER_VALUES, LIFE_STATUS_VALUES } from '../common';
 
 // Search animals schema with complete validation
 export const searchAnimalsSchema = z.object({
@@ -21,8 +22,8 @@ export const searchAnimalsSchema = z.object({
     }
     return num;
   }),
-  lifeStatus: z.enum(['ALIVE', 'DEAD']).optional(),
-  gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
+  lifeStatus: z.enum(Object.values(LIFE_STATUS_VALUES) as [string, ...string[]]).optional(),
+  gender: z.enum(Object.values(GENDER_VALUES) as [string, ...string[]]).optional(),
   from: z.string().optional().transform((val) => val ? Number(val) : 0),
   size: z.string().optional().transform((val) => val ? Number(val) : 10),
 }).refine((data) => {
@@ -65,6 +66,7 @@ export const updateAnimalSchema = z.object({
   lifeStatus: lifeStatusSchema.optional(),
   chipperId: z.number().positive('ChipperId must be positive').optional(),
   chippingLocationId: z.number().positive('ChippingLocationId must be positive').optional(),
+  deathDateTime: isoDateTimeSchema.optional(),
 });
 
 // Animal ID parameter schema (allows negative IDs for proper error handling)

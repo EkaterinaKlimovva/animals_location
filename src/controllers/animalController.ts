@@ -15,12 +15,14 @@ import {
 } from '../validation';
 import {
   handleControllerError,
-  handleControllerNotFound,
+  handleNotFoundError,
+  handleValidationError,
+  handleBusinessLogicError,
   sendControllerSuccess,
   sendControllerCreated,
   validateControllerTypeId,
 } from '../utils/controllerUtils';
-import { ENTITY_NAMES, SUCCESS_MESSAGES } from '../utils/constants';
+import { ERROR_CODES, ENTITY_NAMES, SUCCESS_MESSAGES } from '../common';
 import { transformAnimalResponse } from '../utils/animalResponseTransformer';
 import type {
   GetAnimalRequest,
@@ -46,7 +48,7 @@ export async function getAnimal(req: GetAnimalRequest, res: Response): Promise<v
     const animal = await animalService.getById(id);
 
     if (!animal) {
-      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - getAnimal`, ENTITY_NAMES.ANIMAL);
+      handleNotFoundError(res, 'Animal', id);
       return;
     }
 
@@ -77,7 +79,7 @@ export async function createAnimal(req: CreateAnimalRequest, res: Response): Pro
     for (const typeId of animalData.animalTypes) {
       const animalType = await animalTypeRepository.findById(typeId);
       if (!animalType) {
-        handleControllerNotFound(res, `${CONTROLLER_PREFIX} - createAnimal`, `${ENTITY_NAMES.ANIMAL_TYPE} with id ${typeId}`);
+        handleNotFoundError(res, 'Animal type', typeId);
         return;
       }
     }
@@ -85,14 +87,14 @@ export async function createAnimal(req: CreateAnimalRequest, res: Response): Pro
     // Validate that chipping location exists
     const chippingLocation = await locationPointRepository.findById(animalData.chippingLocationId);
     if (!chippingLocation) {
-      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - createAnimal`, `${ENTITY_NAMES.LOCATION_POINT} with id ${animalData.chippingLocationId}`);
+      handleNotFoundError(res, 'Location point', animalData.chippingLocationId);
       return;
     }
 
     // Validate that chipper exists
     const chipper = await accountRepository.findById(animalData.chipperId);
     if (!chipper) {
-      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - createAnimal`, `${ENTITY_NAMES.ACCOUNT} with id ${animalData.chipperId}`);
+      handleNotFoundError(res, 'Account', animalData.chipperId);
       return;
     }
 
@@ -113,7 +115,7 @@ export async function updateAnimal(req: UpdateAnimalRequest, res: Response): Pro
     // Validate that animal exists first
     const existingAnimal = await animalService.getById(id);
     if (!existingAnimal) {
-      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - updateAnimal`, ENTITY_NAMES.ANIMAL);
+      handleNotFoundError(res, 'Animal', id);
       return;
     }
 
@@ -122,7 +124,7 @@ export async function updateAnimal(req: UpdateAnimalRequest, res: Response): Pro
       for (const typeId of updateData.animalTypes) {
         const animalType = await animalTypeRepository.findById(typeId);
         if (!animalType) {
-          handleControllerNotFound(res, `${CONTROLLER_PREFIX} - updateAnimal`, `${ENTITY_NAMES.ANIMAL_TYPE} with id ${typeId}`);
+          handleNotFoundError(res, 'Animal type', typeId);
           return;
         }
       }
@@ -132,7 +134,7 @@ export async function updateAnimal(req: UpdateAnimalRequest, res: Response): Pro
     if (updateData.chippingLocationId !== undefined) {
       const chippingLocation = await locationPointRepository.findById(updateData.chippingLocationId);
       if (!chippingLocation) {
-        handleControllerNotFound(res, `${CONTROLLER_PREFIX} - updateAnimal`, `${ENTITY_NAMES.LOCATION_POINT} with id ${updateData.chippingLocationId}`);
+        handleNotFoundError(res, 'Location point', updateData.chippingLocationId);
         return;
       }
     }
@@ -141,7 +143,7 @@ export async function updateAnimal(req: UpdateAnimalRequest, res: Response): Pro
     if (updateData.chipperId !== undefined) {
       const chipper = await accountRepository.findById(updateData.chipperId);
       if (!chipper) {
-        handleControllerNotFound(res, `${CONTROLLER_PREFIX} - updateAnimal`, `${ENTITY_NAMES.ACCOUNT} with id ${updateData.chipperId}`);
+        handleNotFoundError(res, 'Account', updateData.chipperId);
         return;
       }
     }
@@ -160,21 +162,21 @@ export async function deleteAnimal(req: DeleteAnimalRequest, res: Response): Pro
 
     // Check if animalId is null or <= 0
     if (id === null || id <= 0) {
-      res.status(400).json({ message: 'Invalid animalId' });
+      handleValidationError(res, 'animalId', 'Invalid animalId');
       return;
     }
 
     // Check if animal exists
     const animal = await animalService.getById(id);
     if (!animal) {
-      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - deleteAnimal`, ENTITY_NAMES.ANIMAL);
+      handleNotFoundError(res, 'Animal', id);
       return;
     }
 
     // Check if animal left chipping location and has other visited points
     const canDelete = await animalService.canDeleteAnimal(id);
     if (!canDelete) {
-      res.status(400).json({ message: 'Animal cannot be deleted: it has left the chipping location and has other visited points' });
+      handleBusinessLogicError(res, ERROR_CODES.ANIMAL_CANNOT_BE_DELETED);
       return;
     }
 
@@ -190,7 +192,7 @@ export async function addAnimalType(req: AddAnimalTypeRequest, res: Response): P
   try {
     const { id } = animalIdParamSchema.parse(req.params);
     // Get typeId from params (if provided in URL) or body
-    const typeIdFromParams = (req.params as any).typeId;
+    const typeIdFromParams = (req.params as { typeId?: string }).typeId;
     const { typeId: typeIdFromBody }: { typeId: number } = req.body;
     const typeId = typeIdFromParams ? Number(typeIdFromParams) : typeIdFromBody;
 
@@ -199,20 +201,24 @@ export async function addAnimalType(req: AddAnimalTypeRequest, res: Response): P
     // Validate that animal exists
     const animal = await animalService.getById(id);
     if (!animal) {
-      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - addAnimalType`, ENTITY_NAMES.ANIMAL);
+      handleNotFoundError(res, 'Animal', id);
       return;
     }
 
     // Validate that animal type exists
     const animalType = await animalTypeRepository.findById(validatedTypeId);
     if (!animalType) {
-      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - addAnimalType`, `${ENTITY_NAMES.ANIMAL_TYPE} with id ${validatedTypeId}`);
+      handleNotFoundError(res, 'Animal type', validatedTypeId);
       return;
     }
 
     await animalService.addTypeToAnimal(id, validatedTypeId);
     const updatedAnimal = await animalService.getById(id);
-    const transformedAnimal = transformAnimalResponse(updatedAnimal!);
+    if (!updatedAnimal) {
+      handleNotFoundError(res, 'Animal', id);
+      return;
+    }
+    const transformedAnimal = transformAnimalResponse(updatedAnimal);
     sendControllerCreated(res, transformedAnimal, SUCCESS_MESSAGES.CREATED(`${ENTITY_NAMES.ANIMAL_TYPE} association`));
   } catch (error) {
     handleControllerError(res, error, `${CONTROLLER_PREFIX} - addAnimalType`);
@@ -228,21 +234,21 @@ export async function removeAnimalType(req: RemoveAnimalTypeRequest, res: Respon
     // Validate that animal exists
     const animal = await animalService.getById(id);
     if (!animal) {
-      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - removeAnimalType`, ENTITY_NAMES.ANIMAL);
+      handleNotFoundError(res, 'Animal', id);
       return;
     }
 
     // Validate that animal type exists
     const animalType = await animalTypeRepository.findById(validatedTypeId);
     if (!animalType) {
-      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - removeAnimalType`, `${ENTITY_NAMES.ANIMAL_TYPE} with id ${validatedTypeId}`);
+      handleNotFoundError(res, 'Animal type', validatedTypeId);
       return;
     }
 
     // Check if animal has this type
     const animalHasType = await animalOnTypeRepository.findRelation(id, validatedTypeId);
     if (!animalHasType) {
-      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - removeAnimalType`, `${ENTITY_NAMES.ANIMAL_TYPE} with id ${validatedTypeId} is not associated with animal`);
+      handleBusinessLogicError(res, ERROR_CODES.NOT_FOUND, 'Animal type is not associated with animal');
       return;
     }
 
@@ -271,28 +277,28 @@ export async function changeAnimalType(req: ChangeAnimalTypeRequest, res: Respon
     // Validate that animal exists
     const animal = await animalService.getById(id);
     if (!animal) {
-      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - changeAnimalType`, ENTITY_NAMES.ANIMAL);
+      handleNotFoundError(res, 'Animal', id);
       return;
     }
 
     // Validate that old animal type exists
     const oldAnimalType = await animalTypeRepository.findById(validatedOldTypeId);
     if (!oldAnimalType) {
-      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - changeAnimalType`, `${ENTITY_NAMES.ANIMAL_TYPE} with id ${validatedOldTypeId}`);
+      handleNotFoundError(res, 'Animal type', validatedOldTypeId);
       return;
     }
 
     // Validate that new animal type exists
     const newAnimalType = await animalTypeRepository.findById(validatedNewTypeId);
     if (!newAnimalType) {
-      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - changeAnimalType`, `${ENTITY_NAMES.ANIMAL_TYPE} with id ${validatedNewTypeId}`);
+      handleNotFoundError(res, 'Animal type', validatedNewTypeId);
       return;
     }
 
     // Check if animal has the old type
     const animalHasOldType = await animalOnTypeRepository.findRelation(id, validatedOldTypeId);
     if (!animalHasOldType) {
-      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - changeAnimalType`, `${ENTITY_NAMES.ANIMAL_TYPE} with id ${validatedOldTypeId} is not associated with animal`);
+      handleBusinessLogicError(res, ERROR_CODES.NOT_FOUND, 'Animal type is not associated with animal');
       return;
     }
 
