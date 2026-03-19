@@ -72,6 +72,42 @@ export async function updateVisitedLocation(
   const { visitedLocationPointId, locationPointId, visitedAt } = updateVisitedLocationBodySchema.parse(req.body);
 
   try {
+    const animal = await animalService.getById(animalId);
+    if (!animal) {
+      res.status(404).json({ message: 'Animal not found.' });
+      return;
+    }
+
+    const locations = await animalVisitedLocationService.listByAnimal(animalId);
+    const locationIndex = locations.findIndex(loc => loc.id === visitedLocationPointId);
+
+    if (locationIndex === -1) {
+      res.status(404).json({ message: 'Visited location not found.' });
+      return;
+    }
+
+    if (locationIndex === 0 && locationPointId === animal.chippingLocationId) {
+      res.status(400).json({ message: 'Cannot update the first visited location to the chipping location.' });
+      return;
+    }
+
+    if (locations[locationIndex].locationPointId === locationPointId) {
+      res.status(400).json({ message: 'The new location point cannot be the same as the current one.' });
+      return;
+    }
+
+    const prevLocation = locations[locationIndex - 1];
+    if (prevLocation && prevLocation.locationPointId === locationPointId) {
+      res.status(400).json({ message: 'The new location point cannot be the same as the previous one.' });
+      return;
+    }
+
+    const nextLocation = locations[locationIndex + 1];
+    if (nextLocation && nextLocation.locationPointId === locationPointId) {
+      res.status(400).json({ message: 'The new location point cannot be the same as the next one.' });
+      return;
+    }
+
     const result = await animalVisitedLocationService.update(animalId, visitedLocationPointId, {
       locationPointId,
       visitedAt: visitedAt ? new Date(visitedAt) : undefined,
@@ -95,6 +131,17 @@ export async function deleteVisitedLocation(
   const { locationId: visitedPointId } = locationPointIdParamSchema.parse(req.params);
 
   try {
+    const animal = await animalService.getById(animalId);
+    if (!animal) {
+      res.status(404).json({ message: 'Animal not found.' });
+      return;
+    }
+
+    const locations = await animalVisitedLocationService.listByAnimal(animalId);
+    if (locations.length > 1 && locations[0].id === Number(visitedPointId) && locations[1].locationPointId === animal.chippingLocationId) {
+      await animalVisitedLocationService.delete(animalId, locations[1].id);
+    }
+
     const result = await animalVisitedLocationService.delete(animalId, Number(visitedPointId));
     res.status(result.status).json({ message: 'Visited location deleted successfully' });
   } catch (error) {
