@@ -1,7 +1,7 @@
 import type { Response } from 'express';
 import { animalVisitedLocationService } from '../services/animalVisitedLocationService';
-import { sendControllerSuccess, handleControllerError, handleNotFoundError, handleBusinessLogicError } from '../utils/controllerUtils';
-import { ERROR_CODES, FirstVisitedLocationDeletedWithChippingNextError } from '../common';
+import { animalService } from '../services/animalService';
+import { sendControllerSuccess, handleControllerError } from '../utils/controllerUtils';
 import type {
   ListVisitedLocationsRequest,
   CreateVisitedLocationRequest,
@@ -33,6 +33,26 @@ export async function createVisitedLocation(
   const { visitedAt } = createVisitedLocationBodySchema.parse(req.body);
 
   try {
+    const animal = await animalService.getById(animalId);
+    if (!animal) {
+      res.status(404).json({ message: 'Animal not found.' });
+      return;
+    }
+
+    if (animal.visitedLocations.length === 0 && animal.chippingLocationId === Number(locationId)) {
+      res.status(400).json({ message: 'Animal has not left the chipping location yet.' });
+      return;
+    }
+
+    const locations = await animalVisitedLocationService.listByAnimal(animalId);
+    if (locations.length > 0) {
+      const lastVisitedLocation = locations[locations.length - 1];
+      if (lastVisitedLocation.locationPointId === Number(locationId)) {
+        res.status(400).json({ message: 'The new visited location cannot be the same as the last one.' });
+        return;
+      }
+    }
+
     const created = await animalVisitedLocationService.create({
       animalId,
       locationPointId: Number(locationId),
@@ -75,13 +95,9 @@ export async function deleteVisitedLocation(
   const { locationId: visitedPointId } = locationPointIdParamSchema.parse(req.params);
 
   try {
-    await animalVisitedLocationService.delete(animalId, visitedPointId);
-    sendControllerSuccess(res, { message: 'Visited location deleted successfully' });
+    const result = await animalVisitedLocationService.delete(animalId, Number(visitedPointId));
+    res.status(result.status).json({ message: 'Visited location deleted successfully' });
   } catch (error) {
-    if (error instanceof FirstVisitedLocationDeletedWithChippingNextError) {
-      res.status(200).json({ message: 'Visited location deleted successfully' });
-    } else {
-      handleControllerError(res, error, '[VISITED_LOCATION_CONTROLLER] - deleteVisitedLocation');
-    }
+    handleControllerError(res, error, '[VISITED_LOCATION_CONTROLLER] - deleteVisitedLocation');
   }
 }

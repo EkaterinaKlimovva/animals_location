@@ -12,7 +12,7 @@ export function transformAnimalResponse(animal: AnimalWithRelations) {
     chippingDateTime: animal.chippingDateTime.toISOString(),
     chipperId: animal.chipperId,
     chippingLocationId: animal.chippingLocationId,
-    visitedLocations: animal.visitedLocations.map(vl => vl.locationPointId),
+    visitedLocations: animal.visitedLocations.map(vl => vl.id),
     deathDateTime: animal.deathDateTime ? animal.deathDateTime.toISOString() : null,
   };
 }
