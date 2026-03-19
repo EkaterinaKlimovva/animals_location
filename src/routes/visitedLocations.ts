@@ -19,4 +19,3 @@ router.put('/', validateParams(animalIdParamSchema, 'params'), validateParams(up
 router.delete('/:locationId', validateParams(animalIdParamSchema, 'params'), validateParams(locationPointIdParamSchema, 'params'), authMiddleware, asyncHandler(deleteVisitedLocation));
 
 export { router };
-

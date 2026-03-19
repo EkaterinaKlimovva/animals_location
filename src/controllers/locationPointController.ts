@@ -1,8 +1,6 @@
 import type { Response } from 'express';
 import { locationPointService } from '../services/locationPointService';
-import {
-  locationPointIdSchema,
-} from '../validation';
+import { locationPointIdSchema } from '../validation';
 import {
   handleControllerError,
   handleControllerNotFound,
@@ -16,9 +14,7 @@ import type {
   UpdateLocationPointRequest,
   DeleteLocationPointRequest,
 } from '../types';
-import type {
-  LocationPointIdInput,
-} from '../validation';
+import type { LocationPointIdInput } from '../validation';
 
 const CONTROLLER_PREFIX = '[LOCATION_POINT_CONTROLLER]';
 

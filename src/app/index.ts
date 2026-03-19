@@ -10,6 +10,9 @@ dotenv.config();
 
 const app = express();
 
+// Export app for testing purposes only
+export { app };
+
 app.use(cors());
 app.use(express.json());
 app.use(requestLogger);
@@ -62,4 +65,9 @@ process.on('SIGTERM', async () => {
   process.exit(0);
 });
 
-await startServer();
+// Only start server if this file is run directly (not when imported for tests)
+if (import.meta.url === `file://${process.argv[1]}`) {
+  (async () => {
+    await startServer();
+  })();
+}

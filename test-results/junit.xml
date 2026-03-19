@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="214" failures="0" errors="0" time="4.853">
+  <testsuite name="tests/src/setup.test.ts" errors="0" failures="0" skipped="0" timestamp="2026-03-19T19:40:05" time="2.019" tests="2">
+    <testcase classname="Test Setup" name="should run a simple test" time="0.002">
+    </testcase>
+    <testcase classname="Test Setup" name="should have test environment configured" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="tests/src/controllers/controllers-setup.test.ts" errors="0" failures="0" skipped="0" timestamp="2026-03-19T19:40:05" time="3.221" tests="5">
+    <testcase classname="Controllers Test Setup" name="should demonstrate Jest test structure" time="0.002">
+    </testcase>
+    <testcase classname="Controllers Test Setup" name="should demonstrate async test structure" time="0">
+    </testcase>
+    <testcase classname="Controllers Test Setup" name="should demonstrate mocking structure" time="0.002">
+    </testcase>
+    <testcase classname="Controllers Test Setup" name="should create mock request/response objects" time="0">
+    </testcase>
+    <testcase classname="Controllers Test Setup" name="should use JestTestHelpers for validation" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="tests/src/controllers/authController.test.ts" errors="0" failures="0" skipped="0" timestamp="2026-03-19T19:40:05" time="3.367" tests="20">
+    <testcase classname="Auth Controller Tests › register" name="should create account when valid data is provided" time="0.095">
+    </testcase>
+    <testcase classname="Auth Controller Tests › register" name="should return 409 when account already exists" time="0.003">
+    </testcase>
+    <testcase classname="Auth Controller Tests › register" name="should handle missing email field" time="0.004">
+    </testcase>
+    <testcase classname="Auth Controller Tests › register" name="should handle missing password field" time="0.003">
+    </testcase>
+    <testcase classname="Auth Controller Tests › register" name="should handle missing firstName field" time="0.004">
+    </testcase>
+    <testcase classname="Auth Controller Tests › register" name="should handle missing lastName field" time="0.003">
+    </testcase>
+    <testcase classname="Auth Controller Tests › register" name="should handle empty string fields" time="0.002">
+    </testcase>
+    <testcase classname="Auth Controller Tests › register" name="should handle null fields" time="0.003">
+    </testcase>
+    <testcase classname="Auth Controller Tests › register" name="should handle undefined fields" time="0.002">
+    </testcase>
+    <testcase classname="Auth Controller Tests › register" name="should handle whitespace-only fields" time="0.001">
+    </testcase>
+    <testcase classname="Auth Controller Tests › register" name="should return 403 when user is already authenticated" time="0">
+    </testcase>
+    <testcase classname="Auth Controller Tests › register" name="should handle service errors during registration" time="0.018">
+    </testcase>
+    <testcase classname="Auth Controller Tests › register" name="should handle empty request body" time="0.001">
+    </testcase>
+    <testcase classname="Auth Controller Tests › register" name="should handle malformed request body" time="0.002">
+    </testcase>
+    <testcase classname="Auth Controller Tests › Edge Cases" name="should handle concurrent registration attempts" time="0.006">
+    </testcase>
+    <testcase classname="Auth Controller Tests › Edge Cases" name="should handle email case sensitivity" time="0.004">
+    </testcase>
+    <testcase classname="Auth Controller Tests › Edge Cases" name="should handle very long field values" time="0.002">
+    </testcase>
+    <testcase classname="Auth Controller Tests › Security Tests" name="should handle email with special characters" time="0.008">
+    </testcase>
+    <testcase classname="Auth Controller Tests › Security Tests" name="should handle names with special characters" time="0.021">
+    </testcase>
+    <testcase classname="Auth Controller Tests › Security Tests" name="should prevent password logging in console output" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="tests/src/controllers/locationPointController.test.ts" errors="0" failures="0" skipped="0" timestamp="2026-03-19T19:40:05" time="3.465" tests="7">
+    <testcase classname="Location Point Controller Tests › createLocationPoint" name="should create location point when valid data is provided" time="0.058">
+    </testcase>
+    <testcase classname="Location Point Controller Tests › createLocationPoint" name="should handle invalid location data" time="0.01">
+    </testcase>
+    <testcase classname="Location Point Controller Tests › createLocationPoint" name="should handle service errors during location creation" time="0.002">
+    </testcase>
+    <testcase classname="Location Point Controller Tests › getLocationPoint" name="should return location point when valid ID is provided" time="0.001">
+    </testcase>
+    <testcase classname="Location Point Controller Tests › getLocationPoint" name="should return 404 when location point is not found" time="0">
+    </testcase>
+    <testcase classname="Location Point Controller Tests › getLocationPoint" name="should handle invalid location ID parameter" time="0.004">
+    </testcase>
+    <testcase classname="Location Point Controller Tests › getLocationPoint" name="should handle service errors during location retrieval" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="tests/src/controllers/animalController.test.ts" errors="0" failures="0" skipped="0" timestamp="2026-03-19T19:40:05" time="3.602" tests="32">
+    <testcase classname="Animal Controller Tests › getAnimal" name="should return animal when valid ID is provided" time="0.055">
+    </testcase>
+    <testcase classname="Animal Controller Tests › getAnimal" name="should return 404 when animal is not found" time="0">
+    </testcase>
+    <testcase classname="Animal Controller Tests › getAnimal" name="should handle invalid animal ID parameter" time="0.029">
+    </testcase>
+    <testcase classname="Animal Controller Tests › getAnimal" name="should handle service errors during animal retrieval" time="0.001">
+    </testcase>
+    <testcase classname="Animal Controller Tests › searchAnimals" name="should return animals when valid search parameters are provided" time="0.001">
+    </testcase>
+    <testcase classname="Animal Controller Tests › searchAnimals" name="should handle empty search results" time="0.001">
+    </testcase>
+    <testcase classname="Animal Controller Tests › searchAnimals" name="should handle invalid search parameters" time="0.001">
+    </testcase>
+    <testcase classname="Animal Controller Tests › searchAnimals" name="should handle service errors during animal search" time="0.029">
+    </testcase>
+    <testcase classname="Animal Controller Tests › createAnimal" name="should create animal when valid data is provided" time="0.001">
+    </testcase>
+    <testcase classname="Animal Controller Tests › createAnimal" name="should return 404 when animal type does not exist" time="0">
+    </testcase>
+    <testcase classname="Animal Controller Tests › createAnimal" name="should return 404 when chipping location does not exist" time="0.001">
+    </testcase>
+    <testcase classname="Animal Controller Tests › createAnimal" name="should return 404 when chipper does not exist" time="0">
+    </testcase>
+    <testcase classname="Animal Controller Tests › createAnimal" name="should handle invalid animal data" time="0.001">
+    </testcase>
+    <testcase classname="Animal Controller Tests › updateAnimal" name="should update animal when valid data is provided" time="0.001">
+    </testcase>
+    <testcase classname="Animal Controller Tests › updateAnimal" name="should return 404 when animal to update is not found" time="0">
+    </testcase>
+    <testcase classname="Animal Controller Tests › updateAnimal" name="should validate animal types when updating" time="0">
+    </testcase>
+    <testcase classname="Animal Controller Tests › updateAnimal" name="should handle invalid animal ID" time="0.001">
+    </testcase>
+    <testcase classname="Animal Controller Tests › deleteAnimal" name="should delete animal when valid ID is provided" time="0">
+    </testcase>
+    <testcase classname="Animal Controller Tests › deleteAnimal" name="should return 404 when animal to delete is not found" time="0">
+    </testcase>
+    <testcase classname="Animal Controller Tests › deleteAnimal" name="should return 400 when animal cannot be deleted" time="0.001">
+    </testcase>
+    <testcase classname="Animal Controller Tests › deleteAnimal" name="should handle invalid animal ID" time="0">
+    </testcase>
+    <testcase classname="Animal Controller Tests › addAnimalType" name="should add animal type when valid data is provided" time="0">
+    </testcase>
+    <testcase classname="Animal Controller Tests › addAnimalType" name="should return 404 when animal does not exist" time="0">
+    </testcase>
+    <testcase classname="Animal Controller Tests › addAnimalType" name="should return 404 when animal type does not exist" time="0">
+    </testcase>
+    <testcase classname="Animal Controller Tests › removeAnimalType" name="should remove animal type when valid data is provided" time="0.001">
+    </testcase>
+    <testcase classname="Animal Controller Tests › removeAnimalType" name="should return 400 when trying to remove the only animal type" time="0">
+    </testcase>
+    <testcase classname="Animal Controller Tests › removeAnimalType" name="should return 404 when animal type is not associated with animal" time="0">
+    </testcase>
+    <testcase classname="Animal Controller Tests › changeAnimalType" name="should change animal type when valid data is provided" time="0.003">
+    </testcase>
+    <testcase classname="Animal Controller Tests › changeAnimalType" name="should return 409 when animal already has the new type" time="0.001">
+    </testcase>
+    <testcase classname="Animal Controller Tests › changeAnimalType" name="should return 404 when animal does not have the old type" time="0.002">
+    </testcase>
+    <testcase classname="Animal Controller Tests › Edge Cases" name="should handle concurrent animal operations" time="0.014">
+    </testcase>
+    <testcase classname="Animal Controller Tests › Edge Cases" name="should handle large animal lists in search" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="tests/src/controllers/accountController.test.ts" errors="0" failures="0" skipped="0" timestamp="2026-03-19T19:40:05" time="3.617" tests="35">
+    <testcase classname="Account Controller Tests › createAccount" name="should create account when valid data is provided" time="0.049">
+    </testcase>
+    <testcase classname="Account Controller Tests › createAccount" name="should handle invalid account data" time="0.017">
+    </testcase>
+    <testcase classname="Account Controller Tests › createAccount" name="should handle service errors during account creation" time="0.032">
+    </testcase>
+    <testcase classname="Account Controller Tests › createAccountWithAnimalValidation" name="should create account when valid data and animal IDs are provided" time="0.004">
+    </testcase>
+    <testcase classname="Account Controller Tests › createAccountWithAnimalValidation" name="should return 400 when some animal IDs do not exist" time="0.002">
+    </testcase>
+    <testcase classname="Account Controller Tests › createAccountWithAnimalValidation" name="should create account without animal validation when no animal IDs provided" time="0.001">
+    </testcase>
+    <testcase classname="Account Controller Tests › createAccountWithAnimalValidation" name="should handle invalid account data with animal validation" time="0.005">
+    </testcase>
+    <testcase classname="Account Controller Tests › listAccounts" name="should return accounts when email query parameter is provided" time="0.002">
+    </testcase>
+    <testcase classname="Account Controller Tests › listAccounts" name="should return all accounts when no email query parameter is provided" time="0.001">
+    </testcase>
+    <testcase classname="Account Controller Tests › listAccounts" name="should handle empty account list" time="0.001">
+    </testcase>
+    <testcase classname="Account Controller Tests › listAccounts" name="should handle service errors during account listing" time="0.003">
+    </testcase>
+    <testcase classname="Account Controller Tests › searchAccounts" name="should return accounts when valid search parameters are provided" time="0.001">
+    </testcase>
+    <testcase classname="Account Controller Tests › searchAccounts" name="should handle empty search results" time="0.001">
+    </testcase>
+    <testcase classname="Account Controller Tests › searchAccounts" name="should handle invalid search parameters" time="0.004">
+    </testcase>
+    <testcase classname="Account Controller Tests › searchAccounts" name="should handle service errors during account search" time="0.003">
+    </testcase>
+    <testcase classname="Account Controller Tests › getAccount" name="should return account when valid ID is provided" time="0.001">
+    </testcase>
+    <testcase classname="Account Controller Tests › getAccount" name="should return 404 when account is not found" time="0.001">
+    </testcase>
+    <testcase classname="Account Controller Tests › getAccount" name="should handle invalid account ID parameter" time="0.002">
+    </testcase>
+    <testcase classname="Account Controller Tests › getAccount" name="should handle service errors during account retrieval" time="0.002">
+    </testcase>
+    <testcase classname="Account Controller Tests › updateAccount" name="should update account when valid data and ownership are provided" time="0.001">
+    </testcase>
+    <testcase classname="Account Controller Tests › updateAccount" name="should return 403 when user does not own the account" time="0.001">
+    </testcase>
+    <testcase classname="Account Controller Tests › updateAccount" name="should handle invalid account ID" time="0.002">
+    </testcase>
+    <testcase classname="Account Controller Tests › updateAccount" name="should handle service errors during account update" time="0.003">
+    </testcase>
+    <testcase classname="Account Controller Tests › deleteAccount" name="should delete account when valid ID and ownership are provided" time="0.001">
+    </testcase>
+    <testcase classname="Account Controller Tests › deleteAccount" name="should return 403 when user does not own the account" time="0">
+    </testcase>
+    <testcase classname="Account Controller Tests › deleteAccount" name="should return 400 when account has dependent animals" time="0">
+    </testcase>
+    <testcase classname="Account Controller Tests › deleteAccount" name="should handle invalid account ID" time="0.002">
+    </testcase>
+    <testcase classname="Account Controller Tests › deleteAccount" name="should handle service errors during account deletion" time="0.001">
+    </testcase>
+    <testcase classname="Account Controller Tests › Data Validation" name="should validate email format" time="0.005">
+    </testcase>
+    <testcase classname="Account Controller Tests › Data Validation" name="should validate password strength" time="0.003">
+    </testcase>
+    <testcase classname="Account Controller Tests › Data Validation" name="should validate name fields" time="0.002">
+    </testcase>
+    <testcase classname="Account Controller Tests › Security Tests" name="should not expose password in response" time="0.001">
+    </testcase>
+    <testcase classname="Account Controller Tests › Security Tests" name="should require authentication for protected operations" time="0">
+    </testcase>
+    <testcase classname="Account Controller Tests › Edge Cases" name="should handle large account lists" time="0.005">
+    </testcase>
+    <testcase classname="Account Controller Tests › Edge Cases" name="should handle concurrent account operations" time="0.005">
+    </testcase>
+  </testsuite>
+  <testsuite name="tests/src/controllers/animalVisitedLocationController.test.ts" errors="0" failures="0" skipped="0" timestamp="2026-03-19T19:40:05" time="3.627" tests="28">
+    <testcase classname="Animal Visited Location Controller Tests › listVisitedLocations" name="should return visited locations when valid animal ID is provided" time="0.007">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › listVisitedLocations" name="should handle empty visited locations list" time="0.001">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › listVisitedLocations" name="should handle invalid animal ID parameter" time="0.109">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › listVisitedLocations" name="should handle service errors during location listing" time="0.003">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › listVisitedLocations" name="should handle zero or negative animal ID" time="0.002">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › createVisitedLocation" name="should create visited location when valid data is provided" time="0.002">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › createVisitedLocation" name="should return 404 when animal does not exist" time="0">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › createVisitedLocation" name="should return 400 when animal has not left chipping location" time="0">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › createVisitedLocation" name="should return 400 when new location is same as last visited" time="0">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › createVisitedLocation" name="should handle invalid animal ID or location ID" time="0.008">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › createVisitedLocation" name="should handle invalid visitedAt date" time="0.001">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › createVisitedLocation" name="should handle service errors during visited location creation" time="0.001">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › updateVisitedLocation" name="should update visited location when valid data is provided" time="0.001">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › updateVisitedLocation" name="should return 404 when animal does not exist" time="0">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › updateVisitedLocation" name="should return 404 when visited location not found" time="0">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › updateVisitedLocation" name="should return 400 when updating first visited location to chipping location" time="0">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › updateVisitedLocation" name="should return 400 when new location is same as current" time="0">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › updateVisitedLocation" name="should return 400 when new location is same as previous" time="0.001">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › updateVisitedLocation" name="should return 400 when new location is same as next" time="0">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › updateVisitedLocation" name="should handle invalid update data" time="0.006">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › deleteVisitedLocation" name="should delete visited location when valid data is provided" time="0">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › deleteVisitedLocation" name="should return 404 when animal does not exist" time="0">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › deleteVisitedLocation" name="should handle cascade delete when first location is deleted and second is chipping location" time="0">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › deleteVisitedLocation" name="should handle invalid animal ID or location ID" time="0.002">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › deleteVisitedLocation" name="should handle service errors during visited location deletion" time="0">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › Edge Cases" name="should handle concurrent visited location operations" time="0">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › Edge Cases" name="should handle large visited location lists" time="0.002">
+    </testcase>
+    <testcase classname="Animal Visited Location Controller Tests › Edge Cases" name="should handle date edge cases" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="tests/src/controllers/animalTypeController.test.ts" errors="0" failures="0" skipped="0" timestamp="2026-03-19T19:40:05" time="3.64" tests="29">
+    <testcase classname="Animal Type Controller Tests › getAnimalType" name="should return animal type when valid ID is provided" time="0.036">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › getAnimalType" name="should return 404 when animal type is not found" time="0.001">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › getAnimalType" name="should handle invalid animal type ID parameter" time="0.014">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › getAnimalType" name="should handle service errors during animal type retrieval" time="0.003">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › getAnimalType" name="should handle zero or negative animal type ID" time="0.009">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › createAnimalType" name="should create animal type when valid data is provided" time="0.004">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › createAnimalType" name="should return 409 when animal type already exists" time="0.002">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › createAnimalType" name="should handle invalid animal type data" time="0.025">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › createAnimalType" name="should handle service errors during animal type creation" time="0.005">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › createAnimalType" name="should handle case sensitivity in animal type creation" time="0.004">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › updateAnimalType" name="should update animal type when valid data is provided" time="0.002">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › updateAnimalType" name="should return 404 when animal type to update is not found" time="0.001">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › updateAnimalType" name="should return 409 when new animal type already exists" time="0">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › updateAnimalType" name="should allow updating to same type name" time="0">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › updateAnimalType" name="should handle invalid animal type ID" time="0.046">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › updateAnimalType" name="should handle missing type in update data" time="0">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › updateAnimalType" name="should handle invalid update data" time="0.008">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › updateAnimalType" name="should handle service errors during animal type update" time="0.001">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › deleteAnimalType" name="should delete animal type when valid ID is provided" time="0.001">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › deleteAnimalType" name="should return 404 when animal type to delete is not found" time="0.001">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › deleteAnimalType" name="should return 400 when animal type has dependent animals" time="0">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › deleteAnimalType" name="should handle invalid animal type ID" time="0.006">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › deleteAnimalType" name="should handle zero or negative animal type ID" time="0.005">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › deleteAnimalType" name="should handle service errors during animal type deletion" time="0.002">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › Edge Cases" name="should handle concurrent animal type operations" time="0.017">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › Edge Cases" name="should handle animal type names with special characters" time="0.004">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › Edge Cases" name="should handle very long animal type names" time="0.002">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › Security Tests" name="should prevent SQL injection in animal type names" time="0.001">
+    </testcase>
+    <testcase classname="Animal Type Controller Tests › Security Tests" name="should handle XSS attempts in animal type names" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="tests/src/integration/api-integration.test.ts" errors="0" failures="0" skipped="0" timestamp="2026-03-19T19:40:05" time="4.291" tests="56">
+    <testcase classname="API Integration Tests › Authentication Endpoints › POST /registration" name="should register a new user successfully" time="0.048">
+    </testcase>
+    <testcase classname="API Integration Tests › Authentication Endpoints › POST /registration" name="should return 409 when user already exists" time="0.004">
+    </testcase>
+    <testcase classname="API Integration Tests › Authentication Endpoints › POST /registration" name="should return 400 for invalid registration data" time="0.004">
+    </testcase>
+    <testcase classname="API Integration Tests › Authentication Endpoints › POST /registration" name="should return 403 when user is already authenticated" time="0">
+    </testcase>
+    <testcase classname="API Integration Tests › Account Endpoints › GET /accounts/{accountId}" name="should return account information" time="0.004">
+    </testcase>
+    <testcase classname="API Integration Tests › Account Endpoints › GET /accounts/{accountId}" name="should return 404 for non-existent account" time="0.003">
+    </testcase>
+    <testcase classname="API Integration Tests › Account Endpoints › GET /accounts/{accountId}" name="should return 400 for invalid account ID" time="0.009">
+    </testcase>
+    <testcase classname="API Integration Tests › Account Endpoints › PUT /accounts/{accountId}" name="should update account information" time="0.003">
+    </testcase>
+    <testcase classname="API Integration Tests › Account Endpoints › PUT /accounts/{accountId}" name="should return 403 when updating someone else&apos;s account" time="0">
+    </testcase>
+    <testcase classname="API Integration Tests › Account Endpoints › DELETE /accounts/{accountId}" name="should delete account successfully" time="0.003">
+    </testcase>
+    <testcase classname="API Integration Tests › Account Endpoints › DELETE /accounts/{accountId}" name="should return 400 when account has dependent animals" time="0.001">
+    </testcase>
+    <testcase classname="API Integration Tests › Account Endpoints › GET /accounts/search" name="should search accounts by parameters" time="0.004">
+    </testcase>
+    <testcase classname="API Integration Tests › Account Endpoints › GET /accounts/search" name="should return 400 for invalid search parameters" time="0.004">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Endpoints › GET /animals/{animalId}" name="should return animal information" time="0.003">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Endpoints › GET /animals/{animalId}" name="should return 404 for non-existent animal" time="0.001">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Endpoints › POST /animals" name="should create a new animal" time="0.003">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Endpoints › POST /animals" name="should return 404 when animal type does not exist" time="0.002">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Endpoints › POST /animals" name="should return 409 when animal types contain duplicates" time="0.002">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Endpoints › PUT /animals/{animalId}" name="should update animal information" time="0.002">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Endpoints › DELETE /animals/{animalId}" name="should delete animal successfully" time="0.003">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Endpoints › DELETE /animals/{animalId}" name="should return 400 when animal cannot be deleted" time="0.003">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Endpoints › GET /animals/search" name="should search animals by parameters" time="0.005">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Endpoints › GET /animals/search" name="should return 400 for invalid search parameters" time="0.015">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Endpoints › POST /animals/{animalId}/types/{typeId}" name="should add animal type to animal" time="0.004">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Endpoints › POST /animals/{animalId}/types/{typeId}" name="should return 404 when animal does not exist" time="0.003">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Endpoints › POST /animals/{animalId}/types/{typeId}" name="should return 404 when animal type does not exist" time="0.002">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Endpoints › POST /animals/{animalId}/types/{typeId}" name="should return 409 when animal already has the type" time="0.004">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Endpoints › DELETE /animals/{animalId}/types/{typeId}" name="should remove animal type from animal" time="0.02">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Endpoints › DELETE /animals/{animalId}/types/{typeId}" name="should return 400 when trying to remove the only animal type" time="0.007">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Endpoints › PUT /animals/{animalId}/types" name="should change animal type" time="0.003">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Endpoints › PUT /animals/{animalId}/types" name="should return 409 when animal already has the new type" time="0.003">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Type Endpoints › GET /animals/types/{typeId}" name="should return animal type information" time="0.002">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Type Endpoints › GET /animals/types/{typeId}" name="should return 404 for non-existent animal type" time="0.002">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Type Endpoints › POST /animals/types" name="should create a new animal type" time="0.003">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Type Endpoints › POST /animals/types" name="should return 409 when animal type already exists" time="0.002">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Type Endpoints › POST /animals/types" name="should return 400 for invalid animal type data" time="0.009">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Type Endpoints › PUT /animals/types/{typeId}" name="should update animal type" time="0.002">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Type Endpoints › PUT /animals/types/{typeId}" name="should return 409 when new animal type already exists" time="0.001">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Type Endpoints › DELETE /animals/types/{typeId}" name="should delete animal type successfully" time="0.002">
+    </testcase>
+    <testcase classname="API Integration Tests › Animal Type Endpoints › DELETE /animals/types/{typeId}" name="should return 400 when animal type has dependent animals" time="0.002">
+    </testcase>
+    <testcase classname="API Integration Tests › Location Endpoints › GET /locations/{pointId}" name="should return location point information" time="0.002">
+    </testcase>
+    <testcase classname="API Integration Tests › Location Endpoints › GET /locations/{pointId}" name="should return 404 for non-existent location" time="0.002">
+    </testcase>
+    <testcase classname="API Integration Tests › Location Endpoints › POST /locations" name="should create a new location point" time="0.002">
+    </testcase>
+    <testcase classname="API Integration Tests › Location Endpoints › POST /locations" name="should return 409 when location point already exists" time="0.002">
+    </testcase>
+    <testcase classname="API Integration Tests › Location Endpoints › POST /locations" name="should return 400 for invalid location data" time="0.01">
+    </testcase>
+    <testcase classname="API Integration Tests › Location Endpoints › PUT /locations/{pointId}" name="should update location point" time="0.002">
+    </testcase>
+    <testcase classname="API Integration Tests › Location Endpoints › PUT /locations/{pointId}" name="should return 404 when location point does not exist" time="0.002">
+    </testcase>
+    <testcase classname="API Integration Tests › Location Endpoints › DELETE /locations/{pointId}" name="should delete location point successfully" time="0.002">
+    </testcase>
+    <testcase classname="API Integration Tests › Location Endpoints › DELETE /locations/{pointId}" name="should return 400 when location point has dependent animals" time="0.001">
+    </testcase>
+    <testcase classname="API Integration Tests › Error Handling" name="should handle malformed JSON in request body" time="0.004">
+    </testcase>
+    <testcase classname="API Integration Tests › Error Handling" name="should handle missing content-type header" time="0.007">
+    </testcase>
+    <testcase classname="API Integration Tests › Error Handling" name="should handle unsupported HTTP methods" time="0.007">
+    </testcase>
+    <testcase classname="API Integration Tests › Error Handling" name="should handle service layer errors gracefully" time="0.002">
+    </testcase>
+    <testcase classname="API Integration Tests › Response Format Validation" name="should return consistent error response format" time="0.004">
+    </testcase>
+    <testcase classname="API Integration Tests › Response Format Validation" name="should not expose sensitive information in error responses" time="0.003">
+    </testcase>
+    <testcase classname="API Integration Tests › Response Format Validation" name="should strip sensitive fields from success responses" time="0.002">
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -33,4 +33,3 @@ export class AnimalTypeRepository {
 }
 
 export const animalTypeRepository = new AnimalTypeRepository();
-

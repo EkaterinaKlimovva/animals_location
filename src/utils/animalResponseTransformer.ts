@@ -1,6 +1,6 @@
-import type { AnimalWithRelations } from '../common';
+import type { AnimalWithRelations, AnimalResponse } from '../types';
 
-export function transformAnimalResponse(animal: AnimalWithRelations) {
+export function transformAnimalResponse(animal: AnimalWithRelations): AnimalResponse {
   return {
     id: animal.id,
     animalTypes: animal.types.map(t => t.type.id),

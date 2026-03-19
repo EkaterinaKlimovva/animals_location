@@ -91,8 +91,23 @@ X-API-Key: <значение из переменной окружения API_KE
   - `DELETE /api/locations/:id` — удаление
 
 - **Animal Visited Location**
-  - `GET /api/visited-locations/animal/:animalId` — список перемещений животного
-  - `POST /api/visited-locations/animal/:animalId` — добавить перемещение
-  - `PUT /api/visited-locations/:id` — изменить перемещение
-  - `DELETE /api/visited-locations/:id` — удалить перемещение
+  - `GET /api/animals/:animalId/locations` — список перемещений животного
+  - `POST /api/animals/:animalId/locations/:locationId` — добавить перемещение
+  - `PUT /api/animals/:animalId/locations` — изменить перемещение
+  - `DELETE /api/animals/:animalId/locations/:visitedPointId` — удалить перемещение
 
+### **Логика работы с посещенными точками**
+
+- **Добавление (`POST /api/animals/:animalId/locations/:locationId`)**
+  - Нельзя добавить точку, если животное не покинуло место чипирования.
+  - Нельзя добавить точку, если она совпадает с последней посещенной.
+
+- **Изменение (`PUT /api/animals/:animalId/locations`)**
+  - Нельзя изменить первую посещенную точку на точку чипирования.
+  - Нельзя изменить точку на ту же самую.
+  - Нельзя изменить точку на предыдущую или следующую.
+  - Нельзя изменять последнюю посещенную точку.
+
+- **Удаление (`DELETE /api/animals/:animalId/locations/:visitedPointId`)**
+  - Если удаляется первая посещенная точка, а вторая совпадает с точкой чипирования, вторая удаляется автоматически.
+  - Нельзя удалить первую посещенную точку, если она является точкой чипирования.

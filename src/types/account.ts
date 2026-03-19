@@ -1,4 +1,9 @@
+import type { Request } from 'express';
 import type { Account } from '../generated/prisma/client';
+
+// ==============================
+// Core Entity Types
+// ==============================
 
 /**
  * Safe account model - excludes sensitive fields (password, timestamps)
@@ -20,3 +25,18 @@ export interface RegisterDto {
 
 // Legacy type alias for backward compatibility
 export type SafeAccountLegacy = Omit<Account, 'password' | 'createdAt' | 'updatedAt'>;
+
+// ==============================
+// Authentication Types
+// ==============================
+
+interface AuthenticatedUser {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface AuthenticatedRequest extends Request {
+  user?: AuthenticatedUser;
+}

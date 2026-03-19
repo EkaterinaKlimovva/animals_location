@@ -26,4 +26,3 @@ router.put('/:id', authMiddleware, validateComposite(accountIdParamSchema, updat
 router.delete('/:id', authMiddleware, validateParams(accountIdParamSchema, 'params'), asyncHandler(deleteAccount));
 
 export { router };
-

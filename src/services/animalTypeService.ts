@@ -1,17 +1,5 @@
 import { animalTypeRepository } from '../repositories/animalTypeRepository';
-import type { AnimalType } from '../generated/prisma/client';
-
-interface CreateAnimalTypeResult {
-  conflict: true;
-  type: AnimalType;
-}
-
-interface CreateAnimalTypeSuccess {
-  conflict: false;
-  type: AnimalType;
-}
-
-type CreateAnimalTypeResponse = CreateAnimalTypeResult | CreateAnimalTypeSuccess;
+import type { CreateAnimalTypeResponse } from '../types';
 
 export class AnimalTypeService {
   async getById(id: number) {
@@ -46,4 +34,3 @@ export class AnimalTypeService {
 }
 
 export const animalTypeService = new AnimalTypeService();
-

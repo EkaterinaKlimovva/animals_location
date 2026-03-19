@@ -1,17 +1,7 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { Response, NextFunction } from 'express';
 import { Buffer } from 'buffer';
 import { accountService } from '../services/accountService';
-
-interface AuthenticatedUser {
-  id: number;
-  email: string;
-  firstName: string;
-  lastName: string;
-}
-
-interface AuthenticatedRequest extends Request {
-  user?: AuthenticatedUser;
-}
+import type { AuthenticatedRequest } from '../types';
 
 /**
  * Optional authentication middleware

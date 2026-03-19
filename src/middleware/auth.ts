@@ -1,14 +1,7 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { Response, NextFunction } from 'express';
 import { Buffer } from 'buffer';
 import { accountService } from '../services/accountService';
-import type { AuthenticatedRequest } from '../common';
-
-interface AuthenticatedUser {
-  id: number;
-  email: string;
-  firstName: string;
-  lastName: string;
-}
+import type { AuthenticatedRequest } from '../types';
 
 export async function authMiddleware(
   req: AuthenticatedRequest,
@@ -64,5 +57,4 @@ export async function authMiddleware(
     res.status(401).json({ message: 'Unauthorized' });
   }
 }
-
 

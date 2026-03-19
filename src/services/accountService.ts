@@ -1,11 +1,10 @@
 import { accountRepository } from '../repositories/accountRepository';
 import { animalRepository } from '../repositories/animalRepository';
 import bcrypt from 'bcrypt';
-import type { SafeAccount } from '../common';
+import type { SafeAccount } from '../types';
 import type { Account } from '../generated/prisma/client';
 import { validateAnimalsExist } from '../utils/validationUtils';
-
-const SALT_ROUNDS = 10;
+import { AUTH_CONSTANTS, ERROR_MESSAGES } from '../common';
 
 function stripSensitiveFields(account: Account): SafeAccount {
   return {
@@ -17,7 +16,7 @@ function stripSensitiveFields(account: Account): SafeAccount {
 }
 
 function hashPassword(password: string): Promise<string> {
-  return bcrypt.hash(password, SALT_ROUNDS);
+  return bcrypt.hash(password, AUTH_CONSTANTS.SALT_ROUNDS);
 }
 
 export class AccountService {
@@ -83,7 +82,7 @@ export class AccountService {
     if (data.animalIds && data.animalIds.length > 0) {
       const validation = await validateAnimalsExist(data.animalIds);
       if (!validation.valid) {
-        throw new Error(`Animals with IDs [${validation.invalidIds.join(', ')}] not found`);
+        throw new Error(ERROR_MESSAGES.ANIMALS_WITH_IDS_NOT_FOUND(validation.invalidIds));
       }
     }
 

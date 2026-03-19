@@ -11,7 +11,7 @@ import {
   sendControllerCreated,
   validateControllerTypeId,
 } from '../utils/controllerUtils';
-import { ENTITY_NAMES, SUCCESS_MESSAGES } from '../common';
+import { ENTITY_NAMES, SUCCESS_MESSAGES, CONTROLLER_PREFIXES } from '../common';
 import type {
   GetAnimalTypeRequest,
   CreateAnimalTypeRequest,
@@ -23,21 +23,19 @@ import type {
   UpdateAnimalTypeInput,
 } from '../validation';
 
-const CONTROLLER_PREFIX = '[ANIMAL_TYPE_CONTROLLER]';
-
 export async function getAnimalType(req: GetAnimalTypeRequest, res: Response): Promise<void> {
   try {
     const id = validateControllerTypeId(req.params.id);
     const animalType = await animalTypeService.getById(id);
 
     if (!animalType) {
-      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - getAnimalType`, ENTITY_NAMES.ANIMAL_TYPE);
+      handleControllerNotFound(res, `${CONTROLLER_PREFIXES.ANIMAL_TYPE} - getAnimalType`, ENTITY_NAMES.ANIMAL_TYPE);
       return;
     }
 
     sendControllerSuccess(res, animalType, SUCCESS_MESSAGES.FOUND(ENTITY_NAMES.ANIMAL_TYPE));
   } catch (error) {
-    handleControllerError(res, error, `${CONTROLLER_PREFIX} - getAnimalType`);
+    handleControllerError(res, error, `${CONTROLLER_PREFIXES.ANIMAL_TYPE} - getAnimalType`);
   }
 }
 
@@ -56,7 +54,7 @@ export async function createAnimalType(req: CreateAnimalTypeRequest, res: Respon
     sendControllerCreated(res, result.type, SUCCESS_MESSAGES.CREATED(ENTITY_NAMES.ANIMAL_TYPE));
   } catch (error) {
     console.log('[ANIMAL_TYPE_CONTROLLER] Error:', error);
-    handleControllerError(res, error, `${CONTROLLER_PREFIX} - createAnimalType`);
+    handleControllerError(res, error, `${CONTROLLER_PREFIXES.ANIMAL_TYPE} - createAnimalType`);
   }
 }
 
@@ -73,7 +71,7 @@ export async function updateAnimalType(req: UpdateAnimalTypeRequest, res: Respon
     // Check if animal type exists
     const existingType = await animalTypeService.getById(id);
     if (!existingType) {
-      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - updateAnimalType`, ENTITY_NAMES.ANIMAL_TYPE);
+      handleControllerNotFound(res, `${CONTROLLER_PREFIXES.ANIMAL_TYPE} - updateAnimalType`, ENTITY_NAMES.ANIMAL_TYPE);
       return;
     }
 
@@ -87,7 +85,7 @@ export async function updateAnimalType(req: UpdateAnimalTypeRequest, res: Respon
     const updated = await animalTypeService.update(id, updateData.type);
     sendControllerSuccess(res, updated, SUCCESS_MESSAGES.UPDATED(ENTITY_NAMES.ANIMAL_TYPE));
   } catch (error) {
-    handleControllerError(res, error, `${CONTROLLER_PREFIX} - updateAnimalType`);
+    handleControllerError(res, error, `${CONTROLLER_PREFIXES.ANIMAL_TYPE} - updateAnimalType`);
   }
 }
 
@@ -98,7 +96,7 @@ export async function deleteAnimalType(req: DeleteAnimalTypeRequest, res: Respon
     // Check if animal type exists
     const animalType = await animalTypeService.getById(id);
     if (!animalType) {
-      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - deleteAnimalType`, ENTITY_NAMES.ANIMAL_TYPE);
+      handleControllerNotFound(res, `${CONTROLLER_PREFIXES.ANIMAL_TYPE} - deleteAnimalType`, ENTITY_NAMES.ANIMAL_TYPE);
       return;
     }
 
@@ -112,7 +110,6 @@ export async function deleteAnimalType(req: DeleteAnimalTypeRequest, res: Respon
     await animalTypeService.delete(id);
     sendControllerSuccess(res, SUCCESS_MESSAGES.DELETED(ENTITY_NAMES.ANIMAL_TYPE));
   } catch (error) {
-    handleControllerError(res, error, `${CONTROLLER_PREFIX} - deleteAnimalType`);
+    handleControllerError(res, error, `${CONTROLLER_PREFIXES.ANIMAL_TYPE} - deleteAnimalType`);
   }
 }
-

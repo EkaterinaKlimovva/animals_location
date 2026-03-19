@@ -10,4 +10,3 @@ const router = Router();
 router.post('/registration', validateParams(registrationSchema, 'body'), optionalAuthMiddleware, asyncHandler(register));
 
 export { router };
-

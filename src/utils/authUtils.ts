@@ -1,4 +1,4 @@
-import type { AuthenticatedRequest } from '../common';
+import type { AuthenticatedRequest } from '../types';
 import type { Response } from 'express';
 import { sendControllerForbidden } from './controllerUtils';
 

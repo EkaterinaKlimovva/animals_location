@@ -22,7 +22,7 @@ import {
   sendControllerCreated,
   validateControllerTypeId,
 } from '../utils/controllerUtils';
-import { ERROR_CODES, ENTITY_NAMES, SUCCESS_MESSAGES } from '../common';
+import { ERROR_CODES, ENTITY_NAMES, SUCCESS_MESSAGES, CONTROLLER_PREFIXES } from '../common';
 import { transformAnimalResponse } from '../utils/animalResponseTransformer';
 import type {
   GetAnimalRequest,
@@ -40,8 +40,6 @@ import type {
   UpdateAnimalInput,
 } from '../validation';
 
-const CONTROLLER_PREFIX = '[ANIMAL_CONTROLLER]';
-
 export async function getAnimal(req: GetAnimalRequest, res: Response): Promise<void> {
   try {
     const { id } = animalIdParamSchema.parse(req.params);
@@ -55,7 +53,7 @@ export async function getAnimal(req: GetAnimalRequest, res: Response): Promise<v
     const transformedAnimal = transformAnimalResponse(animal);
     sendControllerSuccess(res, transformedAnimal, SUCCESS_MESSAGES.FOUND(ENTITY_NAMES.ANIMAL));
   } catch (error) {
-    handleControllerError(res, error, `${CONTROLLER_PREFIX} - getAnimal`);
+    handleControllerError(res, error, `${CONTROLLER_PREFIXES.ANIMAL} - getAnimal`);
   }
 }
 
@@ -67,7 +65,7 @@ export async function searchAnimals(req: SearchAnimalsRequest, res: Response): P
     const transformedAnimals = animals.map(transformAnimalResponse);
     sendControllerSuccess(res, transformedAnimals, SUCCESS_MESSAGES.SEARCH_SUCCESSFUL(animals.length, ENTITY_NAMES.ANIMAL));
   } catch (error) {
-    handleControllerError(res, error, `${CONTROLLER_PREFIX} - searchAnimals`);
+    handleControllerError(res, error, `${CONTROLLER_PREFIXES.ANIMAL} - searchAnimals`);
   }
 }
 
@@ -103,7 +101,7 @@ export async function createAnimal(req: CreateAnimalRequest, res: Response): Pro
     const transformedAnimal = transformAnimalResponse(animal);
     sendControllerCreated(res, transformedAnimal, SUCCESS_MESSAGES.CREATED(ENTITY_NAMES.ANIMAL));
   } catch (error) {
-    handleControllerError(res, error, `${CONTROLLER_PREFIX} - createAnimal`);
+    handleControllerError(res, error, `${CONTROLLER_PREFIXES.ANIMAL} - createAnimal`);
   }
 }
 
@@ -152,7 +150,7 @@ export async function updateAnimal(req: UpdateAnimalRequest, res: Response): Pro
     const transformedUpdated = transformAnimalResponse(updated);
     sendControllerSuccess(res, transformedUpdated, SUCCESS_MESSAGES.UPDATED(ENTITY_NAMES.ANIMAL));
   } catch (error) {
-    handleControllerError(res, error, `${CONTROLLER_PREFIX} - updateAnimal`);
+    handleControllerError(res, error, `${CONTROLLER_PREFIXES.ANIMAL} - updateAnimal`);
   }
 }
 
@@ -184,7 +182,7 @@ export async function deleteAnimal(req: DeleteAnimalRequest, res: Response): Pro
 
     sendControllerSuccess(res, SUCCESS_MESSAGES.DELETED(ENTITY_NAMES.ANIMAL));
   } catch (error) {
-    handleControllerError(res, error, `${CONTROLLER_PREFIX} - deleteAnimal`);
+    handleControllerError(res, error, `${CONTROLLER_PREFIXES.ANIMAL} - deleteAnimal`);
   }
 }
 
@@ -221,7 +219,7 @@ export async function addAnimalType(req: AddAnimalTypeRequest, res: Response): P
     const transformedAnimal = transformAnimalResponse(updatedAnimal);
     sendControllerCreated(res, transformedAnimal, SUCCESS_MESSAGES.CREATED(`${ENTITY_NAMES.ANIMAL_TYPE} association`));
   } catch (error) {
-    handleControllerError(res, error, `${CONTROLLER_PREFIX} - addAnimalType`);
+    handleControllerError(res, error, `${CONTROLLER_PREFIXES.ANIMAL} - addAnimalType`);
   }
 }
 
@@ -262,7 +260,7 @@ export async function removeAnimalType(req: RemoveAnimalTypeRequest, res: Respon
     await animalService.removeTypeFromAnimal(id, validatedTypeId);
     sendControllerSuccess(res, { message: 'Animal type removed successfully' }, SUCCESS_MESSAGES.DELETED(`${ENTITY_NAMES.ANIMAL_TYPE} association`));
   } catch (error) {
-    handleControllerError(res, error, `${CONTROLLER_PREFIX} - removeAnimalType`);
+    handleControllerError(res, error, `${CONTROLLER_PREFIXES.ANIMAL} - removeAnimalType`);
   }
 }
 
@@ -315,6 +313,6 @@ export async function changeAnimalType(req: ChangeAnimalTypeRequest, res: Respon
 
     sendControllerSuccess(res, transformedAnimal, SUCCESS_MESSAGES.UPDATED(`${ENTITY_NAMES.ANIMAL} ${ENTITY_NAMES.ANIMAL_TYPE}`));
   } catch (error) {
-    handleControllerError(res, error, `${CONTROLLER_PREFIX} - changeAnimalType`);
+    handleControllerError(res, error, `${CONTROLLER_PREFIXES.ANIMAL} - changeAnimalType`);
   }
 }

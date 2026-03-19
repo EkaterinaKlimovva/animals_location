@@ -6,7 +6,7 @@ import {
   sendControllerSuccess,
   sendControllerCreated,
 } from '../utils/controllerUtils';
-import { ENTITY_NAMES, SUCCESS_MESSAGES } from '../common';
+import { ENTITY_NAMES, SUCCESS_MESSAGES, CONTROLLER_PREFIXES } from '../common';
 import { requireOwnership, handleAuthError } from '../utils/authUtils';
 import { validateAnimalsExist, createAnimalValidationError } from '../utils/validationUtils';
 import type {
@@ -17,12 +17,10 @@ import type {
   GetAccountRequest,
   UpdateAccountRequest,
   DeleteAccountRequest, SafeAccount,
+  AuthenticatedRequest,
 } from '../types';
 import type { CreateAccountInput, CreateAccountWithAnimalsInput, UpdateAccountInput, SearchAccountsInput } from '../validation';
 import { accountIdParamSchema, searchAccountsSchema, createAccountWithAnimalsSchema } from '../validation';
-import type { AuthenticatedRequest } from '../common';
-
-const CONTROLLER_PREFIX = '[ACCOUNT_CONTROLLER]';
 
 export async function createAccount(req: CreateAccountRequest, res: Response): Promise<void> {
   try {
@@ -31,7 +29,7 @@ export async function createAccount(req: CreateAccountRequest, res: Response): P
 
     sendControllerCreated(res, account, SUCCESS_MESSAGES.CREATED(ENTITY_NAMES.ACCOUNT));
   } catch (error) {
-    handleControllerError(res, error, `${CONTROLLER_PREFIX} - createAccount`);
+    handleControllerError(res, error, `${CONTROLLER_PREFIXES.ACCOUNT} - createAccount`);
   }
 }
 
@@ -54,7 +52,7 @@ export async function createAccountWithAnimalValidation(req: CreateAccountWithAn
     const account: SafeAccount = await accountService.createWithAnimalValidation(accountData);
     sendControllerCreated(res, account, SUCCESS_MESSAGES.CREATED(ENTITY_NAMES.ACCOUNT));
   } catch (error) {
-    handleControllerError(res, error, `${CONTROLLER_PREFIX} - createAccountWithAnimalValidation`);
+    handleControllerError(res, error, `${CONTROLLER_PREFIXES.ACCOUNT} - createAccountWithAnimalValidation`);
   }
 }
 
@@ -67,7 +65,7 @@ export async function listAccounts(req: ListAccountsRequest, res: Response): Pro
 
     sendControllerSuccess(res, accounts, SUCCESS_MESSAGES.SEARCH_SUCCESSFUL(accounts.length, ENTITY_NAMES.ACCOUNT));
   } catch (error) {
-    handleControllerError(res, error, `${CONTROLLER_PREFIX} - listAccounts`);
+    handleControllerError(res, error, `${CONTROLLER_PREFIXES.ACCOUNT} - listAccounts`);
   }
 }
 
@@ -79,7 +77,7 @@ export async function searchAccounts(req: SearchAccountsRequest, res: Response):
 
     sendControllerSuccess(res, accounts, SUCCESS_MESSAGES.SEARCH_SUCCESSFUL(accounts.length, ENTITY_NAMES.ACCOUNT));
   } catch (error) {
-    handleControllerError(res, error, `${CONTROLLER_PREFIX} - searchAccounts`);
+    handleControllerError(res, error, `${CONTROLLER_PREFIXES.ACCOUNT} - searchAccounts`);
   }
 }
 
@@ -89,13 +87,13 @@ export async function getAccount(req: GetAccountRequest, res: Response): Promise
     const account: SafeAccount | null = await accountService.getById(id);
 
     if (!account) {
-      handleControllerNotFound(res, `${CONTROLLER_PREFIX} - getAccount`, ENTITY_NAMES.ACCOUNT);
+      handleControllerNotFound(res, `${CONTROLLER_PREFIXES.ACCOUNT} - getAccount`, ENTITY_NAMES.ACCOUNT);
       return;
     }
 
     sendControllerSuccess(res, account, SUCCESS_MESSAGES.FOUND(ENTITY_NAMES.ACCOUNT));
   } catch (error) {
-    handleControllerError(res, error, `${CONTROLLER_PREFIX} - getAccount`);
+    handleControllerError(res, error, `${CONTROLLER_PREFIXES.ACCOUNT} - getAccount`);
   }
 }
 
@@ -108,14 +106,14 @@ export async function updateAccount(req: UpdateAccountRequest, res: Response): P
     try {
       requireOwnership(req as AuthenticatedRequest, id);
     } catch (_authError) {
-      handleAuthError(res, `${CONTROLLER_PREFIX} - updateAccount`);
+      handleAuthError(res, `${CONTROLLER_PREFIXES.ACCOUNT} - updateAccount`);
       return;
     }
 
     const updated: SafeAccount = await accountService.update(id, updateData);
     sendControllerSuccess(res, updated, SUCCESS_MESSAGES.UPDATED(ENTITY_NAMES.ACCOUNT));
   } catch (error) {
-    handleControllerError(res, error, `${CONTROLLER_PREFIX} - updateAccount`);
+    handleControllerError(res, error, `${CONTROLLER_PREFIXES.ACCOUNT} - updateAccount`);
   }
 }
 
@@ -127,7 +125,7 @@ export async function deleteAccount(req: DeleteAccountRequest, res: Response): P
     try {
       requireOwnership(req as AuthenticatedRequest, id);
     } catch (_authError) {
-      handleAuthError(res, `${CONTROLLER_PREFIX} - deleteAccount`);
+      handleAuthError(res, `${CONTROLLER_PREFIXES.ACCOUNT} - deleteAccount`);
       return;
     }
 
@@ -141,6 +139,6 @@ export async function deleteAccount(req: DeleteAccountRequest, res: Response): P
     await accountService.delete(id);
     sendControllerSuccess(res, SUCCESS_MESSAGES.DELETED(ENTITY_NAMES.ACCOUNT));
   } catch (error) {
-    handleControllerError(res, error, `${CONTROLLER_PREFIX} - deleteAccount`);
+    handleControllerError(res, error, `${CONTROLLER_PREFIXES.ACCOUNT} - deleteAccount`);
   }
 }

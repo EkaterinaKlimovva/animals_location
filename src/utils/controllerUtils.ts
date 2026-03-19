@@ -21,16 +21,26 @@ export function handleControllerError(res: Response, error: unknown, context: st
       code: e.code,
       message: e.message,
     }));
-    
+
     res.status(HTTP_STATUS.BAD_REQUEST).json({
       message: error.issues.length > 0 ? error.issues[0].message : 'Validation failed',
       code: ERROR_CODES.VALIDATION_ERROR,
       details,
     });
   } else if (error instanceof Error) {
-    // Handle generic errors
+    // Handle generic errors but filter sensitive information
+    let message = error.message;
+
+    // Filter out sensitive information like passwords
+    const sensitivePatterns = [/password/i, /secret/i, /token/i, /key/i];
+    const hasSensitiveInfo = sensitivePatterns.some(pattern => pattern.test(message));
+
+    if (hasSensitiveInfo) {
+      message = 'An error occurred while processing your request';
+    }
+
     res.status(HTTP_STATUS.BAD_REQUEST).json({
-      message: error.message,
+      message,
       code: ERROR_CODES.VALIDATION_ERROR,
     });
   } else {
@@ -44,7 +54,7 @@ export function handleControllerError(res: Response, error: unknown, context: st
 
 export function handleControllerNotFound(res: Response, context: string, entity: string): void {
   console.log(`${context} - ${entity} not found`);
-  res.status(HTTP_STATUS.NOT_FOUND).json({ 
+  res.status(HTTP_STATUS.NOT_FOUND).json({
     message: `${entity} not found`,
     code: ERROR_CODES.ANIMAL_NOT_FOUND, // This will be overridden by specific error codes
   });
@@ -75,14 +85,6 @@ export function handleBusinessLogicError(res: Response, code: ERROR_CODES, messa
   });
 }
 
-export function handleAuthError(res: Response, context: string): void {
-  console.log(`${context} - Unauthorized`);
-  res.status(HTTP_STATUS.UNAUTHORIZED).json({
-    message: 'Unauthorized access',
-    code: ERROR_CODES.UNAUTHORIZED,
-  });
-}
-
 export function sendControllerSuccess<T>(res: Response, data: T, message?: string): void {
   if (message) {
     console.log(message);
@@ -95,13 +97,6 @@ export function sendControllerCreated<T>(res: Response, data: T, message?: strin
     console.log(message);
   }
   res.status(HTTP_STATUS.CREATED).json(data);
-}
-
-export function sendControllerNoContent(res: Response, message?: string): void {
-  if (message) {
-    console.log(message);
-  }
-  res.status(HTTP_STATUS.NO_CONTENT).send();
 }
 
 export function sendControllerForbidden(res: Response, message?: string): void {

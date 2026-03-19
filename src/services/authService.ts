@@ -1,25 +1,7 @@
 import bcrypt from 'bcrypt';
 import { accountRepository } from '../repositories/accountRepository';
-import type { Account } from '../generated/prisma/client';
-
-interface RegisterData {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-}
-
-interface RegisterResult {
-  conflict: true;
-  account: Account;
-}
-
-interface RegisterSuccess {
-  conflict: false;
-  account: Account;
-}
-
-type RegisterResponse = RegisterResult | RegisterSuccess;
+import type { RegisterData, RegisterResponse } from '../types';
+import { AUTH_CONSTANTS } from '../common';
 
 export class AuthService {
   async register(data: RegisterData): Promise<RegisterResponse> {
@@ -28,7 +10,7 @@ export class AuthService {
       return { conflict: true as const, account: existing };
     }
 
-    const hash = await bcrypt.hash(data.password, 10);
+    const hash = await bcrypt.hash(data.password, AUTH_CONSTANTS.SALT_ROUNDS);
 
     const account = await accountRepository.create({
       ...data,
@@ -40,4 +22,3 @@ export class AuthService {
 }
 
 export const authService = new AuthService();
-

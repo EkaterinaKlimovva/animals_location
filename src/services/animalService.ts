@@ -3,16 +3,10 @@ import { animalTypeRepository } from '../repositories/animalTypeRepository';
 import { animalOnTypeRepository } from '../repositories/animalOnTypeRepository';
 import { locationPointRepository } from '../repositories/locationPointRepository';
 import { accountRepository } from '../repositories/accountRepository';
-import { AppError, ERROR_CODES, createNotFoundError } from '../common';
+import { AppError, ERROR_CODES, createNotFoundError, LIFE_STATUS_VALUES, ERROR_MESSAGES } from '../common';
 import type { Animal, AnimalType, LocationPoint, Account, AnimalOnType, AnimalVisitedLocation } from '../generated/prisma/client';
 import type { CreateAnimalInput, UpdateAnimalInput } from '../validation';
-
-interface AnimalFilters {
-  chipperId?: number;
-  chippingLocationId?: number;
-  startDateTime?: string;
-  endDateTime?: string;
-}
+import type { AnimalFilters } from '../types';
 
 
 export class AnimalService {
@@ -76,7 +70,7 @@ export class AnimalService {
 
     return animalRepository.create({
       ...data,
-      lifeStatus: 'ALIVE',
+      lifeStatus: LIFE_STATUS_VALUES.ALIVE,
       chippingDateTime: new Date(),
     });
   }
@@ -112,7 +106,7 @@ export class AnimalService {
       if (animal && animal.visitedLocations.length > 0) {
         const firstVisitedLocation = animal.visitedLocations[0];
         if (firstVisitedLocation.locationPointId === data.chippingLocationId) {
-          throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Cannot set chippingLocationId to the first visited location');
+          throw new AppError(ERROR_CODES.VALIDATION_ERROR, ERROR_MESSAGES.CANNOT_SET_CHIPPING_LOCATION_ID_TO_FIRST_VISITED_LOCATION);
         }
       }
     }
@@ -126,7 +120,7 @@ export class AnimalService {
     }
 
     // If lifeStatus is being set to DEAD, set deathDateTime
-    if (data.lifeStatus === 'DEAD') {
+    if (data.lifeStatus === LIFE_STATUS_VALUES.DEAD) {
       data.deathDateTime = new Date().toISOString();
     }
 
@@ -179,7 +173,7 @@ export class AnimalService {
     // Check if animal already has this type
     const existingRelation = await animalOnTypeRepository.findRelation(animalId, typeId);
     if (existingRelation) {
-      throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Animal already has this type');
+      throw new AppError(ERROR_CODES.VALIDATION_ERROR, ERROR_MESSAGES.ANIMAL_ALREADY_HAS_TYPE);
     }
 
     return animalOnTypeRepository.createRelation(animalId, typeId);
@@ -232,13 +226,13 @@ export class AnimalService {
     // Check if animal has the old type
     const hasOldType = await animalOnTypeRepository.findRelation(animalId, oldTypeId);
     if (!hasOldType) {
-      throw new AppError(ERROR_CODES.VALIDATION_ERROR, `Animal does not have type ${oldTypeId}`);
+      throw new AppError(ERROR_CODES.VALIDATION_ERROR, ERROR_MESSAGES.ANIMAL_DOES_NOT_HAVE_TYPE(oldTypeId));
     }
 
     // Check if animal already has the new type
     const hasNewType = await animalOnTypeRepository.findRelation(animalId, newTypeId);
     if (hasNewType) {
-      throw new AppError(ERROR_CODES.ANIMAL_ALREADY_HAS_TYPE, `Animal already has type ${newTypeId}`);
+      throw new AppError(ERROR_CODES.ANIMAL_ALREADY_HAS_TYPE, ERROR_MESSAGES.ANIMAL_ALREADY_HAS_TYPE_ID(newTypeId));
     }
 
     // Remove old type and add new type
@@ -255,4 +249,3 @@ export class AnimalService {
 }
 
 export const animalService = new AnimalService();
-

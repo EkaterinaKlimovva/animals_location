@@ -27,8 +27,8 @@ export const errorHandler: ErrorRequestHandler = (err: unknown, req: Request, re
     return;
   }
 
-  // JSON parse error
-  if (err instanceof SyntaxError && 'status' in err && (err as SyntaxError & { status: number }).status === 400 && 'body' in err) {
+  // JSON parse error - check for body-parser JSON syntax errors
+  if (err instanceof SyntaxError && 'body' in err && (err as any).type === 'entity.parse.failed') {
     console.log('[ERROR_HANDLER] JSON parse error - returning 400');
     res.status(400).json({ error: 'Invalid JSON' });
     return;

@@ -8,28 +8,18 @@ export interface VisitedLocationResponse {
 }
 
 export class AnimalVisitedLocationRepository {
-  findManyByAnimal(animalId: number): Promise<VisitedLocationResponse[]> {
-    return prisma.animalVisitedLocation.findMany({
+  async findManyByAnimal(animalId: number): Promise<VisitedLocationResponse[]> {
+    const locations = await prisma.animalVisitedLocation.findMany({
       where: { animalId },
       include: { locationPoint: true },
       orderBy: { id: 'asc' },
-    }).then(locations => locations.map(this.transformToResponse));
+    });
+    return locations.map(this.transformToResponse);
   }
 
   async findLocationById(locationPointId: number): Promise<LocationPoint | null> {
-    const location = await prisma.locationPoint.findUnique({
+    return prisma.locationPoint.findUnique({
       where: { id: locationPointId },
-    });
-    return location;
-  }
-
-  async findExistingVisit(animalId: number, locationPointId: number, excludeId?: number): Promise<AnimalVisitedLocation | null> {
-    return prisma.animalVisitedLocation.findFirst({
-      where: {
-        animalId,
-        locationPointId,
-        ...(excludeId && { id: { not: excludeId } }),
-      },
     });
   }
 
@@ -40,10 +30,9 @@ export class AnimalVisitedLocationRepository {
   }
 
   async findAnimalById(animalId: number): Promise<Animal | null> {
-    const animal = await prisma.animal.findUnique({
+    return prisma.animal.findUnique({
       where: { id: animalId },
     });
-    return animal;
   }
 
   async findAnimalWithDetails(animalId: number): Promise<(Animal & {
@@ -76,35 +65,36 @@ export class AnimalVisitedLocationRepository {
     };
   }
 
-  create(data: {
+  async create(data: {
     animalId: number;
     locationPointId: number;
     visitedAt?: Date;
   }): Promise<VisitedLocationResponse> {
-    return prisma.animalVisitedLocation.create({
+    const location = await prisma.animalVisitedLocation.create({
       data: {
         animal: { connect: { id: data.animalId } },
         locationPoint: { connect: { id: data.locationPointId } },
         visitedAt: data.visitedAt,
       },
-    }).then(location => this.transformToResponse(location));
+    });
+    return this.transformToResponse(location);
   }
 
-  update(
+  async update(
     id: number,
     data: { locationPointId?: number; visitedAt?: Date },
   ): Promise<VisitedLocationResponse> {
-    return prisma.animalVisitedLocation.update({
+    const location = await prisma.animalVisitedLocation.update({
       where: { id },
       data,
-    }).then(location => this.transformToResponse(location));
+    });
+    return this.transformToResponse(location);
   }
 
-  delete(id: number): Promise<AnimalVisitedLocation> {
+  async delete(id: number): Promise<AnimalVisitedLocation> {
     return prisma.animalVisitedLocation.delete({ where: { id } });
   }
 }
 
 export const animalVisitedLocationRepository =
   new AnimalVisitedLocationRepository();
-

@@ -19,4 +19,3 @@ router.put('/:id', authMiddleware, asyncHandler(updateLocationPoint));
 router.delete('/:id', authMiddleware, asyncHandler(deleteLocationPoint));
 
 export { router };
-

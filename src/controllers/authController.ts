@@ -1,17 +1,14 @@
 import type { Response } from 'express';
 import { authService } from '../services/authService';
 import type { RegisterRequest } from '../types';
-import type { AuthenticatedRequest } from '../common';
-
-interface AuthenticatedUser {
-  id: number;
-  email: string;
-  firstName: string;
-  lastName: string;
-}
 
 interface AuthenticatedRegisterRequest extends RegisterRequest {
-  user?: AuthenticatedUser;
+  user?: {
+    id: number;
+    email: string;
+    firstName: string;
+    lastName: string;
+  };
 }
 
 export async function register(req: AuthenticatedRegisterRequest, res: Response): Promise<void> {
@@ -22,9 +19,20 @@ export async function register(req: AuthenticatedRegisterRequest, res: Response)
   }
 
   console.log('[AUTH_CONTROLLER] register called with body:', { ...req.body, password: '[REDACTED]' });
+
+  // Check if req.body exists
+  if (!req.body || typeof req.body !== 'object') {
+    console.log('[AUTH_CONTROLLER] Invalid request body - returning 400');
+    res.status(400).json({ message: 'Missing required fields' });
+    return;
+  }
+
   const { email, password, firstName, lastName }: { email: string; password: string; firstName: string; lastName: string } = req.body;
 
-  if (!email || !password || !firstName || !lastName) {
+  // Check for missing or empty/whitespace-only fields
+  if (!email || !password || !firstName || !lastName ||
+      email.trim() === '' || password.trim() === '' ||
+      firstName.trim() === '' || lastName.trim() === '') {
     console.log('[AUTH_CONTROLLER] Missing required fields - returning 400');
     res.status(400).json({ message: 'Missing required fields' });
     return;
@@ -53,4 +61,3 @@ export async function register(req: AuthenticatedRegisterRequest, res: Response)
     lastName: account.lastName,
   });
 }
-

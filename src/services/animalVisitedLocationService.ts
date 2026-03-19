@@ -1,25 +1,8 @@
 import { animalVisitedLocationRepository, type VisitedLocationResponse } from '../repositories/animalVisitedLocationRepository';
-import { AppError, ERROR_CODES, createNotFoundError } from '../common';
-import type { AnimalVisitedLocation } from '../generated/prisma/client';
-
-
-interface CreateVisitedLocationData {
-  animalId: number;
-  locationPointId: number;
-  visitedAt?: Date;
-}
-
-interface UpdateVisitedLocationData {
-  locationPointId?: number;
-  visitedAt?: Date;
-}
+import { AppError, ERROR_CODES, createNotFoundError, LIFE_STATUS_VALUES, ERROR_MESSAGES } from '../common';
+import type { CreateVisitedLocationData, UpdateVisitedLocationData } from '../types';
 
 export class AnimalVisitedLocationService {
-  async checkAnimalExists(animalId: number): Promise<boolean> {
-    const animal = await animalVisitedLocationRepository.findAnimalById(animalId);
-    return animal !== null;
-  }
-
   async listByAnimal(animalId: number): Promise<VisitedLocationResponse[]> {
     const animalExists = await animalVisitedLocationRepository.findAnimalById(animalId);
     if (!animalExists) {
@@ -35,16 +18,14 @@ export class AnimalVisitedLocationService {
     }
 
     // Check if the animal is alive
-    if (animalExists.lifeStatus !== 'ALIVE') {
-      throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Cannot add visited location to a dead animal');
+    if (animalExists.lifeStatus !== LIFE_STATUS_VALUES.ALIVE) {
+      throw new AppError(ERROR_CODES.VALIDATION_ERROR, ERROR_MESSAGES.CANNOT_ADD_VISITED_LOCATION_TO_DEAD_ANIMAL);
     }
 
     const locationExists = await animalVisitedLocationRepository.findLocationById(data.locationPointId);
     if (!locationExists) {
       throw createNotFoundError('Location point', data.locationPointId);
     }
-
-
 
     return animalVisitedLocationRepository.create(data);
   }
@@ -92,7 +73,7 @@ export class AnimalVisitedLocationService {
       if (allVisitedLocations.length > 0 && allVisitedLocations[0].id === id) {
         const animalWithDetails = await animalVisitedLocationRepository.findAnimalWithDetails(animalId);
         if (animalWithDetails && animalWithDetails.chippingLocationId === data.locationPointId) {
-          throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'Cannot update first visited location to chipping location');
+          throw new AppError(ERROR_CODES.VALIDATION_ERROR, ERROR_MESSAGES.CANNOT_UPDATE_FIRST_VISITED_LOCATION_TO_CHIPPING_LOCATION);
         }
       }
     }
@@ -105,7 +86,7 @@ export class AnimalVisitedLocationService {
       return { status: 201, data: updatedLocation };
     } else if (matchesPrevious || matchesNext) {
       // Matches previous or next: not allowed
-      throw new AppError(ERROR_CODES.VALIDATION_ERROR, 'New location point matches adjacent visited location');
+      throw new AppError(ERROR_CODES.VALIDATION_ERROR, ERROR_MESSAGES.NEW_LOCATION_POINT_MATCHES_ADJACENT_VISITED_LOCATION);
     }
 
     return { status: 200, data: updatedLocation };

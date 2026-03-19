@@ -6,16 +6,6 @@ export const animalIdParamSchema = z.object({
   animalId: idSchema,
 });
 
-// Visited location ID parameter schema
-export const visitedLocationIdParamSchema = z.object({
-  id: idSchema,
-});
-
-// Visited point ID parameter schema for PUT endpoint
-export const visitedPointIdParamSchema = z.object({
-  visitedPointId: idSchema,
-});
-
 // Location point ID parameter schema for POST endpoint
 export const locationPointIdParamSchema = z.object({
   locationId: idSchema,

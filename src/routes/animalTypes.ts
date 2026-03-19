@@ -17,4 +17,3 @@ router.put('/:id', authMiddleware, asyncHandler(updateAnimalType));
 router.delete('/:id', authMiddleware, asyncHandler(deleteAnimalType));
 
 export { router };
-

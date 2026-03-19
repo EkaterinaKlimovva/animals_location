@@ -14,9 +14,9 @@ export async function listVisitedLocations(
   req: ListVisitedLocationsRequest,
   res: Response,
 ): Promise<void> {
-  const { animalId } = animalIdParamSchema.parse(req.params);
-
   try {
+    const { animalId } = animalIdParamSchema.parse(req.params);
+
     const locations = await animalVisitedLocationService.listByAnimal(animalId);
     sendControllerSuccess(res, locations);
   } catch (error) {
@@ -28,11 +28,11 @@ export async function createVisitedLocation(
   req: CreateVisitedLocationRequest,
   res: Response,
 ): Promise<void> {
-  const { animalId } = animalIdParamSchema.parse(req.params);
-  const { locationId } = locationPointIdParamSchema.parse(req.params);
-  const { visitedAt } = createVisitedLocationBodySchema.parse(req.body);
-
   try {
+    const { animalId } = animalIdParamSchema.parse(req.params);
+    const { locationId } = locationPointIdParamSchema.parse(req.params);
+    const { visitedAt } = createVisitedLocationBodySchema.parse(req.body);
+
     const animal = await animalService.getById(animalId);
     if (!animal) {
       res.status(404).json({ message: 'Animal not found.' });
@@ -68,10 +68,10 @@ export async function updateVisitedLocation(
   req: UpdateVisitedLocationRequest,
   res: Response,
 ): Promise<void> {
-  const { animalId } = animalIdParamSchema.parse(req.params);
-  const { visitedLocationPointId, locationPointId, visitedAt } = updateVisitedLocationBodySchema.parse(req.body);
-
   try {
+    const { animalId } = animalIdParamSchema.parse(req.params);
+    const { visitedLocationPointId, locationPointId, visitedAt } = updateVisitedLocationBodySchema.parse(req.body);
+
     const animal = await animalService.getById(animalId);
     if (!animal) {
       res.status(404).json({ message: 'Animal not found.' });
@@ -127,10 +127,10 @@ export async function deleteVisitedLocation(
   req: DeleteVisitedLocationRequest,
   res: Response,
 ): Promise<void> {
-  const { animalId } = animalIdParamSchema.parse(req.params);
-  const { locationId: visitedPointId } = locationPointIdParamSchema.parse(req.params);
-
   try {
+    const { animalId } = animalIdParamSchema.parse(req.params);
+    const { locationId: visitedPointId } = locationPointIdParamSchema.parse(req.params);
+
     const animal = await animalService.getById(animalId);
     if (!animal) {
       res.status(404).json({ message: 'Animal not found.' });

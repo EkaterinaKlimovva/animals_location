@@ -1,6 +1,5 @@
 import tseslint from 'typescript-eslint';
 import globals from 'globals';
-import eslintPluginImport from 'eslint-plugin-import';
 
 export default [
     {
@@ -17,9 +16,6 @@ export default [
 
     {
         files: ['src/**/*.ts', 'src/**/*.tsx'],
-        plugins: {
-            import: eslintPluginImport,
-        },
         languageOptions: {
             parser: tseslint.parser,
             parserOptions: {
@@ -48,8 +44,6 @@ export default [
             '@typescript-eslint/explicit-function-return-type': 'off',
             '@typescript-eslint/ban-ts-comment': 'off',
             '@typescript-eslint/consistent-type-imports': ['warn', { prefer: 'type-imports' }],
-            'import/no-relative-parent-imports': 'warn',
-            'import/no-unresolved': 'off',
 
             'semi': ['error', 'always'],
             'quotes': ['warn', 'single'],
@@ -64,9 +58,6 @@ export default [
     // Separate configuration for test files that don't need to be in the TypeScript project
     {
         files: ['tests/**/*.ts', 'tests/**/*.js'],
-        plugins: {
-            import: eslintPluginImport,
-        },
         languageOptions: {
             parser: tseslint.parser,
             parserOptions: {

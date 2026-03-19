@@ -154,13 +154,13 @@ export class AnimalRepository {
   async delete(id: number): Promise<Animal> {
     // Delete related records first due to foreign key constraints
     await prisma.animalOnType.deleteMany({
-      where: { animalId: id }
+      where: { animalId: id },
     });
-    
+
     await prisma.animalVisitedLocation.deleteMany({
-      where: { animalId: id }
+      where: { animalId: id },
     });
-    
+
     return prisma.animal.delete({ where: { id } });
   }
 

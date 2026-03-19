@@ -66,4 +66,3 @@ export class LocationPointRepository {
 }
 
 export const locationPointRepository = new LocationPointRepository();
-
